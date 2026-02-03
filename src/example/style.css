@@ -1,0 +1,123 @@
+body {
+  font-family: sans-serif;
+}
+
+.tabbar {
+  display: flex;
+  flex-wrap: wrap;
+  overflow: clip;
+}
+
+details {
+  display: contents;
+}
+
+details[open] summary {
+  background-color: lightblue;
+}
+
+details[open]::details-content {
+  display: contents;
+}
+
+summary {
+  order: 0;
+  display: block;
+  padding: .5rem 1rem;
+  background-color: lightgoldenrodyellow;
+  cursor: pointer;
+}
+
+details section {
+  order: 1;
+  padding: 1rem;
+  width: 100%;
+  background-color: lightgrey;
+}
+
+.container {
+  display: flex;
+  flex-direction: row;
+  margin: 1rem;
+}
+
+.container > div {
+  background: #eee;
+  width: 50%;
+  padding: 1rem;
+}
+
+.zone {
+  border: 1px solid #444;
+  background-color: #4442;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  min-height: 3rem;
+}
+
+.zone >  div {
+  background: rgb(245, 245, 255);
+  border: 1px solid darkgrey;
+  padding: 1rem;
+  cursor: grab;
+}
+
+.zone.drag {
+  border-color: red;
+}
+
+[data-role='finding'].drag {
+  border-color: blue;
+}
+
+::backdrop {
+  background: darkgrey;
+  opacity: 0.75;
+}
+
+select {
+  display: none;
+  height: 2.5rem;
+  font-size: 1rem;
+  font-family: sans-serif;
+  width: 100%;
+  padding-left: 1rem;
+  background-color: lightblue;
+  border: 2px solid lightskyblue;
+}
+
+.tablist.compact {
+  > select {
+    display: block;
+  }
+  summary {
+    height: 1px;
+    opacity: 0  ;
+    padding-bottom: 0;
+    padding-top: 0;
+    pointer-events: none;
+  }
+}
+
+.zone:not(#mlist) .element::after {
+  color: grey;
+  content: '❍';
+  float: right;
+}
+.element.added, .element.merged {
+  color: #999;
+  cursor: not-allowed;
+}
+
+.zone:not(#mlist) .element.added::after {
+  color: green;
+  content: '✔';
+}
+
+.zone:not(#mlist) .element.merged::after {
+  color: blue;
+  content: '⬻';
+
+}

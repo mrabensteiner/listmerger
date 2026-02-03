@@ -1,0 +1,49 @@
+const rollup = require("rollup");
+const rollupCommonJs = require("@rollup/plugin-commonjs");
+const rollupTypeScript = require("@rollup/plugin-typescript");
+const {default: rollupNodeResolve} = require("@rollup/plugin-node-resolve");
+const {terser: rollupTerser} = require("rollup-plugin-terser");
+const {default: rollupGzip} = require("rollup-plugin-gzip");
+const fs = require("fs");
+
+async function bundle() {
+  const bundle = await rollup.rollup({
+    input: './src/lib/index.ts',
+    plugins: [
+      rollupNodeResolve({ browser: true }),
+      rollupCommonJs(),
+      rollupTypeScript({ tsconfig: './tsconfig.json' }),
+    ]
+  });
+
+  const minPlugins = [rollupTerser()];
+  const gZipPlugins = [rollupTerser(), rollupGzip()];
+
+  function writeLib(format) {
+    const location = `./dist/library/${format}`;
+    const config = [
+      { extension: 'js', plugins: [] },
+      { extension: 'min.js', plugins: minPlugins },
+      { extension: 'gZip.js', plugins: gZipPlugins },
+    ];
+    return config.map((conf) => bundle.write({
+      file:`${location}/listmerger.${conf.extension}`,
+      format: format === "esm" ? "es" : format,
+      name: 'listmerger',
+      plugins: conf.plugins,
+      sourcemap: true,
+    }).then(() => {
+      const fileData = fs.readFileSync(`${location}/listmerger.${conf.extension}`, 'utf8');
+      const formatString = format === 'iife' ? 'IIFE' : format === 'esm' ? 'ESM' : format === 'cjs' ? 'CommonJS' : '';
+      const dataWithHeaderLine = `// Listmerger v0.1 ${formatString}\n` + fileData;
+      fs.writeFileSync(`${location}/listmerger.${conf.extension}`, dataWithHeaderLine, 'utf8');
+    }))
+  }
+
+  return Promise.all([
+      ...writeLib('esm'),
+      ...writeLib('iife'),
+      ...writeLib('cjs')])
+}
+
+module.exports = {bundle}
