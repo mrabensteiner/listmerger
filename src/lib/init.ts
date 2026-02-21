@@ -154,12 +154,14 @@ function merge(id1, id2, title, from_history=false) {
 
   let item1: MergeItem = mergelist[id1] != undefined ? mergelist[id1] : {
     id: id1,
-    title: origin1_element.innerText
+    title: origin1_element.innerText,
+    origin: origin1_element.id
   }
 
   let item2: MergeItem = mergelist[id2] != undefined ? mergelist[id2] : {
     id: id2,
-    title: origin2_element.innerText
+    title: origin2_element.innerText,
+    origin: origin2_element.id
   }
 
   // TODO better way to create new id
@@ -184,10 +186,37 @@ function merge(id1, id2, title, from_history=false) {
 
 function un_merge(id) {
   console.log("unmerge")
-  console.log("needs to be implemented")
-  console.log(mergelist[id])
 
   let mergeitem = mergelist[id];
+  let mergeelement = document.getElementById(id);
+
+  if( mergeitem.historyA.id.startsWith("merged-")) {
+    mergeelement.setAttribute("data-origin", mergeitem.historyA.origin);
+    document.getElementById(mergeitem.historyA.origin).classList.remove("merged");
+    document.getElementById(mergeitem.historyA.origin).classList.add("added");
+  }
+  if(mergeitem.historyA.id.startsWith("mm-") || mergeitem.historyA.id.startsWith("merged-")) {
+    mergeelement.id = mergeitem.historyA.id;
+    mergeelement.innerText = mergeitem.historyA.title;
+  }
+
+  if(mergeitem.historyB.id.startsWith("mm-")) {
+    
+  }
+  else if(mergeitem.historyB.id.startsWith("merged-")) {
+    mergeelement.setAttribute("data-origin", mergeitem.historyB.origin);
+    document.getElementById(mergeitem.historyB.origin).classList.remove("merged");
+    document.getElementById(mergeitem.historyB.origin).classList.add("added");
+
+    let newelement = document.createElement("div");
+    newelement.innerText = mergeitem.historyB.title;
+    newelement.id = mergeitem.historyB.id;
+    document.getElementById("mlist").append(newelement)
+  }
+  else {
+    let element = document.getElementById(mergeitem.historyB.id);
+    element.classList.remove("merged");
+  }
 }
 
 
