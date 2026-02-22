@@ -24,13 +24,14 @@ function update_history_buttons() {
   redo_button.disabled = future.length == 0;
 }
 
-function log_history(task, id1 = "", id2 = "", id3 = "", array=[]) {
+function log_history(task, id1 = "", id2 = "", id3 = "", array=[], title = "") {
   history.push({
     action: task,
     id1: id1,
     id2: id2,
     id3: id3,
-    array: array
+    array: array,
+    title: title
   })
   console.log("history")
   console.log(history)
@@ -68,6 +69,8 @@ function redo() {
   } else if (last.action == "move_all") {
     let zonefindings = document.getElementById(last.id1).querySelectorAll("[data-role='finding']");
     move_all(zonefindings, true);
+  } else if (last.action == "merge") {
+    merge(last.id1, last.id2, last.title, true, last.id3)
   }
 
   console.log(">> redo");
@@ -87,6 +90,7 @@ function move(id, from_history=false) {
   let clone = (element.cloneNode(true) as HTMLElement);
   clone.id = "merged-" + clone.id;
   clone.setAttribute("data-origin", id);
+  clone.classList.remove("dragg");
   target.append(clone);
   element.classList.add("added");
 }
@@ -119,7 +123,7 @@ function un_move_all(moved) {
   })
 }
 
-function merge(id1, id2, title, from_history=false) {
+function merge(id1, id2, title, from_history=false, oldmergeid="") {
   if(!from_history) {
     future = [];
   }
@@ -166,6 +170,9 @@ function merge(id1, id2, title, from_history=false) {
 
   // TODO better way to create new id
   let newid = "mm-" + id1 + "+" + id2;
+  if(oldmergeid != "") {
+    newid = oldmergeid;
+  }
 
   mergelist[newid] = {
     id: newid,
@@ -174,6 +181,7 @@ function merge(id1, id2, title, from_history=false) {
     historyB: item2
   }
 
+  target.innerText = title;
   target.removeAttribute("data-origin");
   target.id = newid;
 
@@ -190,6 +198,7 @@ function un_merge(id) {
   let mergeitem = mergelist[id];
   let mergeelement = document.getElementById(id);
 
+
   if( mergeitem.historyA.id.startsWith("merged-")) {
     mergeelement.setAttribute("data-origin", mergeitem.historyA.origin);
     document.getElementById(mergeitem.historyA.origin).classList.remove("merged");
@@ -204,19 +213,22 @@ function un_merge(id) {
     
   }
   else if(mergeitem.historyB.id.startsWith("merged-")) {
-    mergeelement.setAttribute("data-origin", mergeitem.historyB.origin);
+    //mergeelement.setAttribute("data-origin", mergeitem.historyB.origin);
     document.getElementById(mergeitem.historyB.origin).classList.remove("merged");
     document.getElementById(mergeitem.historyB.origin).classList.add("added");
 
     let newelement = document.createElement("div");
     newelement.innerText = mergeitem.historyB.title;
     newelement.id = mergeitem.historyB.id;
+    newelement.draggable = true;
+    newelement.setAttribute("data-origin", mergeitem.historyB.origin)
     document.getElementById("mlist").append(newelement)
   }
   else {
     let element = document.getElementById(mergeitem.historyB.id);
     element.classList.remove("merged");
   }
+  delete mergelist[id];
 }
 
 
@@ -308,8 +320,14 @@ export function init(id: string, id_undo: string, id_redo: string) {
 
   listmerger_element.addEventListener("dragstart", (e) => {
     dropOrigin = (e.target as Element).id;
+    document.getElementById(dropOrigin).classList.add("dragg");
+    
   });
 
+  listmerger_element.addEventListener("dragend", (e) => {
+    dropOrigin = (e.target as Element).id;
+    document.getElementById(dropOrigin).classList.remove("dragg");
+  });
   mergelist_element.addEventListener("dragenter", (e) => toggleDrop(e));
   mergelist_element.addEventListener("dragleave", (e) => toggleDrop(e));
   mergelist_element.addEventListener("dragover", (e) => {
@@ -357,10 +375,11 @@ export function init(id: string, id_undo: string, id_redo: string) {
     event.preventDefault();
 
     let target = document.getElementById(dropTarget);
+    let targetid = target.id;
 
     let dropOriginelement = document.getElementById(dropOrigin);
     let newtitle_element = (dialog.querySelector("input[name='newtitle']") as HTMLInputElement)
-    target.innerText = newtitle_element.value;
+    // target.innerText = newtitle_element.value;
 
     let origin_id = dropOrigin;
 
@@ -374,8 +393,8 @@ export function init(id: string, id_undo: string, id_redo: string) {
     }
 
     let mergeid: string = merge(target.id, dropOrigin, newtitle_element.value)
-    log_history("merge", target.id, dropOrigin, mergeid)
-
+    log_history("merge", targetid, dropOrigin, mergeid, [], newtitle_element.value)
+    
     dialog.close();
   });
 }

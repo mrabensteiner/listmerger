@@ -68,17 +68,23 @@ details section {
 
 .zone >  div {
   background: rgb(245, 245, 255);
-  border: 1px solid darkgrey;
+  border: 1px solid transparent;
+  border-radius: 5px;
+  box-shadow: 0 0 5px darkgray;
   padding: 1rem;
   cursor: grab;
 }
 
+.zone > div.dragg {
+  box-shadow: 0 0 10px rgb(36, 166, 210) !important;
+}
+
 .zone.drag {
-  border-color: red;
+  box-shadow: 0 0 10px #0f08;
 }
 
 [data-role='finding'].drag {
-  border-color: blue;
+  box-shadow: 0 0 10px #00f8;
 }
 
 ::backdrop {
