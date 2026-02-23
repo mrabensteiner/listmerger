@@ -110,7 +110,7 @@ function move_all(zonefindings, from_history=false) {
   let moved = [];
   zonefindings.forEach(element => {
     if(!element.classList.contains("added") && !element.classList.contains("merged")) {
-      move(element.id);
+      move(element.id, from_history);
       moved.push(element.id);
     }
   });
@@ -129,21 +129,26 @@ function merge(id1, id2, title, from_history=false, oldmergeid="") {
   }
   
   let target = document.getElementById(id1);
-  let origin1 = id1;
-  let origin2 = id2;
   let remove_id2 = true;
 
-  let origin1_element, origin2_element;
+  let item1 = mergelist[id1];
+  let item2 = mergelist[id2];
 
-  if(mergelist[id1] == undefined ) {
-    origin1 = document.getElementById(id1).getAttribute("data-origin");
-    origin1_element = document.getElementById(origin1);
+  if(item1 == undefined) {
+    let origin1 = document.getElementById(id1).getAttribute("data-origin");
+    let origin1_element = document.getElementById(origin1);
     origin1_element.classList.remove("added")
     origin1_element.classList.add("merged")
+
+    item1 = {
+      id: id1,
+      title: origin1_element.innerHTML,
+      origin: origin1_element.id
+    }
   }
 
-  if(mergelist[id2] == undefined ) {
-    origin2 = document.getElementById(id2).getAttribute("data-origin");
+  if(item2 == undefined) {
+    let origin2 = document.getElementById(id2).getAttribute("data-origin");
 
     // directly dragged from the list, not the mergelist
     if(origin2 == undefined) {
@@ -151,21 +156,15 @@ function merge(id1, id2, title, from_history=false, oldmergeid="") {
       remove_id2 = false;
     }
 
-    origin2_element = document.getElementById(origin2);
+    let origin2_element = document.getElementById(origin2);
     origin2_element.classList.remove("added")
     origin2_element.classList.add("merged")
-  }
-
-  let item1: MergeItem = mergelist[id1] != undefined ? mergelist[id1] : {
-    id: id1,
-    title: origin1_element.innerText,
-    origin: origin1_element.id
-  }
-
-  let item2: MergeItem = mergelist[id2] != undefined ? mergelist[id2] : {
-    id: id2,
-    title: origin2_element.innerText,
-    origin: origin2_element.id
+    
+    item2 = {
+      id: id2,
+      title: origin2_element.innerHTML,
+      origin: origin2_element.id
+    }
   }
 
   // TODO better way to create new id
@@ -194,6 +193,7 @@ function merge(id1, id2, title, from_history=false, oldmergeid="") {
 
 function un_merge(id) {
   console.log("unmerge")
+  console.log(mergelist)
 
   let mergeitem = mergelist[id];
   let mergeelement = document.getElementById(id);
@@ -209,19 +209,25 @@ function un_merge(id) {
     mergeelement.innerText = mergeitem.historyA.title;
   }
 
-  if(mergeitem.historyB.id.startsWith("mm-")) {
-    
-  }
-  else if(mergeitem.historyB.id.startsWith("merged-")) {
+  //if(mergeitem.historyB.id.startsWith("mm-")) {   
+  //}
+  //else if(mergeitem.historyB.id.startsWith("merged-")) {
+  if(mergeitem.historyB.id.startsWith("merged-") || mergeitem.historyB.id.startsWith("mm-")) {
     //mergeelement.setAttribute("data-origin", mergeitem.historyB.origin);
-    document.getElementById(mergeitem.historyB.origin).classList.remove("merged");
-    document.getElementById(mergeitem.historyB.origin).classList.add("added");
+
 
     let newelement = document.createElement("div");
     newelement.innerText = mergeitem.historyB.title;
     newelement.id = mergeitem.historyB.id;
     newelement.draggable = true;
-    newelement.setAttribute("data-origin", mergeitem.historyB.origin)
+
+    if(mergeitem.historyB.origin != null) {
+      document.getElementById(mergeitem.historyB.origin).classList.remove("merged");
+      document.getElementById(mergeitem.historyB.origin).classList.add("added");
+
+      newelement.setAttribute("data-origin", mergeitem.historyB.origin)
+    }
+
     document.getElementById("mlist").append(newelement)
   }
   else {
