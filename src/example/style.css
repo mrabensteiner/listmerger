@@ -83,6 +83,20 @@ details section {
   box-shadow: 0 0 10px #0f08;
 }
 
+.draghandle {
+  background: url(dragicon.png);
+  color: lightgray;
+  background-color: darkgray;
+  float: right;
+  padding: .1rem .5rem;
+}
+
+.dragging {
+  color: transparent;
+  opacity: .8;
+  border: 1px dashed darkgray !important;
+}
+
 [data-role='finding'].drag {
   box-shadow: 0 0 10px #00f8;
 }

@@ -15,6 +15,8 @@ let future = [];
 
 let dropOrigin = "";
 let dropTarget = "";
+let dragAction = "";
+let mergeListElement = document.querySelector("#mlist");
 
 function update_history_buttons() {
   let undo_button = document.getElementById("undo") as HTMLButtonElement;
@@ -79,6 +81,11 @@ function redo() {
   update_history_buttons();
 }
 
+const draghandle = document.createElement("div");
+draghandle.classList.add("draghandle");
+draghandle.draggable = true;
+draghandle.innerHTML = "H"
+
 
 function move(id, from_history=false) {
   if(!from_history) {
@@ -91,6 +98,7 @@ function move(id, from_history=false) {
   clone.id = "merged-" + clone.id;
   clone.setAttribute("data-origin", id);
   clone.classList.remove("dragg");
+  clone.append(draghandle.cloneNode(true));
   target.append(clone);
   element.classList.add("added");
 }
@@ -325,26 +333,67 @@ export function init(id: string, id_undo: string, id_redo: string) {
   });
 
   listmerger_element.addEventListener("dragstart", (e) => {
-    dropOrigin = (e.target as Element).id;
-    document.getElementById(dropOrigin).classList.add("dragg");
-    
+    let element = (e.target as Element)
+    dropOrigin = element.id;
+
+    if(element.classList.contains("draghandle")) {
+      mergeListElement = document.querySelector("#mlist");
+      dragAction = "handle";
+      dropOrigin = element.parentElement.id;
+      console.log("hendl", element.parentElement.id)
+      setTimeout(() => element.parentElement.classList.add("dragging"), 0);
+    } else {
+      dragAction = "move";
+      document.getElementById(dropOrigin).classList.add("dragg");
+    }
   });
 
   listmerger_element.addEventListener("dragend", (e) => {
+    document.getElementById(dropOrigin).classList.remove("dragging");
     dropOrigin = (e.target as Element).id;
     document.getElementById(dropOrigin).classList.remove("dragg");
   });
-  mergelist_element.addEventListener("dragenter", (e) => toggleDrop(e));
-  mergelist_element.addEventListener("dragleave", (e) => toggleDrop(e));
-  mergelist_element.addEventListener("dragover", (e) => {
+  mergelist_element.addEventListener("dragenter", (e) => {
+    if(dragAction == "move") {
+      toggleDrop(e) 
+    }
+  });
+  mergelist_element.addEventListener("dragleave", (e) => {
+    if(dragAction == "move") {
+      toggleDrop(e) 
+    }
+  });
+  mergelist_element.addEventListener("dragover", (ev) => {
+    let e = ev as DragEvent;
     e.preventDefault();
+
+    if(dragAction == "move") {
+      return;
+    }
+
+    // https://www.codingnepalweb.com/drag-and-drop-sortable-list-html-javascript/
+    const draggingItem = document.querySelector(".dragging");
+    let siblings = [...mergeListElement.querySelectorAll(".element:not(.dragging)")];
+    let nextSibling = siblings.find(sibling => {
+      sibling = sibling as HTMLDivElement;
+        return e.clientY <= sibling.offsetTop + sibling.offsetHeight / 2;
+    });
+    mergeListElement.insertBefore(draggingItem, nextSibling);
   });
 
   mergelist_element.addEventListener("drop", (e) => {
+    if(dragAction == "handle") {
+      return;
+    }
+
     toggleDrop(e);
 
     let droporigin_element = document.getElementById(dropOrigin);
     let target = (e.target as HTMLElement);
+
+    if(dropOrigin == target.id) {
+      return;
+    }
 
     if (target.getAttribute("data-role") == "finding") {
       // merging target
