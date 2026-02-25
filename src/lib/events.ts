@@ -1,4 +1,4 @@
-import { toggleDrop } from "./uihelper";
+import { getSiblingsPosition, toggleDrop } from "./uihelper";
 import * as transfer from './transfer';
 import * as history from './history';
 import { mergelistId } from "./globalvars";
@@ -7,6 +7,7 @@ let dropOrigin = "";
 let dropTarget = "";
 
 let dragAction = "";
+let dragPosition = -1;
 let mergeListElement;
 let dialog;
 
@@ -39,14 +40,23 @@ function initDragDrop() {
 }
 
 export function dragStart(e: Event) {
-  let element = (e.target as Element)
+  let element = (e.target as HTMLElement)
+
+  if(element.nodeName != "DIV" || element.classList.contains("added") || element.classList.contains("merged")) {
+    e.preventDefault();
+    return;  
+  }
+
   dropOrigin = element.id;
 
   if (element.classList.contains("draghandle")) {
     mergeListElement = document.querySelector("#mlist");
     dragAction = "handle";
     dropOrigin = element.parentElement.id;
-    console.log("hendl", element.parentElement.id)
+    dragPosition = getSiblingsPosition(dropOrigin);
+
+    // This fake-delay leaves the object the same in the "drop preview", 
+    // but makes it appear as a skeleton in the list
     setTimeout(() => element.parentElement.classList.add("dragging"), 0);
   } else {
     dragAction = "move";
@@ -87,6 +97,11 @@ export function dragOver(e: DragEvent) {
 
 export function drop(e: Event) {
   if(dragAction == "handle") {
+    let dropPosition = getSiblingsPosition(dropOrigin);
+
+    if(dragPosition != dropPosition) {
+      history.log("arrange", dropOrigin, dragPosition.toString(), dropPosition.toString());
+    }
     return;
   }
 
@@ -158,7 +173,8 @@ export function merge(event: Event) {
   dialog.close();
 }
 
-export function dialogClose() {
+export function dialogClose(e: Event) {
+  e.preventDefault();
   dialog.close()
 }
 

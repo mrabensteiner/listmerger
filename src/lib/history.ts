@@ -77,6 +77,8 @@ export function undo() {
     transfer.moveAllUndo(last.array)
   } else if (last.action == "merge") {
     transfer.mergeUndo(last.id3)
+  } else if (last.action == "arrange") {
+    transfer.arrange(last.id1, +last.id2);
   }
   future.push(last);
 
@@ -98,6 +100,8 @@ export function redo() {
     transfer.moveAll(zonefindings, true);
   } else if (last.action == "merge") {
     transfer.merge(last.id1, last.id2, last.title, true, last.id3)
+  } else if (last.action == "arrange") {
+    transfer.arrange(last.id1, +last.id3, true);
   }
 
   console.log(">> redo");

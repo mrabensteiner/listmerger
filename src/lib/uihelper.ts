@@ -56,3 +56,9 @@ export function toggleDrop(e, dropOrigin) {
     classlist.add("drag");
   }
 }
+
+export function getSiblingsPosition(id): number {
+  const element = document.getElementById(id);
+  const siblings = element.parentElement.children;
+  return [...siblings].indexOf(element);
+}

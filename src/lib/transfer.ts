@@ -160,3 +160,16 @@ export function mergeUndo(id) {
   }
   history.deleteMergeItem(id);
 }
+
+export function arrange(id, position, insertAfter = false) {
+  const element = document.getElementById(id);
+  const parent = element.parentElement;
+  const children = [...parent.children];
+  let neighbour = children[position];
+
+  if(insertAfter){
+    neighbour = neighbour.nextSibling as Element;
+  }
+  
+  parent.insertBefore(element, neighbour);
+}
