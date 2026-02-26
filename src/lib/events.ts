@@ -193,5 +193,7 @@ function moveAll(e: Event) {
   if(zonefindings.length == 0) return;
 
   let moved = transfer.moveAll(zonefindings);
-  history.log("move_all", (e.target as Element).nextElementSibling.id, "", "", moved);
+  if(moved.length) {
+    history.log("move_all", (e.target as Element).nextElementSibling.id, "", "", moved);
+  }
 }

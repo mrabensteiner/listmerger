@@ -130,6 +130,7 @@ export function mergeUndo(id) {
   if (mergeitem.historyA.id.startsWith("mm-") || mergeitem.historyA.id.startsWith("merged-")) {
     mergeelement.id = mergeitem.historyA.id;
     mergeelement.innerText = mergeitem.historyA.title;
+    mergeelement.append(uihelper.createDragHandle());
   }
 
   //if(mergeitem.historyB.id.startsWith("mm-")) {   
