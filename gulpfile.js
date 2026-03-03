@@ -1,4 +1,4 @@
-const {src, dest, series, parallel} = require('gulp');
+const {src, dest, series, parallel, task} = require('gulp');
 const del = require('del');
 const {bundle} = require("./gulp-tasks/bundle");
 const {watcher} = require("./gulp-tasks/watch");
@@ -26,6 +26,10 @@ function copyExampleFolder() {
 function copyLibFileToExample() {
     return src('./dist/library/esm/listmerger.js').pipe(dest('./dist/example/lib/'));
 }
+
+task('deploy', function () {
+    return gulp.src("./dist/**/*").pipe(deploy())
+});
 
 exports.clean = cleanDistFolder;
 
