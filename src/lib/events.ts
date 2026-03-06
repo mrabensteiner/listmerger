@@ -1,12 +1,18 @@
-import { getSiblingsPosition, toggleDrop } from "./uihelper";
+import { CssNames, getSiblingsPosition, toggleDrop } from "./uihelper";
 import * as transfer from './transfer';
 import * as history from './history';
 import { mergelistId } from "./globalvars";
 
+export enum Action {
+  None,
+  Move,
+  Arrange,
+}
+
 let dropOrigin = "";
 let dropTarget = "";
 
-let dragAction = "";
+let dragAction = Action.None;
 let dragPosition = -1;
 let mergeListElement;
 let dialog;
@@ -42,39 +48,38 @@ function initDragDrop() {
 export function dragStart(e: Event) {
   let element = (e.target as HTMLElement)
 
-  if(element.nodeName != "DIV" || element.classList.contains("added") || element.classList.contains("merged")) {
+  if(element.nodeName != "DIV" || element.classList.contains(CssNames.ITEM_ADDED) || element.classList.contains(CssNames.ITEM_MERGED)) {
     e.preventDefault();
     return;  
   }
 
   dropOrigin = element.id;
 
-  if (element.classList.contains("draghandle")) {
+  if (element.classList.contains(CssNames.ITEM_DRAGHANDLE)) {
     mergeListElement = document.querySelector("#mlist");
-    dragAction = "handle";
+    dragAction = Action.Arrange;
     dropOrigin = element.parentElement.id;
     dragPosition = getSiblingsPosition(dropOrigin);
 
-    // This fake-delay leaves the object the same in the "drop preview", 
-    // but makes it appear as a skeleton in the list
-    setTimeout(() => element.parentElement.classList.add("dragging"), 0);
+    element.parentElement.classList.add(CssNames.ITEM_DRAGGING);
   } else {
-    dragAction = "move";
-    document.getElementById(dropOrigin).classList.add("dragg");
+    dragAction = Action.Move;
+    document.getElementById(dropOrigin).classList.add(CssNames.ITEM_DRAGGED);
   }
 }
 
 export function dragEnd(e: Event) {
-  document.getElementById(dropOrigin).classList.remove("dragging");
+  document.getElementById(dropOrigin).classList.remove(CssNames.ITEM_DRAGGING);
     dropOrigin = (e.target as Element).id;
     if(dropOrigin == "") {
       return;
     }
-    document.getElementById(dropOrigin).classList.remove("dragg");
+    document.getElementById(dropOrigin).classList.remove(CssNames.ITEM_DRAGGED);
+    dragAction = Action.None;
 }
 
 export function dragHover(e: Event) {
-  if(dragAction == "move") {
+  if(dragAction == Action.Move) {
     toggleDrop(e, dropOrigin) 
   }
 }
@@ -82,13 +87,13 @@ export function dragHover(e: Event) {
 export function dragOver(e: DragEvent) {
   e.preventDefault();
 
-  if(dragAction == "move") {
+  if(dragAction == Action.Move) {
     return;
   }
 
   // https://www.codingnepalweb.com/drag-and-drop-sortable-list-html-javascript/
-  const draggingItem = document.querySelector(".dragging");
-  let siblings = [...mergeListElement.querySelectorAll(".element:not(.dragging)")];
+  const draggingItem = document.querySelector(`.${CssNames.ITEM_DRAGGING}`);
+  let siblings = [...mergeListElement.querySelectorAll(`.element:not(.${CssNames.ITEM_DRAGGING}`)];
   let nextSibling = siblings.find((sibling: HTMLDivElement) => {
       return e.clientY <= sibling.offsetTop + sibling.offsetHeight / 2;
   });
@@ -96,14 +101,16 @@ export function dragOver(e: DragEvent) {
 }
 
 export function drop(e: Event) {
-  if(dragAction == "handle") {
+  if(dragAction == Action.Arrange) {
     let dropPosition = getSiblingsPosition(dropOrigin);
 
     if(dragPosition != dropPosition) {
-      history.log("arrange", dropOrigin, dragPosition.toString(), dropPosition.toString());
+      history.log(history.Tasks.Arrange, dropOrigin, dragPosition.toString(), dropPosition.toString());
     }
+    dragAction = Action.None;
     return;
   }
+  dragAction = Action.None;
 
   toggleDrop(e, dropOrigin);
 
@@ -138,12 +145,12 @@ export function drop(e: Event) {
     // is already there
     return;
   }
-  else if (droporigin_element.classList.contains("added") || droporigin_element.classList.contains("merged")) {
+  else if (droporigin_element.classList.contains(CssNames.ITEM_ADDED) || droporigin_element.classList.contains(CssNames.ITEM_MERGED)) {
     return;
   }
 
   transfer.move(dropOrigin);
-  history.log("move", dropOrigin);
+  history.log(history.Tasks.Move, dropOrigin);
 }
 
 export function merge(event: Event) {
@@ -161,14 +168,14 @@ export function merge(event: Event) {
   if(dropOriginelement.hasAttribute("data-origin")) {
     origin_id = dropOriginelement.getAttribute("data-origin");
     let origin_element = document.getElementById(origin_id);
-    origin_element.classList.remove("added");
-    origin_element.classList.add("merged");
+    origin_element.classList.remove(CssNames.ITEM_ADDED);
+    origin_element.classList.add(CssNames.ITEM_MERGED);
   } else {
-    dropOriginelement.classList.add("merged");
+    dropOriginelement.classList.add(CssNames.ITEM_MERGED);
   }
 
   let mergeid: string = transfer.merge(target.id, dropOrigin, newtitle_element.value)
-  history.log("merge", targetid, dropOrigin, mergeid, [], newtitle_element.value)
+  history.log(history.Tasks.Merge, targetid, dropOrigin, mergeid, [], newtitle_element.value)
   
   dialog.close();
 }
@@ -194,6 +201,6 @@ function moveAll(e: Event) {
 
   let moved = transfer.moveAll(zonefindings);
   if(moved.length) {
-    history.log("move_all", (e.target as Element).nextElementSibling.id, "", "", moved);
+    history.log(history.Tasks.MoveAll, (e.target as Element).nextElementSibling.id, "", "", moved);
   }
 }

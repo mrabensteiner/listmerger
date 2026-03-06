@@ -1,11 +1,10 @@
 import * as transfer from './transfer'
 
-enum HistoryTasks {
+export enum Tasks {
     Move,
-    UnMove,
     MoveAll,
     Merge,
-    UnMerge
+    Arrange
 }
 
 export function init() {
@@ -71,14 +70,14 @@ export function undo() {
   let last = history.pop();
   if (last == undefined) return;
 
-  if (last.action == "move") {
+  if (last.action == Tasks.Move) {
     transfer.moveUndo(last.id1)
-  } else if (last.action == "move_all") {
+  } else if (last.action == Tasks.MoveAll) {
     transfer.moveAllUndo(last.array)
-  } else if (last.action == "merge") {
+  } else if (last.action == Tasks.Merge) {
     transfer.mergeUndo(last.id3)
-  } else if (last.action == "arrange") {
-    transfer.arrange(last.id1, +last.id2);
+  } else if (last.action == Tasks.Arrange) {
+    transfer.arrange(last.id1, +last.id2, true);
   }
   future.push(last);
 
@@ -93,14 +92,14 @@ export function redo() {
   if (last == undefined) return;
   history.push(last);
 
-  if (last.action == "move") {
+  if (last.action == Tasks.Move) {
     transfer.move(last.id1, true)
-  } else if (last.action == "move_all") {
+  } else if (last.action == Tasks.MoveAll) {
     let zonefindings = document.getElementById(last.id1).querySelectorAll("[data-role='finding']");
     transfer.moveAll(zonefindings, true);
-  } else if (last.action == "merge") {
+  } else if (last.action == Tasks.Merge) {
     transfer.merge(last.id1, last.id2, last.title, true, last.id3)
-  } else if (last.action == "arrange") {
+  } else if (last.action == Tasks.Arrange) {
     transfer.arrange(last.id1, +last.id3, true);
   }
 

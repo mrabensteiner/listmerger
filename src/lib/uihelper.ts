@@ -1,3 +1,17 @@
+export const CssNames = {
+  ITEM: "element",
+  ITEM_ADDED: "added",
+  ITEM_MERGED: "merged",
+  ITEM_DRAGHANDLE: "draghandle",
+  ITEM_DRAGGING: "dragging",
+  ITEM_DRAGGED: "dragg",
+  TAB_COMPACT: "compact",
+  TAB_SELECTOR: "detailsselector",
+  MERGED_ZONE: "zone",
+  HOVER_DROP: "drop",
+  HOVER_DRAG: "drag"
+}
+
 export function init_responsive_tablist(id: string) {
   const details = document.querySelectorAll("details");
   const detailsselect: Node = document.querySelector("#detailsselector");
@@ -30,7 +44,7 @@ export function init_responsive_tablist(id: string) {
 
 export function createDragHandle() {
   let draghandle = document.createElement("div");
-  draghandle.classList.add("draghandle");
+  draghandle.classList.add(CssNames.ITEM_DRAGHANDLE);
   draghandle.draggable = true;
   draghandle.innerHTML = "H";
   return draghandle;
@@ -46,14 +60,14 @@ export function toggleDrop(e, dropOrigin) {
   let classlist = e.target.classList;
   if (classlist == undefined) return;
 
-  if (e.target.parentElement.classList.contains("element")) {
+  if (e.target.parentElement.classList.contains(CssNames.ITEM)) {
     classlist = e.target.parentElement.classList;
   }
 
-  if (classlist.contains("drag")) {
-    classlist.remove("drag");
-  } else if ((classlist.contains("zone") || classlist.contains("element")) && e.target.id != dropOrigin) {
-    classlist.add("drag");
+  if (classlist.contains(CssNames.HOVER_DRAG)) {
+    classlist.remove(CssNames.HOVER_DRAG);
+  } else if ((classlist.contains(CssNames.MERGED_ZONE) || classlist.contains(CssNames.ITEM)) && e.target.id != dropOrigin) {
+    classlist.add(CssNames.HOVER_DRAG);
   }
 }
 

@@ -1,6 +1,6 @@
-import * as globalvars from "./globalvars"
-import * as uihelper from "./uihelper"
+import { createDragHandle, CssNames } from "./uihelper"
 import * as history from "./history"
+import { mergelistId, PREFIX_MERGED, PREFIX_MOVED } from "./globalvars"
 
 export function move(id, from_history = false) {
   if (!from_history) {
@@ -8,20 +8,22 @@ export function move(id, from_history = false) {
   }
 
   let element = document.getElementById(id)
-  let target = document.getElementById(globalvars.mergelistId).querySelector(".zone");
+  let target = document.getElementById(mergelistId).querySelector(`.${CssNames.MERGED_ZONE}`);
   let clone = (element.cloneNode(true) as HTMLElement);
-  clone.id = "merged-" + clone.id;
+  
+  clone.id = PREFIX_MOVED + clone.id;
   clone.setAttribute("data-origin", id);
-  clone.classList.remove("dragg");
-  clone.append(uihelper.createDragHandle());
+  clone.classList.remove(CssNames.ITEM_DRAGGED);
+  clone.append(createDragHandle());
+
   target.append(clone);
-  element.classList.add("added");
+  element.classList.add(CssNames.ITEM_ADDED);
 }
 
 export function moveUndo(id) {
   let element = document.getElementById(id);
-  element.classList.remove("added");
-  let clone = document.getElementById("merged-" + id);
+  element.classList.remove(CssNames.ITEM_ADDED);
+  let clone = document.getElementById(PREFIX_MOVED + id);
   clone.remove();
 }
 
@@ -32,7 +34,7 @@ export function moveAll(zonefindings, from_history = false) {
 
   let moved = [];
   zonefindings.forEach(element => {
-    if (!element.classList.contains("added") && !element.classList.contains("merged")) {
+    if (!element.classList.contains(CssNames.ITEM_ADDED) && !element.classList.contains(CssNames.ITEM_MERGED)) {
       move(element.id, from_history);
       moved.push(element.id);
     }
@@ -60,8 +62,8 @@ export function merge(id1, id2, title, from_history = false, oldmergeid = "") {
   if (item1 == undefined) {
     let origin1 = document.getElementById(id1).getAttribute("data-origin");
     let origin1_element = document.getElementById(origin1);
-    origin1_element.classList.remove("added")
-    origin1_element.classList.add("merged")
+    origin1_element.classList.remove(CssNames.ITEM_ADDED)
+    origin1_element.classList.add(CssNames.ITEM_MERGED)
 
     item1 = {
       id: id1,
@@ -80,8 +82,8 @@ export function merge(id1, id2, title, from_history = false, oldmergeid = "") {
     }
 
     let origin2_element = document.getElementById(origin2);
-    origin2_element.classList.remove("added")
-    origin2_element.classList.add("merged")
+    origin2_element.classList.remove(CssNames.ITEM_ADDED)
+    origin2_element.classList.add(CssNames.ITEM_MERGED)
 
     item2 = {
       id: id2,
@@ -91,7 +93,7 @@ export function merge(id1, id2, title, from_history = false, oldmergeid = "") {
   }
 
   // TODO better way to create new id
-  let newid = "mm-" + id1 + "+" + id2;
+  let newid = PREFIX_MERGED + id1 + "+" + id2;
   if (oldmergeid != "") {
     newid = oldmergeid;
   }
@@ -104,7 +106,7 @@ export function merge(id1, id2, title, from_history = false, oldmergeid = "") {
   });
 
   target.innerText = title;
-  target.append(uihelper.createDragHandle());
+  target.append(createDragHandle());
   target.removeAttribute("data-origin");
   target.id = newid;
 
@@ -122,42 +124,41 @@ export function mergeUndo(id) {
   let mergeelement = document.getElementById(id);
 
 
-  if (mergeitem.historyA.id.startsWith("merged-")) {
+  // Item A is a moved item
+  if (mergeitem.historyA.id.startsWith(PREFIX_MERGED)) {
     mergeelement.setAttribute("data-origin", mergeitem.historyA.origin);
-    document.getElementById(mergeitem.historyA.origin).classList.remove("merged");
-    document.getElementById(mergeitem.historyA.origin).classList.add("added");
+    document.getElementById(mergeitem.historyA.origin).classList.remove(CssNames.ITEM_MERGED);
+    document.getElementById(mergeitem.historyA.origin).classList.add(CssNames.ITEM_ADDED);
   }
-  if (mergeitem.historyA.id.startsWith("mm-") || mergeitem.historyA.id.startsWith("merged-")) {
+
+  // Bring Item A to its previous state
+  if (mergeitem.historyA.id.startsWith(PREFIX_MERGED) || mergeitem.historyA.id.startsWith(PREFIX_MOVED)) {
     mergeelement.id = mergeitem.historyA.id;
     mergeelement.innerText = mergeitem.historyA.title;
-    mergeelement.append(uihelper.createDragHandle());
+    mergeelement.append(createDragHandle());
   }
 
-  //if(mergeitem.historyB.id.startsWith("mm-")) {   
-  //}
-  //else if(mergeitem.historyB.id.startsWith("merged-")) {
-  if (mergeitem.historyB.id.startsWith("merged-") || mergeitem.historyB.id.startsWith("mm-")) {
-    //mergeelement.setAttribute("data-origin", mergeitem.historyB.origin);
-
-
+  // Item B was taken from the merged list
+  if (mergeitem.historyB.id.startsWith(PREFIX_MERGED) || mergeitem.historyB.id.startsWith(PREFIX_MOVED)) {
     let newelement = document.createElement("div");
     newelement.innerText = mergeitem.historyB.title;
     newelement.id = mergeitem.historyB.id;
     newelement.draggable = true;
-    newelement.append(uihelper.createDragHandle());
+    newelement.append(createDragHandle());
 
     if (mergeitem.historyB.origin != null) {
-      document.getElementById(mergeitem.historyB.origin).classList.remove("merged");
-      document.getElementById(mergeitem.historyB.origin).classList.add("added");
+      document.getElementById(mergeitem.historyB.origin).classList.remove(CssNames.ITEM_MERGED);
+      document.getElementById(mergeitem.historyB.origin).classList.add(CssNames.ITEM_ADDED);
 
       newelement.setAttribute("data-origin", mergeitem.historyB.origin)
     }
 
     document.getElementById("mlist").append(newelement)
   }
+  // Item B was taken directly from an evaluators list
   else {
     let element = document.getElementById(mergeitem.historyB.id);
-    element.classList.remove("merged");
+    element.classList.remove(CssNames.ITEM_MERGED);
   }
   history.deleteMergeItem(id);
 }
@@ -166,11 +167,12 @@ export function arrange(id, position, insertAfter = false) {
   const element = document.getElementById(id);
   const parent = element.parentElement;
   const children = [...parent.children];
-  let neighbour = children[position];
 
-  if(insertAfter){
-    neighbour = neighbour.nextSibling as Element;
-  }
-  
+  if(position == children.length - 1) {
+    parent.append(element);
+    return;
+  } 
+
+  let neighbour = children[position];
   parent.insertBefore(element, neighbour);
 }
