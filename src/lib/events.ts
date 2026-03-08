@@ -48,7 +48,9 @@ function initDragDrop() {
 export function dragStart(e: Event) {
   let element = (e.target as HTMLElement)
 
-  if(element.nodeName != "DIV" || element.classList.contains(CssNames.ITEM_ADDED) || element.classList.contains(CssNames.ITEM_MERGED)) {
+  if((element.nodeName != "DIV" && !element.classList.contains(CssNames.ITEM_DRAGHANDLE))
+    || element.classList.contains(CssNames.ITEM_ADDED)
+    || element.classList.contains(CssNames.ITEM_MERGED)) {
     e.preventDefault();
     return;  
   }
@@ -69,6 +71,9 @@ export function dragStart(e: Event) {
 }
 
 export function dragEnd(e: Event) {
+  document.querySelectorAll(`.${CssNames.HOVER_DRAG}`).forEach((e) => {
+    e.classList.remove(CssNames.HOVER_DRAG);
+  })
   document.getElementById(dropOrigin).classList.remove(CssNames.ITEM_DRAGGING);
     dropOrigin = (e.target as Element).id;
     if(dropOrigin == "") {

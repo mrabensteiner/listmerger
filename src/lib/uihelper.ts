@@ -11,6 +11,7 @@ export const CssNames = {
   HOVER_DROP: "drop",
   HOVER_DRAG: "drag"
 }
+const dragIconPath = "dragicon.svg";
 
 export function init_responsive_tablist(id: string) {
   const details = document.querySelectorAll("details");
@@ -43,10 +44,10 @@ export function init_responsive_tablist(id: string) {
 }
 
 export function createDragHandle() {
-  let draghandle = document.createElement("div");
+  let draghandle = document.createElement("img");
   draghandle.classList.add(CssNames.ITEM_DRAGHANDLE);
   draghandle.draggable = true;
-  draghandle.innerHTML = "H";
+  draghandle.src = dragIconPath;
   return draghandle;
 }
 
