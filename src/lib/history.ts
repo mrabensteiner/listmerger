@@ -76,9 +76,7 @@ export function log(task, id1 = "", id2 = "", id3 = "", array=[], title = "") {
     array: array,
     title: title
   })
-  console.log("history")
-  console.log(history)
-  console.log(future)
+
   updateButtons();
 }
 
@@ -97,9 +95,6 @@ export function undo() {
   }
   future.push(last);
 
-  console.log("<< undo");
-  console.log(history);
-  console.log(future);
   updateButtons();
 }
 
@@ -119,8 +114,5 @@ export function redo() {
     transfer.arrange(last.id1, +last.id3, true);
   }
 
-  console.log(">> redo");
-  console.log(history);
-  console.log(future);
   updateButtons();
 }

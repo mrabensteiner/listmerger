@@ -1,4 +1,4 @@
-import { CssNames, getSiblingsPosition, toggleDrop } from "./uihelper";
+import { CssNames, getNextDropSibling, getPositionInList, toggleDrop } from "./uihelper";
 import * as transfer from './transfer';
 import * as history from './history';
 import { mergelistId } from "./globalvars";
@@ -61,7 +61,7 @@ export function dragStart(e: Event) {
     mergeListElement = document.querySelector("#mlist");
     dragAction = Action.Arrange;
     dropOrigin = element.parentElement.id;
-    dragPosition = getSiblingsPosition(dropOrigin);
+    dragPosition = getPositionInList(dropOrigin);
 
     element.parentElement.classList.add(CssNames.ITEM_DRAGGING);
   } else {
@@ -98,18 +98,16 @@ export function dragOver(e: DragEvent) {
 
   // https://www.codingnepalweb.com/drag-and-drop-sortable-list-html-javascript/
   const draggingItem = document.querySelector(`.${CssNames.ITEM_DRAGGING}`);
-  let siblings = [...mergeListElement.querySelectorAll(`.element:not(.${CssNames.ITEM_DRAGGING}`)];
-  let nextSibling = siblings.find((sibling: HTMLDivElement) => {
-      return e.clientY <= sibling.offsetTop + sibling.offsetHeight / 2;
-  });
+  let nextSibling = getNextDropSibling(e);
+
   mergeListElement.insertBefore(draggingItem, nextSibling);
 }
 
-export function drop(e: Event) {
+export function drop(e: DragEvent) {
   if(dragAction == Action.Arrange) {
-    let dropPosition = getSiblingsPosition(dropOrigin);
+    let dropPosition = getPositionInList(dropOrigin);
 
-    if(dragPosition != dropPosition) {
+    if (dragPosition != dropPosition) {
       history.log(history.Tasks.Arrange, dropOrigin, dragPosition.toString(), dropPosition.toString());
     }
     dragAction = Action.None;
@@ -126,7 +124,6 @@ export function drop(e: Event) {
     return;
   }
 
-  console.log(target)
   if(target.classList.contains("draghandle")) {
     target = target.parentElement;
   }
@@ -147,7 +144,21 @@ export function drop(e: Event) {
     return;
   }
   else if (droporigin_element.parentElement.id == target.id) {
-    // is already there
+    // is already there, move it to the new position
+   
+    let dragPosition = getPositionInList(dropOrigin);
+    let nextSibling = getNextDropSibling(e);
+
+    let dropPosition = nextSibling != undefined
+      ? getPositionInList(nextSibling.id)
+      : mergeListElement.length - 1;
+
+    if (dragPosition != dropPosition) {
+      transfer.arrange(dropOrigin, dropPosition, true);
+      history.log(history.Tasks.Arrange, dropOrigin, dragPosition.toString(), dropPosition.toString());
+    }
+
+    dragAction = Action.None;
     return;
   }
   else if (droporigin_element.classList.contains(CssNames.ITEM_ADDED) || droporigin_element.classList.contains(CssNames.ITEM_MERGED)) {

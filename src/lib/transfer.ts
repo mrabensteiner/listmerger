@@ -118,8 +118,6 @@ export function merge(id1, id2, title, from_history = false, oldmergeid = "") {
 }
 
 export function mergeUndo(id) {
-  console.log("unmerge")
-
   let mergeitem = history.getMergeItem(id);
   let mergeelement = document.getElementById(id);
 

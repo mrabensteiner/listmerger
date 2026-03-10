@@ -72,8 +72,22 @@ export function toggleDrop(e, dropOrigin) {
   }
 }
 
-export function getSiblingsPosition(id): number {
+export function getOwnPosition(id: string): number {
   const element = document.getElementById(id);
   const siblings = element.parentElement.children;
   return [...siblings].indexOf(element);
+}
+
+export function getPositionInList(id: string): number {
+  const element = document.getElementById(id);
+  const siblings = element.parentElement.children;
+  return [...siblings].indexOf(element);
+}
+
+export function getNextDropSibling(e: DragEvent): Element {
+  let siblings = [...document.querySelectorAll(`#mlist .element:not(.${CssNames.ITEM_DRAGGING}`)];
+  let nextSibling = siblings.find((sibling: HTMLDivElement) => {
+    return e.clientY <= sibling.offsetTop + sibling.offsetHeight / 2;
+  });
+  return nextSibling;
 }
