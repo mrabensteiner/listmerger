@@ -1,3 +1,9 @@
+export declare enum Tasks {
+    Move = 0,
+    MoveAll = 1,
+    Merge = 2,
+    Arrange = 3
+}
 export declare function init(): void;
 export declare function resetFuture(): void;
 export declare function getMergeItem(id: string): any;

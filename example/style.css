@@ -85,10 +85,9 @@ details section {
 
 .draghandle {
   background: url(dragicon.png);
-  color: lightgray;
-  background-color: darkgray;
   float: right;
   padding: .1rem .5rem;
+  height: 1.25rem;
 }
 
 .dragging {

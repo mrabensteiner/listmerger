@@ -1,3 +1,8 @@
 import {init} from './lib/listmerger.js';
 
-init("listmerger", "undo", "redo");
+
+function print_results(results) {
+    console.log(results);
+}
+
+init("listmerger", "undo", "redo", print_results);
