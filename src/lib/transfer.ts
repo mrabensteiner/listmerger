@@ -123,7 +123,7 @@ export function mergeUndo(id) {
 
 
   // Item A is a moved item
-  if (mergeitem.historyA.id.startsWith(PREFIX_MERGED)) {
+  if (mergeitem.historyA.id.startsWith(PREFIX_MOVED)) {
     mergeelement.setAttribute("data-origin", mergeitem.historyA.origin);
     document.getElementById(mergeitem.historyA.origin).classList.remove(CssNames.ITEM_MERGED);
     document.getElementById(mergeitem.historyA.origin).classList.add(CssNames.ITEM_ADDED);
