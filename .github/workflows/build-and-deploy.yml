@@ -26,6 +26,9 @@ jobs:
       # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v4
 
+      - name: Install pnpm
+        uses: pnpm/action-setup@v3 # docs https://pnpm.io/continuous-integration#github-actions
+
       - name: Install dependencies
         run: pnpm install
 
