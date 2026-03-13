@@ -33,7 +33,7 @@ jobs:
         run: pnpm install
 
       - name: Build project
-        run: pnpm run build -- --base-href /listmerger/
+        run: pnpm run build --base-href /listmerger/
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
