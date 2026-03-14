@@ -87,7 +87,7 @@ export function getPositionInList(id: string): number {
 export function getNextDropSibling(e: DragEvent): Element {
   let siblings = [...document.querySelectorAll(`#mlist .element:not(.${CssNames.ITEM_DRAGGING}`)];
   let nextSibling = siblings.find((sibling: HTMLDivElement) => {
-    return e.clientY <= sibling.offsetTop + sibling.offsetHeight / 2;
+    return e.pageY <= sibling.offsetTop + sibling.offsetHeight / 2;
   });
   return nextSibling;
 }

@@ -152,5 +152,17 @@ p {
 .zone:not(#mlist) .element.merged::after {
   color: blue;
   content: '⬻';
+}
 
+.indicator {
+  background-color: darkgray;
+  padding: .1rem .4rem;
+  border-radius: 1rem;
+  font-size: .7rem;
+  font-weight: bold;
+  color: white;
+  display: inline-block;
+  vertical-align: middle;
+  margin-left: .2rem;
+  margin-top: -.2rem;
 }
