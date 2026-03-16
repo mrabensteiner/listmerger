@@ -84,7 +84,7 @@ details section {
 }
 
 .draghandle {
-  background: url(dragicon.png);
+  background: url(icons/dragicon.png);
   float: right;
   padding: .1rem .5rem;
   height: 1.25rem;
@@ -134,10 +134,48 @@ p {
   margin-top: 0;
 }
 
+#undo::before {
+  content: url(icons/undo.svg);
+  float: left;
+  margin-right: .5rem;
+  height: 1rem;
+  width: 1rem;
+}
+
+#redo::before {
+  content: url(icons/redo.svg);
+  float: left;
+  margin-right: .5rem;
+  height: 1rem;
+  width: 1rem;
+}
+
+#save::before {
+  content: url(icons/save.svg);
+  float: left;
+  margin-right: .5rem;
+  height: 1rem;
+  width: 1rem;
+}
+
+.moveall::before {
+  content: url(icons/moveall.svg);
+  float: left;
+  margin-right: .5rem;
+  height: 1rem;
+  width: 1rem;
+}
+
+button {
+  padding: .5rem;
+}
+
 .zone:not(#mlist) .element::after {
   color: grey;
-  content: '❍';
+  content: url(icons/open.svg);
   float: right;
+  height: 1rem;
+  width: 1rem;
 }
 .element.added, .element.merged {
   color: #999;
@@ -145,13 +183,11 @@ p {
 }
 
 .zone:not(#mlist) .element.added::after {
-  color: green;
-  content: '✔';
+  content: url(icons/check.svg);
 }
 
 .zone:not(#mlist) .element.merged::after {
-  color: blue;
-  content: '⬻';
+  content: url(icons/merge.svg);
 }
 
 .indicator {

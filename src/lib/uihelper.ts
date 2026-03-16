@@ -11,7 +11,7 @@ export const CssNames = {
   HOVER_DROP: "drop",
   HOVER_DRAG: "drag"
 }
-const dragIconPath = "dragicon.svg";
+const dragIconPath = "icons/dragicon.svg";
 
 export function init_responsive_tablist(id: string) {
   const details = document.querySelectorAll("details");
