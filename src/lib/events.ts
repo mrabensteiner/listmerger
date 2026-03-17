@@ -1,4 +1,4 @@
-import { CssNames, getNextDropSibling, getPositionInList, toggleDrop } from "./uihelper";
+import { arrange, CssNames, getNextDropSibling, getPositionInList, toggleDrop } from "./uihelper";
 import * as transfer from './transfer';
 import * as history from './history';
 import { mergelistId } from "./globalvars";
@@ -154,7 +154,7 @@ export function drop(e: DragEvent) {
       : mergeListElement.length - 1;
 
     if (dragPosition != dropPosition) {
-      transfer.arrange(dropOrigin, dropPosition, true);
+      arrange(dropOrigin, dropPosition);
       history.log(history.Tasks.Arrange, dropOrigin, dragPosition.toString(), dropPosition.toString());
     }
 

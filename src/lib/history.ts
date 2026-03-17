@@ -1,5 +1,6 @@
 import { callback_function } from './globalvars';
 import * as transfer from './transfer'
+import { arrange } from './uihelper';
 
 export enum Tasks {
     Move,
@@ -91,7 +92,7 @@ export function undo() {
   } else if (last.action == Tasks.Merge) {
     transfer.mergeUndo(last.id3)
   } else if (last.action == Tasks.Arrange) {
-    transfer.arrange(last.id1, +last.id2, true);
+    arrange(last.id1, +last.id2);
   }
   future.push(last);
 
@@ -111,7 +112,7 @@ export function redo() {
   } else if (last.action == Tasks.Merge) {
     transfer.merge(last.id1, last.id2, last.title, true, last.id3)
   } else if (last.action == Tasks.Arrange) {
-    transfer.arrange(last.id1, +last.id3, true);
+    arrange(last.id1, +last.id3);
   }
 
   updateButtons();

@@ -91,3 +91,51 @@ export function getNextDropSibling(e: DragEvent): Element {
   });
   return nextSibling;
 }
+
+export function arrange(id, position) {
+  const element = document.getElementById(id);
+  const parent = element.parentElement;
+  const children = [...parent.children];
+
+  if(position == children.length - 1) {
+    parent.append(element);
+    return;
+  } 
+
+  let neighbour = children[position];
+  parent.insertBefore(element, neighbour);
+}
+
+export function updateAllIndicators() {
+  updateOriginIndicators();
+  updateMergeIndicator();
+}
+
+function updateMergeIndicator() {
+  const list_container = document.querySelector(".mergelist");
+  const count = list_container.querySelector(".zone").children.length;
+  const indicator_element = list_container.querySelector(".indicator");
+  indicator_element.innerHTML = count.toString();
+}
+
+function updateOriginIndicators() {
+  document.querySelectorAll(".tabbar details").forEach((element) => {
+    const count_total = element.querySelector(".zone").children.length;
+    const count_added = element.querySelectorAll(".zone .added").length;
+    const count_merged = element.querySelectorAll(".zone .merged").length;
+
+    const indicator_element = element.querySelector(".indicator");
+    console.log(element)
+    console.log(element.attributes["data-order"])
+    const option_indicator_element = document.querySelector(`#detailsselector option[value='${element.attributes["data-order"].value}']`);
+
+    const indicator_content = `${count_added + count_merged}/${count_total}`;
+    indicator_element.innerHTML = indicator_content;
+
+    let option_text = option_indicator_element.innerHTML;
+    let option_text_arr = option_text.split("(");
+    option_text_arr[option_text_arr.length - 1] = indicator_content;
+    option_text = option_text_arr.join("(") + ")";
+    option_indicator_element.innerHTML = option_text;
+  });
+}

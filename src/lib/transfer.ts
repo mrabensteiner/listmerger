@@ -1,4 +1,4 @@
-import { createDragHandle, CssNames } from "./uihelper"
+import { createDragHandle, CssNames, updateAllIndicators } from "./uihelper"
 import * as history from "./history"
 import { mergelistId, PREFIX_MERGED, PREFIX_MOVED } from "./globalvars"
 
@@ -18,6 +18,7 @@ export function move(id, from_history = false) {
 
   target.append(clone);
   element.classList.add(CssNames.ITEM_ADDED);
+  updateAllIndicators();
 }
 
 export function moveUndo(id) {
@@ -25,6 +26,7 @@ export function moveUndo(id) {
   element.classList.remove(CssNames.ITEM_ADDED);
   let clone = document.getElementById(PREFIX_MOVED + id);
   clone.remove();
+  updateAllIndicators();
 }
 
 export function moveAll(zonefindings, from_history = false) {
@@ -55,7 +57,7 @@ export function merge(id1, id2, title, from_history = false, oldmergeid = "") {
 
   let target = document.getElementById(id1);
   let remove_id2 = true;
-
+  console.log(id1,id2)
   let item1 = history.getMergeItem(id1);
   let item2 = history.getMergeItem(id2);
 
@@ -114,6 +116,7 @@ export function merge(id1, id2, title, from_history = false, oldmergeid = "") {
     document.getElementById(id2).remove()
   }
 
+  updateAllIndicators();
   return newid;
 }
 
@@ -159,18 +162,4 @@ export function mergeUndo(id) {
     element.classList.remove(CssNames.ITEM_MERGED);
   }
   history.deleteMergeItem(id);
-}
-
-export function arrange(id, position, insertAfter = false) {
-  const element = document.getElementById(id);
-  const parent = element.parentElement;
-  const children = [...parent.children];
-
-  if(position == children.length - 1) {
-    parent.append(element);
-    return;
-  } 
-
-  let neighbour = children[position];
-  parent.insertBefore(element, neighbour);
 }

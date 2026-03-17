@@ -47,7 +47,7 @@ details section {
 .container {
   display: flex;
   flex-direction: row;
-  margin: 1rem;
+  margin: 1rem 0;
 }
 
 .container > div {
@@ -168,6 +168,11 @@ p {
 
 button {
   padding: .5rem;
+  margin-bottom: .5rem;
+}
+
+button:disabled::before {
+  filter: opacity(.5);
 }
 
 .zone:not(#mlist) .element::after {
