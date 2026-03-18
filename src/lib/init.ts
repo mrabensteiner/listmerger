@@ -3,7 +3,8 @@ import * as events from './events';
 import * as uihelper from './uihelper';
 import * as g from './globalvars';
 
-export function init(id: string, id_undo: string, id_redo: string, callback: g.DynamicFunction) {
+export function init(id: string, id_undo: string, id_redo: string, callback: g.DynamicFunction, items: Object) {
+  uihelper.loadItems(items);
   g.setMergelistId(id);
   g.setCallbackFunction(callback);
   events.init();

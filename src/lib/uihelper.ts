@@ -92,6 +92,65 @@ export function getNextDropSibling(e: DragEvent): Element {
   return nextSibling;
 }
 
+export function loadItems(items: Object) {
+  items["originlists"].forEach(list => {
+
+    const tabbar = document.querySelector(".tabbar");
+
+    const details_element = document.createElement("details");
+    const summary_element = document.createElement("summary");
+    const indicator_element = document.createElement("span");
+
+    const section_element = document.createElement("section");
+    const mergeallbutton_element = document.createElement("button");
+    const list_element = document.createElement("div");
+
+    details_element.name = "tabs";
+    details_element.setAttribute("data-order", ""+tabbar.children.length);
+
+    summary_element.innerHTML = list["name"];
+    indicator_element.classList.add("indicator");
+    summary_element.append(indicator_element);
+
+    mergeallbutton_element.classList.add("moveall");
+    mergeallbutton_element.innerHTML = "Merge All";
+
+    const list_id = list["id"] + "-list";
+    list_element.id = list_id;
+    list_element.classList.add("zone");
+
+    section_element.append(mergeallbutton_element);
+    section_element.append(list_element);
+
+    const select = document.getElementById("detailsselector");
+    const option_element = document.createElement("option");
+    option_element.value = ""+(tabbar.children.length );
+    option_element.innerText = list["name"] + " ()";
+    select.append(option_element);
+
+    details_element.append(summary_element);
+    details_element.append(section_element);
+    tabbar.append(details_element);
+
+    list["items"].forEach(item => {
+      generateItem(list_id, item);
+    });
+  });
+}
+
+function generateItem(parent_id: string, item: Object) {
+  const parent_element = document.getElementById(parent_id);
+  const element = document.createElement("div");
+  
+  element.id = item["id"];
+  element.innerHTML = item["title"];
+  element.draggable = true;
+  element.classList.add("element");
+  element.setAttribute("data-role", "finding");
+
+  parent_element.append(element);
+}
+
 export function arrange(id, position) {
   const element = document.getElementById(id);
   const parent = element.parentElement;
@@ -125,8 +184,6 @@ function updateOriginIndicators() {
     const count_merged = element.querySelectorAll(".zone .merged").length;
 
     const indicator_element = element.querySelector(".indicator");
-    console.log(element)
-    console.log(element.attributes["data-order"])
     const option_indicator_element = document.querySelector(`#detailsselector option[value='${element.attributes["data-order"].value}']`);
 
     const indicator_content = `${count_added + count_merged}/${count_total}`;
