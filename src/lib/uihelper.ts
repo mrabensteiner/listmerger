@@ -1,3 +1,6 @@
+import * as Mustache from 'mustache';
+import { DIALOG_TEMPLATE, getItem, ITEM_TEMPLATE, items } from './globalvars';
+
 export const CssNames = {
   ITEM: "element",
   ITEM_ADDED: "added",
@@ -93,9 +96,10 @@ export function getNextDropSibling(e: DragEvent): Element {
 }
 
 export function loadItems(items: Object) {
+  const tabbar = document.querySelector(".tabbar");
+
   items["originlists"].forEach(list => {
 
-    const tabbar = document.querySelector(".tabbar");
 
     const details_element = document.createElement("details");
     const summary_element = document.createElement("summary");
@@ -136,6 +140,7 @@ export function loadItems(items: Object) {
       generateItem(list_id, item);
     });
   });
+  tabbar.children[0].setAttribute("open", "1");
 }
 
 function generateItem(parent_id: string, item: Object) {
@@ -146,9 +151,17 @@ function generateItem(parent_id: string, item: Object) {
   element.innerHTML = item["title"];
   element.draggable = true;
   element.classList.add("element");
+  
+  var output = Mustache.render(ITEM_TEMPLATE, item);
+  element.innerHTML = output;
   element.setAttribute("data-role", "finding");
 
   parent_element.append(element);
+}
+
+export function prepareModal(item_id: string): string {
+  console.log( getItem(item_id))
+  return Mustache.render(DIALOG_TEMPLATE, getItem(item_id));
 }
 
 export function arrange(id, position) {

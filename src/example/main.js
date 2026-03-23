@@ -14,7 +14,9 @@ const items = {
       "items": [
         {
           "id": "li4it1",
-          "title": "Item 1"
+          "title": "Item 1",
+          "image": "images/tugraz.png",
+          "description": "This is the first item in the list."
         },
         {
           "id": "li4it2",
@@ -33,4 +35,15 @@ const items = {
   ]
 }
 
-init("listmerger", "undo", "redo", print_results, items);
+const item_template = `
+<img class='thumbnail' src='{{image}}'/>
+Item: {{title}}
+`;
+
+const dialog_template = `
+<h1>{{title}}</h1>
+<div>{{description}}</div>
+`
+
+
+init("listmerger", "undo", "redo", print_results, items, item_template, dialog_template);

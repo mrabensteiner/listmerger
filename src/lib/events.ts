@@ -1,4 +1,4 @@
-import { arrange, CssNames, getNextDropSibling, getPositionInList, toggleDrop } from "./uihelper";
+import { arrange, CssNames, getNextDropSibling, getPositionInList, prepareModal, toggleDrop } from "./uihelper";
 import * as transfer from './transfer';
 import * as history from './history';
 import { mergelistId } from "./globalvars";
@@ -37,6 +37,8 @@ function initDragDrop() {
   const listmerger_element = document.getElementById(mergelistId);
   const mergelist_element = listmerger_element.querySelector(".mergelist");
 
+  listmerger_element.addEventListener("pointerdown", preventDrag);
+  listmerger_element.addEventListener("click", elementDialog);
   listmerger_element.addEventListener("dragstart", dragStart);
   listmerger_element.addEventListener("dragend", dragEnd);
   mergelist_element.addEventListener("dragenter", dragHover);
@@ -45,8 +47,35 @@ function initDragDrop() {
   mergelist_element.addEventListener("drop", drop);
 }
 
-export function dragStart(e: Event) {
+function preventDrag(e: DragEvent) {
+  let element = (e.target as HTMLElement);
+
+  if(element.draggable && !element.classList.contains("element") && !element.classList.contains("draghandle")) {
+    element.draggable = false;
+  }
+}
+
+export function elementDialog(e: Event) {
+  const element = (e.target as HTMLElement).closest(".element");
+  
+  if(element == null) {
+    return;
+  }
+
+  const item_modal = document.createElement("dialog");
+  item_modal.innerHTML = prepareModal(element.id);
+  document.body.append(item_modal);
+  item_modal.showModal();
+}
+
+export function dragStart(e: DragEvent) {
   let element = (e.target as HTMLElement)
+  console.log(element)
+
+  if(!element.classList.contains(CssNames.ITEM_DRAGHANDLE)) {
+    element = element.closest(".element");
+    console.log(element)
+  }
 
   if((element.nodeName != "DIV" && !element.classList.contains(CssNames.ITEM_DRAGHANDLE))
     || element.classList.contains(CssNames.ITEM_ADDED)
@@ -75,7 +104,7 @@ export function dragEnd(e: Event) {
     e.classList.remove(CssNames.HOVER_DRAG);
   })
   document.getElementById(dropOrigin).classList.remove(CssNames.ITEM_DRAGGING);
-    dropOrigin = (e.target as Element).id;
+    dropOrigin = (e.target as Element).closest(".element").id;
     if(dropOrigin == "") {
       return;
     }
@@ -124,8 +153,8 @@ export function drop(e: DragEvent) {
     return;
   }
 
-  if(target.classList.contains("draghandle")) {
-    target = target.parentElement;
+  if(!target.classList.contains("zone")) {
+    target = target.closest(".element");
   }
   if (target.getAttribute("data-role") == "finding") {
     // merging target
@@ -196,12 +225,12 @@ export function merge(event: Event) {
   dialog.close();
 }
 
-export function dialogClose(e: Event) {
+function dialogClose(e: Event) {
   e.preventDefault();
   dialog.close()
 }
 
-export function initMoveAll() {
+function initMoveAll() {
   const moveallbuttons = document.querySelectorAll(".moveall");
 
   moveallbuttons.forEach(button => {

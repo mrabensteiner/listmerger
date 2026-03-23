@@ -73,6 +73,18 @@ details section {
   box-shadow: 0 0 5px darkgray;
   padding: 1rem;
   cursor: grab;
+  display: flex;
+  justify-content: space-between;
+  flex-direction: row;
+  align-items: center;
+}
+
+.thumbnail {
+  height: 3rem;
+  width: 4rem;
+  background-color: lightgray;
+  border: 1px solid darkgray;
+  border-radius: 2px;
 }
 
 .zone > div.dragg {
@@ -84,7 +96,6 @@ details section {
 }
 
 .draghandle {
-  background: url(icons/dragicon.png);
   float: right;
   padding: .1rem .5rem;
   height: 1.25rem;
