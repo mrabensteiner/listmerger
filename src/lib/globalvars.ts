@@ -8,6 +8,7 @@ export const PREFIX_MERGED = "merged-";
 
 export let ITEM_TEMPLATE = "";
 export let DIALOG_TEMPLATE = "";
+export let MERGE_TEMPLATE = "";
 
 export let items = {};
 
@@ -19,9 +20,10 @@ export function setItems(set_items: Object) {
     items = set_items;
 }
 
-export function setTemplates(item_template: string, dialog_template: string) {
+export function setTemplates(item_template: string, dialog_template: string, merge_template: string) {
     ITEM_TEMPLATE = item_template;
     DIALOG_TEMPLATE = dialog_template;
+    MERGE_TEMPLATE = merge_template;
 }
 
 export function setCallbackFunction(callback: DynamicFunction) {

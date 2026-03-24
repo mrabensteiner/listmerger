@@ -1,5 +1,5 @@
 import * as Mustache from 'mustache';
-import { DIALOG_TEMPLATE, getItem, ITEM_TEMPLATE, items } from './globalvars';
+import { DIALOG_TEMPLATE, getItem, ITEM_TEMPLATE, MERGE_TEMPLATE } from './globalvars';
 
 export const CssNames = {
   ITEM: "element",
@@ -117,7 +117,7 @@ export function loadItems(items: Object) {
     summary_element.append(indicator_element);
 
     mergeallbutton_element.classList.add("moveall");
-    mergeallbutton_element.innerHTML = "Merge All";
+    mergeallbutton_element.innerHTML = "Move All";
 
     const list_id = list["id"] + "-list";
     list_element.id = list_id;
@@ -160,8 +160,12 @@ function generateItem(parent_id: string, item: Object) {
 }
 
 export function prepareModal(item_id: string): string {
-  console.log( getItem(item_id))
   return Mustache.render(DIALOG_TEMPLATE, getItem(item_id));
+}
+
+export function prepareMergeModal(item_id = "") {
+  const item = item_id == "" ? {} : getItem(item_id);
+  return Mustache.render(MERGE_TEMPLATE, item);
 }
 
 export function arrange(id, position) {

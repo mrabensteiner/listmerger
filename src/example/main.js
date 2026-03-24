@@ -43,7 +43,21 @@ Item: {{title}}
 const dialog_template = `
 <h1>{{title}}</h1>
 <div>{{description}}</div>
-`
+`;
+
+const merge_template = `
+<h2>{{title}}</h2>
+
+<div class='formgroup'>
+  <label>Title</label>
+  <input name='title'>
+</div>
+
+<div class='formgroup'>
+  <label>Description</label>
+  <textarea name='description'>{{description}}</textarea>
+</div>
+`;
 
 
-init("listmerger", "undo", "redo", print_results, items, item_template, dialog_template);
+init("listmerger", "undo", "redo", print_results, items, item_template, dialog_template, merge_template);

@@ -218,3 +218,42 @@ button:disabled::before {
   margin-left: .2rem;
   margin-top: -.2rem;
 }
+
+
+.mergecontainer {
+  display: flex;
+  gap: 1rem;
+}
+
+.mergecontainer > div {
+  flex: 1;
+}
+
+.mergecontainer > div:nth-child(2) {
+  flex: 2;
+  padding: 0 1rem;
+  border-left: 1px solid darkgray;
+  border-right: 1px solid darkgray;
+}
+
+.formgroup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 .25rem;
+  margin: 1rem 0;
+  align-items: center;
+
+  label {
+    margin-bottom: .5rem;
+    color: darkgray;
+    font-size: .75rem;
+    text-transform: uppercase;
+    flex: 0 0 100%;
+  }
+  input, textarea {
+    padding: .25rem;
+    box-sizing: border-box;
+    flex-grow: 1;
+  }
+}
+

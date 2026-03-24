@@ -20,7 +20,7 @@ function cleanPackage() {
 }
 
 function copyExampleFolder() {
-    return src('./src/example/**/*').pipe(dest('./dist/example'));
+    return src('./src/example/**/*', {encoding: false}).pipe(dest('./dist/example'));
 }
 
 function copyLibFileToExample() {

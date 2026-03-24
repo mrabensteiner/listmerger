@@ -1,7 +1,7 @@
-import { arrange, CssNames, getNextDropSibling, getPositionInList, prepareModal, toggleDrop } from "./uihelper";
+import { arrange, CssNames, getNextDropSibling, getPositionInList, prepareMergeModal, prepareModal, toggleDrop } from "./uihelper";
 import * as transfer from './transfer';
 import * as history from './history';
-import { mergelistId } from "./globalvars";
+import { getItem, mergelistId, PREFIX_MOVED } from "./globalvars";
 
 export enum Action {
   None,
@@ -15,7 +15,7 @@ let dropTarget = "";
 let dragAction = Action.None;
 let dragPosition = -1;
 let mergeListElement;
-let dialog;
+let dialog: HTMLDialogElement;
 
 export function init() {
   mergeListElement = document.querySelector("#mlist");
@@ -64,8 +64,101 @@ export function elementDialog(e: Event) {
 
   const item_modal = document.createElement("dialog");
   item_modal.innerHTML = prepareModal(element.id);
+  
+  const close_button = document.createElement("button");
+  close_button.innerHTML = "X";
+  close_button.style.float = "right";
+  close_button.addEventListener("click", () => {
+    const open_dialog = document.querySelector("dialog[open]") as HTMLDialogElement;
+    open_dialog.close();
+  })
+
+  item_modal.addEventListener("close", () => {
+    item_modal.remove();
+  })
+
+  item_modal.prepend(close_button);
+
   document.body.append(item_modal);
   item_modal.showModal();
+}
+
+export function mergeInputClick(e: Event) {
+  const element = (e.target as HTMLButtonElement)
+  element.disabled = true;
+
+  const attribute = element.getAttribute("data-attribute");
+  const value = element.getAttribute("data-value");
+  console.log(e.target)
+  console.log(attribute, value)
+  const input_element = element.parentElement.querySelector(`[name="${attribute}"]`);
+  input_element.value += value;
+}
+
+export function mergeDialog(id1: string, id2: string) {
+  const element1 = document.getElementById(id1);
+  const element2 = document.getElementById(id2);
+
+  if(id1.startsWith(PREFIX_MOVED)) {
+    id1 = element1.getAttribute("data-origin");
+  }
+  if(id2.startsWith(PREFIX_MOVED)) {
+    id2 = element2.getAttribute("data-origin");
+  }
+
+  let item1 = getItem(id1);
+  let item2 = getItem(id2);
+
+  const mergecontainer = document.createElement("div");
+  mergecontainer.classList.add("mergecontainer");
+  mergecontainer.style.display = "flex"
+
+  const merge_child1 = document.createElement("div");
+  merge_child1.innerHTML = prepareModal(id1);
+  const merge_center = document.createElement("div");
+  merge_center.innerHTML = prepareMergeModal();
+  const merge_child2 = document.createElement("div");
+  merge_child2.innerHTML = prepareModal(id2);
+
+  mergecontainer.append(merge_child1);
+  mergecontainer.append(merge_center);
+  mergecontainer.append(merge_child2);
+  dialog.replaceChildren(mergecontainer);
+
+  merge_center.querySelectorAll("input, textarea").forEach(element => {
+    const button1 = document.createElement("button");
+    button1.innerHTML = ">>";
+    button1.setAttribute("data-attribute", element.name);
+    button1.setAttribute("data-value", item1[element.name]);
+    if(item1[element.name] == undefined) {
+      button1.disabled = true;
+    }
+    element.parentElement.insertBefore(button1, element);
+    button1.addEventListener("click", mergeInputClick);
+
+
+    const button2 = document.createElement("button");
+    button2.innerHTML = "<<";
+    button2.setAttribute("data-attribute", element.name);
+    button2.setAttribute("data-value", item2[element.name]);
+    if(item2[element.name] == undefined) {
+      button2.disabled = true;
+    }
+    element.parentElement.append(button2);
+    button2.addEventListener("click", mergeInputClick);
+  });
+
+  const close_button = document.createElement("button");
+  close_button.innerText = "Close";
+
+  const merge_button = document.createElement("button");
+  merge_button.innerText = "Merge";
+
+  dialog.append(merge_button);
+  dialog.append(close_button);
+
+  close_button.addEventListener("click", dialogClose);
+  merge_button.addEventListener("click", merge);
 }
 
 export function dragStart(e: DragEvent) {
@@ -158,12 +251,13 @@ export function drop(e: DragEvent) {
   }
   if (target.getAttribute("data-role") == "finding") {
     // merging target
-    const mergeplaceholder = document.querySelector("#mergeplaceholder");
+    // const mergeplaceholder = document.querySelector("#mergeplaceholder");
 
     dropTarget = target.id;
-    mergeplaceholder.innerHTML = " (ID " + target.id + " and ID " + dropOrigin + ")";
-    let newtitle_element = (dialog.querySelector("input[name='newtitle']") as HTMLInputElement);
-    newtitle_element.value = "Merged findings " + target.id + " and " + dropOrigin;
+    // mergeplaceholder.innerHTML = " (ID " + target.id + " and ID " + dropOrigin + ")";
+    // let newtitle_element = (dialog.querySelector("input[name='newtitle']") as HTMLInputElement);
+    // newtitle_element.value = "Merged findings " + target.id + " and " + dropOrigin;
+    mergeDialog(target.id, dropOrigin)
     dialog.showModal();
 
     return;
@@ -205,8 +299,17 @@ export function merge(event: Event) {
   let targetid = target.id;
 
   let dropOriginelement = document.getElementById(dropOrigin);
-  let newtitle_element = (dialog.querySelector("input[name='newtitle']") as HTMLInputElement)
+  // let newtitle_element = (dialog.querySelector("input[name='newtitle']") as HTMLInputElement)
   // target.innerText = newtitle_element.value;
+
+  let new_element = {};
+
+  dialog.querySelectorAll("input, textarea").forEach((element: HTMLInputElement) => {
+    const key = element.name;
+    const value = element.value;
+
+    new_element[key] = value;
+  });
 
   let origin_id = dropOrigin;
 
@@ -219,8 +322,8 @@ export function merge(event: Event) {
     dropOriginelement.classList.add(CssNames.ITEM_MERGED);
   }
 
-  let mergeid: string = transfer.merge(target.id, dropOrigin, newtitle_element.value)
-  history.log(history.Tasks.Merge, targetid, dropOrigin, mergeid, [], newtitle_element.value)
+  let mergeid: string = transfer.merge(target.id, dropOrigin, new_element["title"])
+  history.log(history.Tasks.Merge, targetid, dropOrigin, mergeid, [], new_element["title"])
   
   dialog.close();
 }
