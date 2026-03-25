@@ -1,4 +1,4 @@
-import { createDragHandle, CssNames, updateAllIndicators } from "./uihelper"
+import { createDragHandle, CssNames, generateItem, updateAllIndicators } from "./uihelper"
 import * as history from "./history"
 import { mergelistId, PREFIX_MERGED, PREFIX_MOVED } from "./globalvars"
 
@@ -135,17 +135,19 @@ export function mergeUndo(id) {
   // Bring Item A to its previous state
   if (mergeitem.historyA.id.startsWith(PREFIX_MERGED) || mergeitem.historyA.id.startsWith(PREFIX_MOVED)) {
     mergeelement.id = mergeitem.historyA.id;
-    mergeelement.innerText = mergeitem.historyA.title;
+    mergeelement.innerHTML = mergeitem.historyA.title;
     mergeelement.append(createDragHandle());
   }
 
   // Item B was taken from the merged list
   if (mergeitem.historyB.id.startsWith(PREFIX_MERGED) || mergeitem.historyB.id.startsWith(PREFIX_MOVED)) {
-    let newelement = document.createElement("div");
-    newelement.innerText = mergeitem.historyB.title;
-    newelement.id = mergeitem.historyB.id;
-    newelement.draggable = true;
-    newelement.append(createDragHandle());
+    let newelement = generateItem("mlist", mergeitem.historyB);
+    
+    // document.createElement("div");
+    // newelement.innerHTML = mergeitem.historyB.title;
+    // newelement.id = mergeitem.historyB.id;
+    // newelement.draggable = true;
+    // newelement.append(createDragHandle());
 
     if (mergeitem.historyB.origin != null) {
       document.getElementById(mergeitem.historyB.origin).classList.remove(CssNames.ITEM_MERGED);
@@ -154,7 +156,7 @@ export function mergeUndo(id) {
       newelement.setAttribute("data-origin", mergeitem.historyB.origin)
     }
 
-    document.getElementById("mlist").append(newelement)
+    //document.getElementById("mlist").append(newelement)
   }
   // Item B was taken directly from an evaluators list
   else {

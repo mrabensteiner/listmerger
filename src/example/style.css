@@ -64,6 +64,7 @@ details section {
   flex-direction: column;
   gap: 1rem;
   min-height: 3rem;
+  margin-top: .5rem;
 }
 
 .zone >  div {
@@ -85,6 +86,8 @@ details section {
   background-color: lightgray;
   border: 1px solid darkgray;
   border-radius: 2px;
+  object-fit: cover;
+  margin-right: .5rem;
 }
 
 .zone > div.dragg {
@@ -177,14 +180,44 @@ p {
   width: 1rem;
 }
 
+button.icontext {
+  float: none;
+}
+
+button.icontext::before {
+  margin-right: .5rem;
+}
+
+button.merge {
+  margin-right: .5rem;
+}
+
+button.merge::before {
+  content: url(icons/merge.svg);
+  float: left;
+  margin-right: .5rem;
+  height: 1rem;
+  width: 1rem;
+}
+
+.close {
+  float: right;
+}
+.close::before {
+  content: url(icons/close.svg);
+  float: left;
+  height: 1rem;
+  width: 1rem;
+}
+
 button {
   padding: .5rem;
-  margin-bottom: .5rem;
 }
 
 button:disabled::before {
   filter: opacity(.5);
 }
+
 
 .zone:not(#mlist) .element::after {
   color: grey;
@@ -205,6 +238,15 @@ button:disabled::before {
 .zone:not(#mlist) .element.merged::after {
   content: url(icons/merge.svg);
 }
+
+.element span {
+  flex: 1;
+}
+.element img[src=""] {
+  height: 0;
+  opacity: 0;
+}
+
 
 .indicator {
   background-color: darkgray;
@@ -254,6 +296,10 @@ button:disabled::before {
     padding: .25rem;
     box-sizing: border-box;
     flex-grow: 1;
+    min-height: 2rem;
   }
 }
 
+dialog div {
+  margin-bottom: .5rem;
+}

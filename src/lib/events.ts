@@ -1,7 +1,7 @@
 import { arrange, CssNames, getNextDropSibling, getPositionInList, prepareMergeModal, prepareModal, toggleDrop } from "./uihelper";
 import * as transfer from './transfer';
 import * as history from './history';
-import { getItem, mergelistId, PREFIX_MOVED } from "./globalvars";
+import { addMergeItem, getItem, mergelistId, PREFIX_MERGED, PREFIX_MOVED } from "./globalvars";
 
 export enum Action {
   None,
@@ -62,12 +62,16 @@ export function elementDialog(e: Event) {
     return;
   }
 
+  console.log("eleee")
+  console.log(element)
+
+  const element_id = element.id.startsWith(PREFIX_MOVED) ? element.getAttribute("data-origin") : element.id;
+
   const item_modal = document.createElement("dialog");
-  item_modal.innerHTML = prepareModal(element.id);
+  item_modal.innerHTML = prepareModal(element_id);
   
   const close_button = document.createElement("button");
-  close_button.innerHTML = "X";
-  close_button.style.float = "right";
+  close_button.classList.add("close");
   close_button.addEventListener("click", () => {
     const open_dialog = document.querySelector("dialog[open]") as HTMLDialogElement;
     open_dialog.close();
@@ -92,7 +96,7 @@ export function mergeInputClick(e: Event) {
   console.log(e.target)
   console.log(attribute, value)
   const input_element = element.parentElement.querySelector(`[name="${attribute}"]`);
-  input_element.value += value;
+  (input_element as HTMLInputElement).value += value;
 }
 
 export function mergeDialog(id1: string, id2: string) {
@@ -125,7 +129,7 @@ export function mergeDialog(id1: string, id2: string) {
   mergecontainer.append(merge_child2);
   dialog.replaceChildren(mergecontainer);
 
-  merge_center.querySelectorAll("input, textarea").forEach(element => {
+  merge_center.querySelectorAll("input, textarea").forEach((element: HTMLInputElement) => {
     const button1 = document.createElement("button");
     button1.innerHTML = ">>";
     button1.setAttribute("data-attribute", element.name);
@@ -149,10 +153,14 @@ export function mergeDialog(id1: string, id2: string) {
   });
 
   const close_button = document.createElement("button");
+  close_button.classList.add("close");
+  close_button.classList.add("icontext");
   close_button.innerText = "Close";
 
   const merge_button = document.createElement("button");
+  merge_button.classList.add("merge");
   merge_button.innerText = "Merge";
+  merge_button.autofocus = true;
 
   dialog.append(merge_button);
   dialog.append(close_button);
@@ -302,13 +310,22 @@ export function merge(event: Event) {
   // let newtitle_element = (dialog.querySelector("input[name='newtitle']") as HTMLInputElement)
   // target.innerText = newtitle_element.value;
 
-  let new_element = {};
+  let new_item = {};
 
   dialog.querySelectorAll("input, textarea").forEach((element: HTMLInputElement) => {
     const key = element.name;
     const value = element.value;
 
-    new_element[key] = value;
+    new_item[key] = value;
+  });
+
+  let item1 = getItem(target.id);
+  let item2 = getItem(dropOrigin);
+
+  Object.keys(item1).forEach(key => {
+    if(Array.isArray(item1[key])) {
+      new_item[key] = item1[key].concat(item2[key]);
+    }
   });
 
   let origin_id = dropOrigin;
@@ -322,9 +339,12 @@ export function merge(event: Event) {
     dropOriginelement.classList.add(CssNames.ITEM_MERGED);
   }
 
-  let mergeid: string = transfer.merge(target.id, dropOrigin, new_element["title"])
-  history.log(history.Tasks.Merge, targetid, dropOrigin, mergeid, [], new_element["title"])
+  let mergeid: string = transfer.merge(target.id, dropOrigin, new_item["title"])
+  history.log(history.Tasks.Merge, targetid, dropOrigin, mergeid, [], new_item["title"])
   
+  new_item["id"] = mergeid;
+  addMergeItem(new_item);
+
   dialog.close();
 }
 

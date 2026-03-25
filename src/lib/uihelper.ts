@@ -143,7 +143,7 @@ export function loadItems(items: Object) {
   tabbar.children[0].setAttribute("open", "1");
 }
 
-function generateItem(parent_id: string, item: Object) {
+export function generateItem(parent_id: string, item: Object): HTMLElement {
   const parent_element = document.getElementById(parent_id);
   const element = document.createElement("div");
   
@@ -157,6 +157,7 @@ function generateItem(parent_id: string, item: Object) {
   element.setAttribute("data-role", "finding");
 
   parent_element.append(element);
+  return element;
 }
 
 export function prepareModal(item_id: string): string {

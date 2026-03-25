@@ -31,6 +31,8 @@ export function setCallbackFunction(callback: DynamicFunction) {
 }
 
 export function getItem(id: string): Object {
+  id = id.startsWith(PREFIX_MOVED) ? id.slice(PREFIX_MOVED.length) : id;
+
   let item = {};
   items["merged"].forEach(element => {
     if(element.id == id) {
@@ -45,4 +47,8 @@ export function getItem(id: string): Object {
     });
   });
   return item;
+}
+
+export function addMergeItem(item: Object) {
+  items["merged"].push(item);
 }
