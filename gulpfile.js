@@ -28,7 +28,7 @@ function copyLibFileToExample() {
 }
 
 task('deploy', function () {
-    return gulp.src("./dist/**/*").pipe(deploy())
+    return gulp.src("./dist/**/*", {encoding: false}).pipe(deploy())
 });
 
 exports.clean = cleanDistFolder;

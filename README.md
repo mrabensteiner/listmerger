@@ -6,6 +6,8 @@ Martin Rabensteiner
 
 Graz University of Technology
 
+Live Demo: https://mrabensteiner.github.io/listmerger
+
 ## About
 This tools introduces a JavaScript library for list merging. A use case
 for this is a heuritic evaluation, where the findings of multiple
