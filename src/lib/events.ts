@@ -62,9 +62,6 @@ export function elementDialog(e: Event) {
     return;
   }
 
-  console.log("eleee")
-  console.log(element)
-
   const element_id = element.id.startsWith(PREFIX_MOVED) ? element.getAttribute("data-origin") : element.id;
 
   const item_modal = document.createElement("dialog");
@@ -93,8 +90,7 @@ export function mergeInputClick(e: Event) {
 
   const attribute = element.getAttribute("data-attribute");
   const value = element.getAttribute("data-value");
-  console.log(e.target)
-  console.log(attribute, value)
+  
   const input_element = element.parentElement.querySelector(`[name="${attribute}"]`);
   (input_element as HTMLInputElement).value += value;
 }
@@ -171,11 +167,9 @@ export function mergeDialog(id1: string, id2: string) {
 
 export function dragStart(e: DragEvent) {
   let element = (e.target as HTMLElement)
-  console.log(element)
 
   if(!element.classList.contains(CssNames.ITEM_DRAGHANDLE)) {
     element = element.closest(".element");
-    console.log(element)
   }
 
   if((element.nodeName != "DIV" && !element.classList.contains(CssNames.ITEM_DRAGHANDLE))
@@ -339,11 +333,11 @@ export function merge(event: Event) {
     dropOriginelement.classList.add(CssNames.ITEM_MERGED);
   }
 
-  let mergeid: string = transfer.merge(target.id, dropOrigin, new_item["title"])
-  history.log(history.Tasks.Merge, targetid, dropOrigin, mergeid, [], new_item["title"])
-  
+  let mergeid: string = transfer.merge(target.id, dropOrigin, new_item["title"], false, "", new_item)
   new_item["id"] = mergeid;
   addMergeItem(new_item);
+  history.log(history.Tasks.Merge, targetid, dropOrigin, mergeid, [], new_item["title"], new_item)
+  
 
   dialog.close();
 }

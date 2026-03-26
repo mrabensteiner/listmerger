@@ -156,7 +156,10 @@ export function generateItem(parent_id: string, item: Object): HTMLElement {
   element.innerHTML = output;
   element.setAttribute("data-role", "finding");
 
-  parent_element.append(element);
+  if(parent_id != "") {
+    parent_element.append(element);
+  }
+  
   return element;
 }
 

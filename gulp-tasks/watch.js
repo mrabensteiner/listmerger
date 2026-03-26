@@ -3,7 +3,7 @@ const bs = require("browser-sync").create();
 const { bundle } = require("./bundle");
 
 function copyExampleFolder() {
-    return src('./src/example/**/*').pipe(dest('./dist/example'));
+    return src('./src/example/**/*', {encoding: false}).pipe(dest('./dist/example'));
 }
 
 function copyLibFileToExample() {
@@ -18,12 +18,12 @@ function reload(done) {
 function watcher() {
   bs.init({
     server: "./dist/example",
-    open: false,
+    open: true,
     notify: false,
   });
 
   watch("src/lib/**/*.{ts,js}", series(bundle, copyLibFileToExample, reload));
-  watch("src/example/**/*", series(copyExampleFolder, reload));
+  watch("src/example/**/*", series(copyExampleFolder, reload), {encoding: false});
 }
 
 module.exports = {watcher}

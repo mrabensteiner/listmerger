@@ -19,7 +19,7 @@ const items = {
           "category": "Category 1",
           "images": [
             "images/tugraz.png",
-            "images/tugraz.png"
+            "images/steps.png"
           ],
           "description": "This is the first item in the list."
         },
@@ -29,7 +29,7 @@ const items = {
           "author": "Martin Rabensteiner",
           "category": "Category 1",
           "images": [
-            "images/tugraz.png"
+            "images/studies.png"
           ],
           "description": "This is the second item in the list."
         },

@@ -1,6 +1,6 @@
 import { createDragHandle, CssNames, generateItem, updateAllIndicators } from "./uihelper"
 import * as history from "./history"
-import { mergelistId, PREFIX_MERGED, PREFIX_MOVED } from "./globalvars"
+import { getItem, mergelistId, PREFIX_MERGED, PREFIX_MOVED } from "./globalvars"
 
 export function move(id, from_history = false) {
   if (!from_history) {
@@ -50,14 +50,14 @@ export function moveAllUndo(moved) {
   })
 }
 
-export function merge(id1, id2, title, from_history = false, oldmergeid = "") {
+export function merge(id1, id2, title, from_history = false, oldmergeid = "", item = {}) {
   if (!from_history) {
     history.resetFuture();
   }
 
   let target = document.getElementById(id1);
   let remove_id2 = true;
-  console.log(id1,id2)
+  
   let item1 = history.getMergeItem(id1);
   let item2 = history.getMergeItem(id2);
 
@@ -107,7 +107,8 @@ export function merge(id1, id2, title, from_history = false, oldmergeid = "") {
     historyB: item2
   });
 
-  target.innerText = title;
+  item["id"] = newid;
+  target.innerHTML = generateItem("", item).innerHTML;
   target.append(createDragHandle());
   target.removeAttribute("data-origin");
   target.id = newid;
@@ -135,7 +136,7 @@ export function mergeUndo(id) {
   // Bring Item A to its previous state
   if (mergeitem.historyA.id.startsWith(PREFIX_MERGED) || mergeitem.historyA.id.startsWith(PREFIX_MOVED)) {
     mergeelement.id = mergeitem.historyA.id;
-    mergeelement.innerHTML = mergeitem.historyA.title;
+    mergeelement.innerHTML = generateItem("", getItem(mergeelement.id)).innerHTML;
     mergeelement.append(createDragHandle());
   }
 

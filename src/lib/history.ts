@@ -68,14 +68,15 @@ export function updateButtons() {
   redo_button.disabled = future.length == 0;
 }
 
-export function log(task, id1 = "", id2 = "", id3 = "", array=[], title = "") {
+export function log(task, id1 = "", id2 = "", id3 = "", array=[], title = "", item = {}) {
   history.push({
     action: task,
     id1: id1,
     id2: id2,
     id3: id3,
     array: array,
-    title: title
+    title: title,
+    item: item
   })
 
   updateButtons();
@@ -110,7 +111,7 @@ export function redo() {
     let zonefindings = document.getElementById(last.id1).querySelectorAll("[data-role='finding']");
     transfer.moveAll(zonefindings, true);
   } else if (last.action == Tasks.Merge) {
-    transfer.merge(last.id1, last.id2, last.title, true, last.id3)
+    transfer.merge(last.id1, last.id2, last.title, true, last.id3, last.item);
   } else if (last.action == Tasks.Arrange) {
     arrange(last.id1, +last.id3);
   }
