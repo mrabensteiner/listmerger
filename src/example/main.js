@@ -129,8 +129,28 @@ const items = {
 }
 
 const item_template = `
-<img class='thumbnail' src='{{images.0}}'/>
-<span>{{title}}</span>
+<summary><img class='thumbnail' src='{{images.0}}'/>
+<span>{{title}}</span></summary>
+
+<section>
+
+{{#author}}
+  <div>Author: {{.}}</div>
+{{/author}}
+{{#category}}
+  <div>Category: {{.}}</div>
+{{/category}}
+<div>
+  {{#images}}
+    <img class='thumbnail' src='{{.}}'/>
+  {{/images}}
+</div>
+<div>{{description}}</div>
+<div>
+{{^merged}}Merged with: {{/merged}}
+{{#merged}}{{.}}{{/merged}}
+</div>
+</section>
 `;
 
 const dialog_template = `

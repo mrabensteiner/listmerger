@@ -14,7 +14,7 @@ export function move(id, from_history = false) {
   clone.id = PREFIX_MOVED + clone.id;
   clone.setAttribute("data-origin", id);
   clone.classList.remove(CssNames.ITEM_DRAGGED);
-  clone.append(createDragHandle());
+  clone.children[0].append(createDragHandle());
 
   target.append(clone);
   element.classList.add(CssNames.ITEM_ADDED);
@@ -109,7 +109,7 @@ export function merge(id1, id2, title, from_history = false, oldmergeid = "", it
 
   item["id"] = newid;
   target.innerHTML = generateItem("", item).innerHTML;
-  target.append(createDragHandle());
+  target.children[0].append(createDragHandle());
   target.removeAttribute("data-origin");
   target.id = newid;
 
@@ -137,7 +137,7 @@ export function mergeUndo(id) {
   if (mergeitem.historyA.id.startsWith(PREFIX_MERGED) || mergeitem.historyA.id.startsWith(PREFIX_MOVED)) {
     mergeelement.id = mergeitem.historyA.id;
     mergeelement.innerHTML = generateItem("", getItem(mergeelement.id)).innerHTML;
-    mergeelement.append(createDragHandle());
+    mergeelement.children[0].append(createDragHandle());
   }
 
   // Item B was taken from the merged list

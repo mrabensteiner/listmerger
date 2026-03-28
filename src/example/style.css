@@ -8,21 +8,21 @@ body {
   overflow: clip;
 }
 
-details {
+.tabbar > details {
   display: contents;
 }
 
-details[open] summary {
+.tabbar > details[open] > summary {
   background-color: lightgray;
   z-index: 1;
   border-bottom: none;
 }
 
-details[open]::details-content {
+.tabbar > details[open]::details-content {
   display: contents;
 }
 
-summary {
+.tabbar > details > summary {
   order: 0;
   display: block;
   padding: .5rem 1rem;
@@ -35,7 +35,7 @@ summary {
   margin-right: -1px;
 }
 
-details section {
+.tabbar > details > section {
   margin-top: -1px;
   order: 1;
   padding: 1rem;
@@ -67,17 +67,23 @@ details section {
   margin-top: .5rem;
 }
 
-.zone >  div {
-  background: rgb(245, 245, 255);
-  border: 1px solid transparent;
-  border-radius: 5px;
-  box-shadow: 0 0 5px darkgray;
+.zone .element > summary {
   padding: 1rem;
   cursor: grab;
   display: flex;
   justify-content: space-between;
   flex-direction: row;
   align-items: center;
+}
+
+.zone .element > summary, .zone .element {
+  background: rgb(245, 245, 255);
+  border: 1px solid transparent;
+  border-radius: 5px;
+  box-shadow: 0 0 5px darkgray;
+}
+.zone .element > section {
+  padding: 1rem;
 }
 
 .thumbnail {
@@ -135,7 +141,7 @@ select {
   > select {
     display: block;
   }
-  summary {
+  .tabbar > details > summary {
     height: 1px;
     opacity: 0  ;
     padding-bottom: 0;
@@ -219,7 +225,7 @@ button:disabled::before {
 }
 
 
-.zone:not(#mlist) .element::after {
+.zone:not(#mlist) .element summary::after {
   color: grey;
   content: url(icons/open.svg);
   float: right;
@@ -231,11 +237,11 @@ button:disabled::before {
   cursor: not-allowed;
 }
 
-.zone:not(#mlist) .element.added::after {
+.zone:not(#mlist) .element.added summary::after {
   content: url(icons/check.svg);
 }
 
-.zone:not(#mlist) .element.merged::after {
+.zone:not(#mlist) .element.merged summary::after {
   content: url(icons/merge.svg);
 }
 

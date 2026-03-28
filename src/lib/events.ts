@@ -38,7 +38,7 @@ function initDragDrop() {
   const mergelist_element = listmerger_element.querySelector(".mergelist");
 
   listmerger_element.addEventListener("pointerdown", preventDrag);
-  listmerger_element.addEventListener("click", elementDialog);
+  //listmerger_element.addEventListener("click", elementDialog);
   listmerger_element.addEventListener("dragstart", dragStart);
   listmerger_element.addEventListener("dragend", dragEnd);
   mergelist_element.addEventListener("dragenter", dragHover);
@@ -172,7 +172,7 @@ export function dragStart(e: DragEvent) {
     element = element.closest(".element");
   }
 
-  if((element.nodeName != "DIV" && !element.classList.contains(CssNames.ITEM_DRAGHANDLE))
+  if((element.nodeName != "DETAILS" && !element.classList.contains(CssNames.ITEM_DRAGHANDLE))
     || element.classList.contains(CssNames.ITEM_ADDED)
     || element.classList.contains(CssNames.ITEM_MERGED)) {
     e.preventDefault();

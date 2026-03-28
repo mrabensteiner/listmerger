@@ -17,7 +17,7 @@ export const CssNames = {
 const dragIconPath = "icons/dragicon.svg";
 
 export function init_responsive_tablist(id: string) {
-  const details = document.querySelectorAll("details");
+  const details = document.querySelectorAll(".tabbar > details");
   const detailsselect: Node = document.querySelector("#detailsselector");
 
   detailsselect.addEventListener("change", selectTab)
@@ -32,7 +32,7 @@ export function init_responsive_tablist(id: string) {
 
   new ResizeObserver(entries => {
     entries.forEach(element => {
-      const summaries = element.target.querySelectorAll("summary");
+      const summaries = element.target.querySelectorAll(".tabbar > details > summary");
       const offset1 = summaries[0].offsetTop;
       const offset2 = summaries[summaries.length - 1].offsetTop;
 
@@ -56,7 +56,7 @@ export function createDragHandle() {
 
 function selectTab(e: Event) {
   let value = (e.target as HTMLInputElement).value
-  let details = document.querySelectorAll(".tabbar details")[value];
+  let details = document.querySelectorAll(".tabbar > details")[value];
   details.setAttribute("open", "1");
 }
 
@@ -145,7 +145,7 @@ export function loadItems(items: Object) {
 
 export function generateItem(parent_id: string, item: Object): HTMLElement {
   const parent_element = document.getElementById(parent_id);
-  const element = document.createElement("div");
+  const element = document.createElement("details");
   
   element.id = item["id"];
   element.innerHTML = item["title"];
@@ -199,7 +199,7 @@ function updateMergeIndicator() {
 }
 
 function updateOriginIndicators() {
-  document.querySelectorAll(".tabbar details").forEach((element) => {
+  document.querySelectorAll(".tabbar > details").forEach((element) => {
     const count_total = element.querySelector(".zone").children.length;
     const count_added = element.querySelectorAll(".zone .added").length;
     const count_merged = element.querySelectorAll(".zone .merged").length;
