@@ -1,4 +1,4 @@
-# Listmerger
+# ListMerger
 
 Martin Rabensteiner
 
@@ -9,7 +9,7 @@ Graz University of Technology
 Live Demo: https://mrabensteiner.github.io/listmerger
 
 ## About
-This tools introduces a JavaScript library for list merging. A use case
+The ListMerger is a JavaScript library for list merging. A use case
 for this is a heuritic evaluation, where the findings of multiple
 evaluators are aggregated into a merged list. This repository is part of
 a Master's project, along with a [Survey of Heuristic Evaluation
@@ -23,7 +23,7 @@ from the project report.
 
 Install dependencies:
 ```
-pnpm i
+pnpm install
 ```
 
 Run a development server:

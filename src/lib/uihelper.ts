@@ -22,7 +22,7 @@ export function init_responsive_tablist(id: string) {
 
   detailsselect.addEventListener("change", selectTab)
 
-  details.forEach(detail => {
+  details.forEach((detail: HTMLDetailsElement) => {
     detail.addEventListener("toggle", (event) => {
       if (detail.open) {
         detailsselect.nodeValue = detail.dataset.order;

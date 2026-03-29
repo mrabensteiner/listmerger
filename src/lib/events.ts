@@ -148,18 +148,22 @@ export function mergeDialog(id1: string, id2: string) {
     button2.addEventListener("click", mergeInputClick);
   });
 
+  const button_container = document.createElement("div");
+  button_container.classList.add("buttons");
+
   const close_button = document.createElement("button");
   close_button.classList.add("close");
   close_button.classList.add("icontext");
-  close_button.innerText = "Close";
+  close_button.innerText = "Cancel";
 
   const merge_button = document.createElement("button");
   merge_button.classList.add("merge");
   merge_button.innerText = "Merge";
   merge_button.autofocus = true;
 
-  dialog.append(merge_button);
-  dialog.append(close_button);
+  button_container.append(close_button);
+  button_container.append(merge_button);
+  dialog.append(button_container);
 
   close_button.addEventListener("click", dialogClose);
   merge_button.addEventListener("click", merge);
