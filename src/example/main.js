@@ -129,7 +129,9 @@ const items = {
 }
 
 const item_template = `
-<summary><img class='thumbnail' src='{{images.0}}'/>
+<summary {{#mergedto}}title="Merged to {{title}}"{{/mergedto}}>
+
+<img class='thumbnail' src='{{images.0}}'/>
 <span>{{title}}</span></summary>
 
 <section>
@@ -147,8 +149,16 @@ const item_template = `
 </div>
 <div>{{description}}</div>
 <div>
-{{^merged}}Merged with: {{/merged}}
-{{#merged}}{{.}}{{/merged}}
+
+{{#mergedto}}
+Merged to: <a href="#{{mergedto.id}}">{{mergedto.title}}</a>
+{{/mergedto}}
+
+{{#mergedfrom.length}}
+Merged from: 
+{{#mergedfrom}}<a href="#{{id}}">{{title}}</a> {{/mergedfrom}} 
+{{/mergedfrom.length}}
+
 </div>
 </section>
 `;
@@ -168,7 +178,7 @@ const dialog_template = `
 </div>
 <div>{{description}}</div>
 <div>
-{{^merged}}Merged with: {{/merged}}
+Merged with:
 {{#merged}}{{.}}{{/merged}}
 </div>
 `;

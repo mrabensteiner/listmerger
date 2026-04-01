@@ -45,6 +45,32 @@ function initDragDrop() {
   mergelist_element.addEventListener("dragleave", dragHover);
   mergelist_element.addEventListener("dragover", dragOver);
   mergelist_element.addEventListener("drop", drop);
+
+  listmerger_element.addEventListener("click", itemToHash);
+  window.addEventListener('hashchange', updateHash);
+
+  updateHash();
+}
+
+function updateHash() {
+  const id = location.hash.substring(1);
+  const element = document.getElementById(id);
+
+  if(element instanceof HTMLDetailsElement) {
+    element.open = true;
+
+    const tab = element.closest("[name='tabs']") as HTMLDetailsElement;
+    const tab_select = document.getElementById(CssNames.TAB_SELECTOR) as HTMLSelectElement
+    tab_select.value = tab.dataset.order;
+  }
+}
+
+function itemToHash(e: MouseEvent) {
+  const element = (e.target as HTMLElement).closest("details");
+
+  if(element != undefined) {
+    window.history.replaceState(null, null, '#' + element.id);
+  }
 }
 
 function preventDrag(e: DragEvent) {
@@ -88,6 +114,7 @@ export function mergeInputClick(e: Event) {
   const element = (e.target as HTMLButtonElement)
   element.disabled = true;
 
+  // TODO replace them all with .dataset
   const attribute = element.getAttribute("data-attribute");
   const value = element.getAttribute("data-value");
   
@@ -339,7 +366,6 @@ export function merge(event: Event) {
 
   let mergeid: string = transfer.merge(target.id, dropOrigin, new_item["title"], false, "", new_item)
   new_item["id"] = mergeid;
-  addMergeItem(new_item);
   history.log(history.Tasks.Merge, targetid, dropOrigin, mergeid, [], new_item["title"], new_item)
   
 

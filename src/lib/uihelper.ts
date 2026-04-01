@@ -1,5 +1,5 @@
 import * as Mustache from 'mustache';
-import { DIALOG_TEMPLATE, getItem, ITEM_TEMPLATE, MERGE_TEMPLATE } from './globalvars';
+import { DIALOG_TEMPLATE, getItem, ITEM_TEMPLATE, MERGE_TEMPLATE, PREFIX_MOVED } from './globalvars';
 
 export const CssNames = {
   ITEM: "element",
@@ -32,7 +32,7 @@ export function init_responsive_tablist(id: string) {
 
   new ResizeObserver(entries => {
     entries.forEach(element => {
-      const summaries = element.target.querySelectorAll(".tabbar > details > summary");
+      const summaries = element.target.querySelectorAll(".tabbar > details > summary") as NodeListOf<HTMLElement>;
       const offset1 = summaries[0].offsetTop;
       const offset2 = summaries[summaries.length - 1].offsetTop;
 
@@ -110,6 +110,7 @@ export function loadItems(items: Object) {
     const list_element = document.createElement("div");
 
     details_element.name = "tabs";
+    details_element.id = list["id"];
     details_element.setAttribute("data-order", ""+tabbar.children.length);
 
     summary_element.innerHTML = list["name"];
@@ -161,6 +162,21 @@ export function generateItem(parent_id: string, item: Object): HTMLElement {
   }
   
   return element;
+}
+
+export function updateItem(id: string) {
+  id = id.startsWith(PREFIX_MOVED) ? id.slice(PREFIX_MOVED.length) : id;
+
+  const element = document.getElementById(id);
+  const moved_element = document.getElementById(PREFIX_MOVED + id);
+
+  const item = getItem(id, true);
+  const output = Mustache.render(ITEM_TEMPLATE, item);
+  element.innerHTML = output;
+
+  if(moved_element != undefined) {
+    moved_element.innerHTML = output;
+  }
 }
 
 export function prepareModal(item_id: string): string {

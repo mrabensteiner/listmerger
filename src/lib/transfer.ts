@@ -1,6 +1,6 @@
-import { createDragHandle, CssNames, generateItem, updateAllIndicators } from "./uihelper"
+import { createDragHandle, CssNames, generateItem, updateAllIndicators, updateItem } from "./uihelper"
 import * as history from "./history"
-import { getItem, mergelistId, PREFIX_MERGED, PREFIX_MOVED } from "./globalvars"
+import { addMergeItem, getItem, mergelistId, PREFIX_MERGED, PREFIX_MOVED, updateMergedTo } from "./globalvars"
 
 export function move(id, from_history = false) {
   if (!from_history) {
@@ -100,14 +100,27 @@ export function merge(id1, id2, title, from_history = false, oldmergeid = "", it
     newid = oldmergeid;
   }
 
-  history.addMergeItem(newid, {
+  const historyitem = {
     id: newid,
     title: title,
     historyA: item1,
     historyB: item2
-  });
+  };
+  history.addMergeItem(newid, historyitem);
+
+  const mergedfrom = mergeHistoryItems(historyitem);
+
+  item["mergedfrom"] = mergedfrom.map((id) => getItem(id));
+
 
   item["id"] = newid;
+  addMergeItem(item);
+
+  mergedfrom.forEach(item_id => {
+    updateMergedTo(item_id, newid);
+    updateItem(item_id);
+  });
+
   target.innerHTML = generateItem("", item).innerHTML;
   target.children[0].append(createDragHandle());
   target.removeAttribute("data-origin");
@@ -119,6 +132,28 @@ export function merge(id1, id2, title, from_history = false, oldmergeid = "", it
 
   updateAllIndicators();
   return newid;
+}
+
+function mergeHistoryItems(item: Object): Array<string> {
+  let history_list = [];
+
+  if(!item.hasOwnProperty("historyA")) {
+    return [item["id"]];
+  }
+
+  if(item["historyA"].hasOwnProperty("origin")) {
+    history_list.push(item["historyA"]["origin"]);
+  } else {
+    history_list = history_list.concat(mergeHistoryItems(item["historyA"]));
+  }
+
+  if(item["historyB"].hasOwnProperty("origin")) {
+    history_list.push(item["historyB"]["origin"]);
+  } else {
+    history_list = history_list.concat(mergeHistoryItems(item["historyB"]));
+  }
+
+  return history_list;
 }
 
 export function mergeUndo(id) {
@@ -164,5 +199,16 @@ export function mergeUndo(id) {
     let element = document.getElementById(mergeitem.historyB.id);
     element.classList.remove(CssNames.ITEM_MERGED);
   }
+  
+  mergeHistoryItems(mergeitem.historyA).forEach(id => {
+    updateMergedTo(id, mergeitem.historyA.id);
+    updateItem(id);
+  });
+  
+  mergeHistoryItems(mergeitem.historyB).forEach(id => {
+    updateMergedTo(id, mergeitem.historyB.id);
+    updateItem(id);
+  });
+
   history.deleteMergeItem(id);
 }
