@@ -5,9 +5,9 @@
   "main": "./dist/library/cjs/index.js",
   "module": "./dist/library/esm/index.js",
   "scripts": {
-    "clean": "npx gulp clean",
-    "build": "npx gulp build",
-    "dev": "npx gulp dev"
+    "clean": "pnpm exec gulp clean",
+    "build": "pnpm exec gulp build",
+    "dev": "pnpm exec gulp dev"
   },
   "repository": "git+https://github.com/mrabensteiner/listmerger",
   "keywords": [],
