@@ -35,6 +35,6 @@ exports.clean = cleanDistFolder;
 
 exports.cleanAll = parallel(cleanDistFolder, cleanNodeModules, cleanPackageLock, cleanPackage);
 
-exports.build = series(cleanDistFolder, copyExampleFolder, bundle, copyLibFileToExample);
+exports.build = series(cleanDistFolder, bundle, copyExampleFolder, copyLibFileToExample);
 
 exports.dev = series(exports.build, watcher);
