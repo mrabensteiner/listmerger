@@ -12,7 +12,10 @@ async function bundle() {
     plugins: [
       rollupNodeResolve({ browser: true }),
       rollupCommonJs(),
-      rollupTypeScript({ tsconfig: './tsconfig.json' }),
+      rollupTypeScript({
+        tsconfig: './tsconfig.json',
+        include: ["src/lib/**"]
+      }),
     ]
   });
 
