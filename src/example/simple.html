@@ -5,13 +5,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <link rel="stylesheet" href="style.css">
-<title>ListMerger Demo - Extended Example</title>
+<title>ListMerger Demo - Simple Example</title>
 </head>
 
 <body>
 
-  <h1>ListMerger Demo - Extended Example</h1>
-  <p><a href="/simple.html">Simple Example</a></p>
+  <h1>ListMerger Demo - Simple Example</h1>
+  <p><a href="/index.html">Extended Example</a></p>
 
   <dialog>
     <p>Do you want to merge these findings<span id="mergeplaceholder"></span>?</p>
@@ -20,8 +20,8 @@
     <button href="#" id="mergebutton" type="submit">Merge</button>
     <button id="closebutton">Close</button>
   </form>
-  </dialog> 
-
+  </dialog>
+  
   <button id="undo" disabled>Undo</button>
   <button id="redo" disabled>Redo</button>
   <button id="save">Save</button>
@@ -31,19 +31,16 @@
     <div class="mergelist">
       <p>Merged List <span class="indicator">0</span></p>
       <div class="zone" data-role="zone" id="mlist">
-        <!-- <div data-role="finding" id="fin10" class="element" draggable="true">Finding 10</div> -->
       </div>
     </div>
     <div class="tablist">
-      <select id="detailsselector">
-      </select>
-      <!-- https://developer.mozilla.org/en-US/docs/Web/HTML/Reference/Elements/details -->
+      <select id="detailsselector"></select>
       <div class="tabbar">
       </div>
     </div>
   </div>
 
   <script type="module" src="./lib/listmerger.js"></script>
-  <script type="module" src="./main.js"></script>
+  <script type="module" src="./simple.js"></script>
 </body>
 </html>
