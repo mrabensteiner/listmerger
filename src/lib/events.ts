@@ -210,15 +210,16 @@ export function dragStart(e: DragEvent) {
     return;  
   }
 
-  dropOrigin = element.id;
+  dropOrigin = element.closest(".element").id;
 
   if (element.classList.contains(CssNames.ITEM_DRAGHANDLE)) {
     mergeListElement = document.querySelector("#mlist");
     dragAction = Action.Arrange;
-    dropOrigin = element.parentElement.id;
+    dropOrigin = element.closest(".element").id;
+
     dragPosition = getPositionInList(dropOrigin);
 
-    element.parentElement.classList.add(CssNames.ITEM_DRAGGING);
+    element.closest(".element").classList.add(CssNames.ITEM_DRAGGING);
   } else {
     dragAction = Action.Move;
     document.getElementById(dropOrigin).classList.add(CssNames.ITEM_DRAGGED);
@@ -230,7 +231,7 @@ export function dragEnd(e: Event) {
     e.classList.remove(CssNames.HOVER_DRAG);
   })
   document.getElementById(dropOrigin).classList.remove(CssNames.ITEM_DRAGGING);
-    dropOrigin = (e.target as Element).closest(".element").id;
+    //dropOrigin = (e.target as Element).closest(".element").id;
     if(dropOrigin == "") {
       return;
     }
@@ -282,6 +283,9 @@ export function drop(e: DragEvent) {
   if(!target.classList.contains("zone")) {
     target = target.closest(".element");
   }
+  if(target == undefined) {
+    return
+  }
   if (target.getAttribute("data-role") == "finding") {
     // merging target
     // const mergeplaceholder = document.querySelector("#mergeplaceholder");
@@ -301,7 +305,7 @@ export function drop(e: DragEvent) {
   }
   else if (droporigin_element.parentElement.id == target.id) {
     // is already there, move it to the new position
-   
+
     let dragPosition = getPositionInList(dropOrigin);
     let nextSibling = getNextDropSibling(e);
 

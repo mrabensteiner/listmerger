@@ -61,16 +61,26 @@ function selectTab(e: Event) {
 }
 
 export function toggleDrop(e, dropOrigin) {
-  let classlist = e.target.classList;
-  if (classlist == undefined) return;
+  if (e.target == undefined) return;
 
-  if (e.target.parentElement.classList.contains(CssNames.ITEM)) {
-    classlist = e.target.parentElement.classList;
+
+  if(e.target.closest(".drag")) {
+    e.target.closest(".drag").classList.remove("drag");
+    return;
   }
+
+  let target = e.target.closest(".element");
+
+  if(target == undefined) {
+    target= e.target.closest(".zone")
+  }
+
+  let classlist = target.classList;
 
   if (classlist.contains(CssNames.HOVER_DRAG)) {
     classlist.remove(CssNames.HOVER_DRAG);
-  } else if ((classlist.contains(CssNames.MERGED_ZONE) || classlist.contains(CssNames.ITEM)) && e.target.id != dropOrigin) {
+  }
+  if ((classlist.contains(CssNames.MERGED_ZONE) || classlist.contains(CssNames.ITEM)) && e.target.id != dropOrigin) {
     classlist.add(CssNames.HOVER_DRAG);
   }
 }

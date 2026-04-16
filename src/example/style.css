@@ -111,8 +111,7 @@ body {
 }
 
 .dragging {
-  color: transparent;
-  opacity: .8;
+  opacity: .5;
   border: 1px dashed darkgray !important;
 }
 
