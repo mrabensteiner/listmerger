@@ -76,6 +76,11 @@ body {
   align-items: center;
 }
 
+.zone .element.added > summary,
+.zone .element.merged > summary {
+  cursor: pointer;
+}
+
 .zone .element > summary, .zone .element {
   background: rgb(245, 245, 255);
   border: 1px solid transparent;

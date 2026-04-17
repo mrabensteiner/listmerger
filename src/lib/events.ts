@@ -239,7 +239,8 @@ export function dragEnd(e: Event) {
     dragAction = Action.None;
 }
 
-export function dragHover(e: Event) {
+export function dragHover(e: DragEvent) {
+  e.preventDefault();
   if(dragAction == Action.Move) {
     toggleDrop(e, dropOrigin) 
   }
@@ -247,6 +248,10 @@ export function dragHover(e: Event) {
 
 export function dragOver(e: DragEvent) {
   e.preventDefault();
+
+  if((e.target as HTMLElement).closest(".element")) {
+    e.dataTransfer.dropEffect = "copy";
+  }
 
   if(dragAction == Action.Move) {
     return;

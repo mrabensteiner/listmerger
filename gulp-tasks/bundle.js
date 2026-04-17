@@ -27,7 +27,7 @@ async function bundle() {
     const config = [
       { extension: 'js', plugins: [] },
       { extension: 'min.js', plugins: minPlugins },
-      { extension: 'gZip.js', plugins: gZipPlugins },
+      { extension: 'gz.js', plugins: gZipPlugins },
     ];
     return config.map((conf) => bundle.write({
       file:`${location}/listmerger.${conf.extension}`,
