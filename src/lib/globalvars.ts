@@ -20,6 +20,23 @@ export function setItems(set_items: Object) {
     items = set_items;
 }
 
+export function setItem(id: string, item: Object) {
+  id = id.startsWith(PREFIX_MOVED) ? id.slice(PREFIX_MOVED.length) : id;
+
+  items["merged"].forEach(element => {
+    if(element.id == id) {
+      Object.assign(element, item)
+    }
+  });
+  items["originlists"].forEach(list => {
+    list["items"].forEach(element => {
+      if(element.id == id) {
+        Object.assign(element, item)
+      }
+    });
+  });
+}
+
 export function setTemplates(item_template: string, dialog_template: string, merge_template: string) {
     ITEM_TEMPLATE = item_template;
     DIALOG_TEMPLATE = dialog_template;
@@ -36,7 +53,7 @@ export function getItem(id: string, full = false): Object {
   let item = {};
   items["merged"].forEach(element => {
     if(element.id == id) {
-      item = element;
+      item = structuredClone(element);
 
       if(full) {
         const merged_ids = element["mergedfrom"];
@@ -47,17 +64,17 @@ export function getItem(id: string, full = false): Object {
           merged_full.push(getItem(id))
         });
         
-        element["mergedfrom"] = merged_full;
+        item["mergedfrom"] = merged_full;
       }
     }
   });
   items["originlists"].forEach(list => {
     list["items"].forEach(element => {
       if(element.id == id) {
-        item = element;
+        item = structuredClone(element);
 
-        if(full) {
-          element["mergedto"] = getItem(element["mergedto"]);
+        if(full && element["mergedto"] != undefined) {
+          item["mergedto"] = getItem(element["mergedto"]);
         }
       }
     });

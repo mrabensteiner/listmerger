@@ -1,6 +1,7 @@
-import { createDragHandle, CssNames, generateItem, updateAllIndicators, updateItem } from "./uihelper"
+import { createDragHandle, createEditButton, CssNames, generateItem, updateAllIndicators, updateItem } from "./uihelper"
 import * as history from "./history"
 import { addMergeItem, getItem, mergelistId, PREFIX_MERGED, PREFIX_MOVED, updateMergedTo } from "./globalvars"
+import { editDialog } from "./events";
 
 export function move(id, from_history = false) {
   if (!from_history) {
@@ -14,11 +15,25 @@ export function move(id, from_history = false) {
   clone.id = PREFIX_MOVED + clone.id;
   clone.setAttribute("data-origin", id);
   clone.classList.remove(CssNames.ITEM_DRAGGED);
+  clone.children[0].append(editButton());
   clone.children[0].append(createDragHandle());
 
   target.append(clone);
   element.classList.add(CssNames.ITEM_ADDED);
   updateAllIndicators();
+}
+
+function editButton() {
+  const element = createEditButton();
+
+  element.addEventListener("click", (e) => {
+    const target = (e.target as HTMLElement).closest(".element");
+    editDialog(target.id);
+    const dialog = document.querySelector("dialog");
+    dialog.showModal();
+  });
+
+  return element;
 }
 
 export function moveUndo(id) {
@@ -48,6 +63,13 @@ export function moveAllUndo(moved) {
   moved.forEach(id => {
     moveUndo(id)
   })
+}
+
+export function edit(id) {
+  updateItem(id, false);
+  const element = document.getElementById(id);
+  element.children[0].append(editButton());
+  element.children[0].append(createDragHandle());
 }
 
 export function merge(id1, id2, title, from_history = false, oldmergeid = "", item = {}) {
@@ -110,7 +132,7 @@ export function merge(id1, id2, title, from_history = false, oldmergeid = "", it
 
   const mergedfrom = mergeHistoryItems(historyitem);
 
-  item["mergedfrom"] = mergedfrom.map((id) => getItem(id));
+  item["mergedfrom"] = mergedfrom;//mergedfrom.map((id) => getItem(id));
 
 
   item["id"] = newid;
@@ -121,10 +143,11 @@ export function merge(id1, id2, title, from_history = false, oldmergeid = "", it
     updateItem(item_id);
   });
 
-  target.innerHTML = generateItem("", item).innerHTML;
+  target.id = newid;
+  updateItem(newid, false);
+  target.children[0].append(editButton());
   target.children[0].append(createDragHandle());
   target.removeAttribute("data-origin");
-  target.id = newid;
 
   if (remove_id2) {
     document.getElementById(id2).remove()
@@ -172,6 +195,7 @@ export function mergeUndo(id) {
   if (mergeitem.historyA.id.startsWith(PREFIX_MERGED) || mergeitem.historyA.id.startsWith(PREFIX_MOVED)) {
     mergeelement.id = mergeitem.historyA.id;
     mergeelement.innerHTML = generateItem("", getItem(mergeelement.id)).innerHTML;
+    mergeelement.children[0].append(editButton());
     mergeelement.children[0].append(createDragHandle());
   }
 

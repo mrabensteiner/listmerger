@@ -184,11 +184,11 @@ Merged with:
 `;
 
 const merge_template = `
-<h2>Merge</h2>
+<h2>{{action}}</h2>
 
 <div class='formgroup'>
   <label>Title</label>
-  <input name='title'>
+  <input name='title' value="{{title}}">
 </div>
 
 <div class='formgroup'>

@@ -46,6 +46,12 @@ export function init_responsive_tablist(id: string) {
   }).observe(document.querySelector(id));
 }
 
+export function createEditButton() {
+  let editbutton = document.createElement("button");
+  editbutton.innerHTML = "Edit";
+  return editbutton;
+}
+
 export function createDragHandle() {
   let draghandle = document.createElement("img");
   draghandle.classList.add(CssNames.ITEM_DRAGHANDLE);
@@ -174,8 +180,10 @@ export function generateItem(parent_id: string, item: Object): HTMLElement {
   return element;
 }
 
-export function updateItem(id: string) {
-  id = id.startsWith(PREFIX_MOVED) ? id.slice(PREFIX_MOVED.length) : id;
+export function updateItem(id: string, slice = true) {
+  if(slice) {
+    id = id.startsWith(PREFIX_MOVED) ? id.slice(PREFIX_MOVED.length) : id;
+  }
 
   const element = document.getElementById(id);
   const moved_element = document.getElementById(PREFIX_MOVED + id);

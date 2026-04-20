@@ -1,7 +1,7 @@
 import { arrange, CssNames, getNextDropSibling, getPositionInList, prepareMergeModal, prepareModal, toggleDrop } from "./uihelper";
 import * as transfer from './transfer';
 import * as history from './history';
-import { addMergeItem, getItem, mergelistId, PREFIX_MERGED, PREFIX_MOVED } from "./globalvars";
+import { addMergeItem, getItem, mergelistId, PREFIX_MERGED, PREFIX_MOVED, setItem } from "./globalvars";
 
 export enum Action {
   None,
@@ -120,6 +120,40 @@ export function mergeInputClick(e: Event) {
   
   const input_element = element.parentElement.querySelector(`[name="${attribute}"]`);
   (input_element as HTMLInputElement).value += value;
+}
+
+export function editDialog(id: string) {
+  const mergecontainer = document.createElement("div");
+  mergecontainer.classList.add("mergecontainer");
+  mergecontainer.style.display = "flex"
+
+  const merge_center = document.createElement("div");
+  merge_center.innerHTML = prepareMergeModal(id);
+
+  mergecontainer.append(merge_center);
+  dialog.replaceChildren(mergecontainer);
+
+  const button_container = document.createElement("div");
+  button_container.classList.add("buttons");
+
+  const close_button = document.createElement("button");
+  close_button.classList.add("close");
+  close_button.classList.add("icontext");
+  close_button.innerText = "Cancel";
+
+  const save_button = document.createElement("button");
+  save_button.classList.add("merge");
+  save_button.innerText = "Save";
+  save_button.autofocus = true;
+
+  button_container.append(close_button);
+  button_container.append(save_button);
+  dialog.append(button_container);
+
+  close_button.addEventListener("click", dialogClose);
+  save_button.addEventListener("click", () => {
+    saveEdit(id);
+  });
 }
 
 export function mergeDialog(id1: string, id2: string) {
@@ -281,15 +315,14 @@ export function drop(e: DragEvent) {
   let droporigin_element = document.getElementById(dropOrigin);
   let target = (e.target as HTMLElement);
 
-  if(dropOrigin == target.id) {
-    return;
-  }
-
   if(!target.classList.contains("zone")) {
     target = target.closest(".element");
   }
   if(target == undefined) {
     return
+  }
+  if(dropOrigin == target.id) {
+    return;
   }
   if (target.getAttribute("data-role") == "finding") {
     // merging target
@@ -334,6 +367,24 @@ export function drop(e: DragEvent) {
   history.log(history.Tasks.Move, dropOrigin);
 }
 
+export function saveEdit(id: string) {
+  let item = getItem(id);
+
+  dialog.querySelectorAll("input, textarea").forEach((element: HTMLInputElement) => {
+    const key = element.name;
+    const value = element.value;
+
+    item[key] = value;
+  });
+
+  setItem(id, item);
+
+  transfer.edit(id);
+  // todo history.log
+
+  dialog.close();
+}
+
 export function merge(event: Event) {
   event.preventDefault();
 
@@ -356,10 +407,21 @@ export function merge(event: Event) {
   let item1 = getItem(target.id);
   let item2 = getItem(dropOrigin);
 
-  Object.keys(item1).forEach(key => {
+  const keys1 = Object.keys(item1);
+  const keys2 = Object.keys(item2);
+
+  keys1.forEach(key => {
     if(Array.isArray(item1[key])) {
       new_item[key] = item1[key].concat(item2[key]);
+    } else if(Array.isArray(item2[key])) {
+      new_item[key] = item2[key];
+    } else if(new_item[key] == "") {
+      new_item[key] = item1[key];
     }
+  });
+
+  keys2.filter(n => !keys1.includes(n)).forEach(key => {
+    new_item[key] = item2[key];
   });
 
   let origin_id = dropOrigin;
