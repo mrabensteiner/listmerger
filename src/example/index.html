@@ -9,6 +9,7 @@
 </head>
 
 <body>
+<div id="page">
 
   <h1>ListMerger Demo - Extended Example</h1>
   <p><a href="/simple.html">Simple Example</a></p>
@@ -22,9 +23,11 @@
   </form>
   </dialog> 
 
-  <button id="undo" disabled>Undo</button>
-  <button id="redo" disabled>Redo</button>
-  <button id="save">Save</button>
+  <div>
+    <button id="undo" disabled>Undo</button>
+    <button id="redo" disabled>Redo</button>
+    <button id="save">Save</button>
+  </div>
   
   <div class="container" id="listmerger">
     
@@ -42,8 +45,8 @@
       </div>
     </div>
   </div>
-
-  <script type="module" src="./lib/listmerger.js"></script>
-  <script type="module" src="./main.js"></script>
+</div>
+<script type="module" src="./lib/listmerger.js"></script>
+<script type="module" src="./main.js"></script>
 </body>
 </html>
