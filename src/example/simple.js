@@ -1,4 +1,4 @@
-import { init } from './lib/listmerger.js';
+import * as listmerger from './lib/listmerger.js';
 
 
 function print_results(results) {
@@ -125,5 +125,24 @@ const merge_template = `
 </div>
 `;
 
+function save_console() {
+  console.log(listmerger.getAllItems());
+}
 
-init("listmerger", "undo", "redo", print_results, items, item_template, dialog_template, merge_template);
+function save_json() {
+  const items = listmerger.getAllItems();
+
+  const file = new Blob([JSON.stringify(items, null, 2)], {
+    type: "application/json",
+  });
+
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(file);
+  a.download = "items.json";
+  a.click();
+}
+
+document.getElementById("save-console").addEventListener("click", save_console);
+document.getElementById("save-json").addEventListener("click", save_json);
+
+listmerger.init("listmerger", "undo", "redo", items, item_template, dialog_template, merge_template);

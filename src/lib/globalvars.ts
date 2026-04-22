@@ -1,7 +1,4 @@
-export type DynamicFunction = (a: any) => void;
-
 export let mergelistId;
-export let callback_function = (a: any) => {};
 
 export const PREFIX_MOVED = "moved-";
 export const PREFIX_MERGED = "merged-";
@@ -43,10 +40,6 @@ export function setTemplates(item_template: string, dialog_template: string, mer
     MERGE_TEMPLATE = merge_template;
 }
 
-export function setCallbackFunction(callback: DynamicFunction) {
-    callback_function = callback;
-}
-
 export function getItem(id: string, full = false): Object {
   id = id.startsWith(PREFIX_MOVED) ? id.slice(PREFIX_MOVED.length) : id;
 
@@ -72,6 +65,7 @@ export function getItem(id: string, full = false): Object {
     list["items"].forEach(element => {
       if(element.id == id) {
         item = structuredClone(element);
+        item["parent"] = list["name"];
 
         if(full && element["mergedto"] != undefined) {
           item["mergedto"] = getItem(element["mergedto"]);
@@ -80,6 +74,10 @@ export function getItem(id: string, full = false): Object {
     });
   });
   return item;
+}
+
+export function getAllItems() {
+  return items;
 }
 
 export function addMergeItem(item: Object) {

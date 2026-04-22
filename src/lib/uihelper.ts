@@ -80,6 +80,9 @@ export function toggleDrop(e, dropOrigin) {
   if(target == undefined) {
     target= e.target.closest(".zone")
   }
+  if(target == undefined) {
+    return;
+  }
 
   let classlist = target.classList;
 

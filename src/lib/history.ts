@@ -1,4 +1,3 @@
-import { callback_function } from './globalvars';
 import * as transfer from './transfer'
 import { arrange } from './uihelper';
 
@@ -20,21 +19,6 @@ export function init() {
   document.getElementById("redo").addEventListener("click", (e) => {
     e.preventDefault();
     redo();
-  })
-
-  document.getElementById("save").addEventListener("click", (e) => {
-    e.preventDefault();
-
-    let mergedlist = [];
-    document.querySelectorAll("#mlist .element").forEach((element) => {
-      if(element.getAttribute("data-origin") != undefined) {
-        mergedlist.push(element.getAttribute("data-origin"));
-      } else {
-        mergedlist.push(mergelist[element.id]);
-      }
-    });
-
-    callback_function(mergedlist);
   })
 }
 
