@@ -136,12 +136,12 @@ const item_template = `
 
 <section>
 
-{{#author}}
+{{#author.length}}
   <div>
     <label>Author</label>
-    {{.}}
+    {{#author}}<span class='enum'>{{.}}</span>{{/author}}
   </div>
-{{/author}}
+{{/author.length}}
 {{#category}}
   <div>
     <label>Category</label>
@@ -164,13 +164,14 @@ const item_template = `
 
 {{#mergedto}}
 <hr/>
-Merged to: <a href="#{{mergedto.id}}">{{mergedto.title}}</a>
+<label>Merged to</label>
+<a href="#{{mergedto.id}}">{{mergedto.title}}</a>
 {{/mergedto}}
 
 {{#mergedfrom.length}}
 <hr/>
-Merged from: 
-{{#mergedfrom}}<a href="#{{id}}">{{title}} ({{parent}})</a> {{/mergedfrom}} 
+<label>Merged from</label>
+{{#mergedfrom}}<span class="enum"><a href="#{{id}}">{{title}} ({{parent}})</a></span>{{/mergedfrom}} 
 {{/mergedfrom.length}}
 
 </div>
@@ -179,9 +180,9 @@ Merged from:
 
 const dialog_template = `
 <h1>{{title}}</h1>
-{{#author}}
-  <div>Author: {{.}}</div>
-{{/author}}
+{{#author.length}}
+  <div>Author: {{#author}}{{.}}{{/author}}</div>
+{{/author.length}}
 {{#category}}
   <div>Category: {{.}}</div>
 {{/category}}
@@ -192,7 +193,7 @@ const dialog_template = `
 </div>
 <div>{{description}}</div>
 <div>
-Merged with:
+<label>Merged with</label>
 {{#merged}}{{.}}{{/merged}}
 </div>
 `;

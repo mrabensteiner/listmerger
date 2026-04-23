@@ -339,3 +339,12 @@ label {
 dialog div {
   margin-bottom: .5rem;
 }
+
+.enum:not(:last-of-type)::after {
+  content: ', ';
+}
+
+hr {
+  border: #9999 solid 1px;
+  margin: 1rem 0;
+}

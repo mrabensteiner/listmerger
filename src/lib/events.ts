@@ -368,19 +368,21 @@ export function drop(e: DragEvent) {
 }
 
 export function saveEdit(id: string) {
-  let item = getItem(id);
+  const item = getItem(id);
+  let new_item = {};
+  Object.assign(new_item, item);
 
   dialog.querySelectorAll("input, textarea").forEach((element: HTMLInputElement) => {
     const key = element.name;
     const value = element.value;
 
-    item[key] = value;
+    new_item[key] = value;
   });
 
-  setItem(id, item);
+  setItem(id, new_item);
 
   transfer.edit(id);
-  // todo history.log
+  history.log(history.Tasks.Edit, id, "", "", [], "", item);
 
   dialog.close();
 }

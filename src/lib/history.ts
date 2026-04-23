@@ -1,7 +1,9 @@
+import { getItem, setItem } from './globalvars';
 import * as transfer from './transfer'
-import { arrange } from './uihelper';
+import { arrange, updateItem } from './uihelper';
 
 export enum Tasks {
+    Edit,
     Move,
     MoveAll,
     Merge,
@@ -70,7 +72,12 @@ export function undo() {
   let last = history.pop();
   if (last == undefined) return;
 
-  if (last.action == Tasks.Move) {
+  if (last.action == Tasks.Edit) {
+    const tmp = getItem(last.id1);
+    setItem(last.id1, last.item);
+    updateItem(last.id1);
+    last.item = tmp;
+  } else if (last.action == Tasks.Move) {
     transfer.moveUndo(last.id1)
   } else if (last.action == Tasks.MoveAll) {
     transfer.moveAllUndo(last.array)
@@ -87,9 +94,13 @@ export function undo() {
 export function redo() {
   let last = future.pop();
   if (last == undefined) return;
-  history.push(last);
 
-  if (last.action == Tasks.Move) {
+  if (last.action == Tasks.Edit) {
+    const tmp = getItem(last.id1);
+    setItem(last.id1, last.item);
+    updateItem(last.id1);
+    last.item = tmp;
+  } else if (last.action == Tasks.Move) {
     transfer.move(last.id1, true)
   } else if (last.action == Tasks.MoveAll) {
     let zonefindings = document.getElementById(last.id1).querySelectorAll("[data-role='finding']");
@@ -99,6 +110,8 @@ export function redo() {
   } else if (last.action == Tasks.Arrange) {
     arrange(last.id1, +last.id3);
   }
+
+  history.push(last);
 
   updateButtons();
 }

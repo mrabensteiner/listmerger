@@ -67,7 +67,7 @@ export function getItem(id: string, full = false): Object {
         item = structuredClone(element);
         item["parent"] = list["name"];
 
-        if(full && element["mergedto"] != undefined) {
+        if(full && element["mergedto"] != undefined && element["mergedto"] != "") {
           item["mergedto"] = getItem(element["mergedto"]);
         }
       }
