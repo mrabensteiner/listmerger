@@ -414,7 +414,15 @@ export function merge(event: Event) {
 
   keys1.forEach(key => {
     if(Array.isArray(item1[key])) {
-      new_item[key] = item1[key].concat(item2[key]);
+      new_item[key] = item1[key];
+
+      if(Array.isArray(item2[key])) {
+        item2[key].forEach(value => {
+          if(!new_item[key].includes(value)) {
+            new_item[key].push(value);
+          }
+        });
+      }
     } else if(Array.isArray(item2[key])) {
       new_item[key] = item2[key];
     } else if(new_item[key] == "") {

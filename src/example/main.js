@@ -9,119 +9,183 @@ const items = {
   "merged": [],
   "originlists": [
     {
-      "id": "eval1",
-      "name": "List 1",
+      "id": "list1",
+      "name": "John Doe",
       "items": [
         {
           "id": "li1it1",
-          "title": "Item 1",
-          "author": "Martin Rabensteiner",
-          "category": "Category 1",
+          "title": "Video on the Start Page",
+          "author": ["John Doe"],
+          "category": ["Visibility of System Status"],
           "images": [
             "images/tugraz.png",
             "images/steps.png"
           ],
-          "description": "This is the first item in the list."
+          "description": "The startpage has a muted video that starts autmatically."
         },
         {
           "id": "li1it2",
-          "title": "Item 2",
-          "author": "Martin Rabensteiner",
-          "category": "Category 1",
-          "images": [
-            "images/studies.png"
-          ],
+          "title": "Study Programms",
+          "author": ["John Doe"],
+          "category": ["User Control and Freedom"],
+          "images": ["images/studies.png"],
           "description": "This is the second item in the list."
         },
         {
           "id": "li1it3",
-          "title": "Item 3",
-          "author": "Martin Rabensteiner",
-          "category": "Category 1",
-          "description": "This is the third item in the list."
+          "title": "Consultation and Tipps Boxes",
+          "author": ["John Doe"],
+          "category": ["Aesthetic and Minimalist Design"],
+          "images": ["images/tipps.png"],
+          "description": "This is an item about the Consultation and Tipps Boxes."
         },
         {
           "id": "li1it4",
-          "title": "Item 4",
-          "author": "Martin Rabensteiner",
-          "category": "Category 1",
-          "description": "This is the fourth item in the list."
+          "title": "Admission",
+          "author": ["John Doe"],
+          "category": ["User Control and Freedom"],
+          "images": ["images/steps.png"],
+          "description": "In this graphic, the steps for admission are shown."
         },
         {
           "id": "li1it5",
-          "title": "Item 5"
+          "title": "Major Selection",
+          "author": ["John Doe"],
+          "category": ["Visibility of System Status"],
+          "images": ["images/majors.png"],
+          "description": "A variety of Marjos."
         },
         {
           "id": "li1it6",
-          "title": "Item 6"
+          "title": "Tiles for Study Programms",
+          "author": ["John Doe"],
+          "category": ["Help and Documentation"],
+          "images": ["images/studies.png"],
+          "description": "Study programms are shown as tiles."
         },
         {
           "id": "li1it7",
-          "title": "Item 7"
+          "title": "Footer with many Information",
+          "author": ["John Doe"],
+          "category": ["User Control and Freedom"],
+          "images": ["images/footer.png"],
+          "description": "The footer contains important links, contact information, and partners."
         },
         {
           "id": "li1it8",
-          "title": "Item 8"
+          "title": "The Faculty of Computer Science and Biomedical Engineering",
+          "author": ["John Doe"],
+          "category": ["Consistency and Standards"],
+          "images": ["images/faculty.png"],
+          "description": "This faculty is home to 11 institutes."
         },
         {
           "id": "li1it9",
-          "title": "Item 9"
+          "title": "Selection of Majors in Computer Science",
+          "author": ["John Doe"],
+          "category": ["Help Users Recognize, Diagnose, and Recover from Errors"],
+          "images": ["images/majors.png"],
+          "description": "Choose one of those."
         },
         {
           "id": "li1it10",
-          "title": "Item 10"
+          "title": "This is an example with a very long title to show how the Application copes with it and the <summary> element breaks it to multiple lines. A title should nevertheless not be that long. Also, multiple senteces are maybe a bit unnecessary.",
+          "author": ["John Doe"],
+          "category": ["Aesthetic and Minimalist Design"],
+          "images": ["images/steps.png"],
+          "description": "In contrast, a very short description."
         },
         {
           "id": "li1it11",
-          "title": "Item 11"
+          "title": "Import Information about the Study Programm",
+          "author": ["John Doe"],
+          "category": ["Match Between the System and the Real World"],
+          "images": ["images/studydata.png"],
+          "description": "We alredy have 11 items in this list, it represents a long list.",
         },
         {
           "id": "li1it12",
-          "title": "Item 12"
+          "title": "Just one last Example of the Homepage",
+          "author": ["John Doe"],
+          "category": ["Error Prevention"],
+          "images": ["images/tugraz.png"],
+          "description": "Now we really have enough items.",
         }
       ]
     },
     {
       "id": "list2",
-      "name": "List 2",
+      "name": "Max Mustermann",
       "items": [
         {
           "id": "li2it1",
-          "title": "Item 2/1"
+          "title": "Description of Majors",
+          "author": ["Max Mustermann"],
+          "category": ["User Control and Freedom"],
+          "images": ["images/majors.png"],
+          "description": "The Master Programme offers 8 specialisation.",
         },
         {
           "id": "li2it2",
-          "title": "Item 2/2"
+          "title": "Study Data",
+          "author": ["Max Mustermann"],
+          "category": ["Consistency and Standards"],
+          "images": ["images/studydata.png"],
+          "description": "A box at the top show the key facts about the programm.",
         },
         {
           "id": "li2it3",
-          "title": "Item 2/3"
-        },
-        {
-          "id": "li2it4",
-          "title": "Item 2/4"
+          "title": "Tipps",
+          "author": ["Max Mustermann"],
+          "category": ["Visibility of System Status"],
+          "images": ["images/tipps.png"],
+          "description": "Short description.",
         }
       ]
     },
     {
       "id": "list3",
-      "name": "List 3",
+      "name": "Mario Rossi",
       "items": [
         {
           "id": "li3it1",
-          "title": "Item 3/1"
+          "title": "3x4 Grid of Master Programms at TU Graz",
+          "author": ["Mario Rossi"],
+          "category": ["Match Between the System and the Real World"],
+          "images": ["images/studies.png"],
+          "description": "A practical alternative to a long list.",
         },
         {
           "id": "li3it2",
-          "title": "Item 3/2"
+          "title": "The Homepage of TU Graz",
+          "author": ["Mario Rossi"],
+          "category": ["Flexibility and Efficiency of Use"],
+          "images": ["images/tugraz.png"],
+          "description": "TU Graz is one of four universities in Austria's second largest city.",
         },
         {
           "id": "li3it3",
-          "title": "Item 3/3"
+          "title": "Large White Space to the Left",
+          "author": ["Mario Rossi"],
+          "category": ["Visibility of System Status"],
+          "images": ["images/faculty.png"],
+          "description": "To the right, institutes are listed.",
         },
         {
           "id": "li3it4",
-          "title": "Item 3/4"
+          "title": "Custom Footer with the Logo",
+          "author": ["Mario Rossi"],
+          "category": ["Aesthetic and Minimalist Design"],
+          "images": ["images/footer.png"],
+          "description": "The logo is integrated into the background image in an unusual color.",
+        },
+        {
+          "id": "li3it5",
+          "title": "Last Item of the whole Example",
+          "author": ["Mario Rossi"],
+          "category": ["Error Prevention"],
+          "images": ["images/studies.png"],
+          "description": "The list of Mario Rossi now has 5 items.",
         }
       ]
     }
@@ -142,18 +206,18 @@ const item_template = `
     {{#author}}<span class='enum'>{{.}}</span>{{/author}}
   </div>
 {{/author.length}}
-{{#category}}
+{{#category.length}}
   <div>
     <label>Category</label>
-    {{.}}
+    {{#category}}<span class='enum'>{{.}}</span>{{/category}}
   </div>
-{{/category}}
+{{/category.length}}
 <div>
   {{#images.length}}
     <label>Images</label>
-  {{#images}}
-    <img class='thumbnail' src='{{.}}'/>
-  {{/images}}
+    {{#images}}
+      <img class='thumbnail' src='{{.}}'/>
+    {{/images}}
   {{/images.length}}
 </div>
 {{#description}}
