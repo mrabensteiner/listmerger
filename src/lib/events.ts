@@ -49,6 +49,44 @@ function initDragDrop() {
   listmerger_element.addEventListener("click", itemToHash);
   window.addEventListener('hashchange', updateHash);
 
+  document.addEventListener("keydown", (e) => {
+    const ctrl = e.ctrlKey;
+    const key = e.key;
+
+    if(["INPUT", "TEXTAREA"].includes((e.target as HTMLElement).nodeName)) {
+      return;
+    }
+
+    if (ctrl) {
+      if (key === "z") {
+        history.undo();
+      } else if (key === "y") {
+        history.redo();
+      }
+    } else if (key === "c") {
+      document.querySelectorAll("details.element").forEach(element => {
+        (element as HTMLDetailsElement).open = false;
+      });
+    } else if (key in ["1", "2", "3", "4", "5", "6", "7", "8", "9"]) {
+      const order = ""+(parseInt(key)-1);
+      const tab = document.querySelector(`.tabbar > details[data-order='${order}']`);
+
+      if (tab != undefined) {
+        (tab as HTMLDetailsElement).open = true;
+        (document.getElementById("detailsselector") as HTMLSelectElement).value = order;
+      }
+    } else if(key == "m") {
+      const target = (e.target as HTMLElement).closest(".element");
+
+      if (target == undefined || target.id.startsWith(PREFIX_MERGED) || target.id.startsWith(PREFIX_MOVED)) {
+        return;
+      }
+      
+      transfer.move(target.id);
+      history.log(history.Tasks.Move, dropOrigin);
+    }
+  });
+
   updateHash();
 }
 
@@ -332,6 +370,7 @@ export function drop(e: DragEvent) {
     // mergeplaceholder.innerHTML = " (ID " + target.id + " and ID " + dropOrigin + ")";
     // let newtitle_element = (dialog.querySelector("input[name='newtitle']") as HTMLInputElement);
     // newtitle_element.value = "Merged findings " + target.id + " and " + dropOrigin;
+    (target as HTMLDetailsElement).open = false;
     mergeDialog(target.id, dropOrigin)
     dialog.showModal();
 
@@ -362,6 +401,8 @@ export function drop(e: DragEvent) {
   else if (droporigin_element.classList.contains(CssNames.ITEM_ADDED) || droporigin_element.classList.contains(CssNames.ITEM_MERGED)) {
     return;
   }
+
+  (droporigin_element as HTMLDetailsElement).open = false;
 
   transfer.move(dropOrigin);
   history.log(history.Tasks.Move, dropOrigin);
@@ -444,6 +485,8 @@ export function merge(event: Event) {
   } else {
     dropOriginelement.classList.add(CssNames.ITEM_MERGED);
   }
+
+  (dropOriginelement as HTMLDetailsElement).open = false;
 
   let mergeid: string = transfer.merge(target.id, dropOrigin, new_item["title"], false, "", new_item)
   new_item["id"] = mergeid;

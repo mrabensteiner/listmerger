@@ -1,5 +1,6 @@
 import * as Mustache from 'mustache';
-import { DIALOG_TEMPLATE, getItem, ITEM_TEMPLATE, MERGE_TEMPLATE, PREFIX_MOVED } from './globalvars';
+import { DIALOG_TEMPLATE, getItem, ITEM_TEMPLATE, MERGE_TEMPLATE, PREFIX_MERGED, PREFIX_MOVED } from './globalvars';
+import { editDialog } from './events';
 
 export const CssNames = {
   ITEM: "element",
@@ -49,6 +50,7 @@ export function init_responsive_tablist(id: string) {
 export function createEditButton() {
   let editbutton = document.createElement("button");
   editbutton.innerHTML = "Edit";
+  editbutton.classList.add("edit");
   return editbutton;
 }
 
@@ -197,7 +199,23 @@ export function updateItem(id: string, slice = true) {
 
   if(moved_element != undefined) {
     moved_element.innerHTML = output;
+    moved_element.querySelector("summary").append(editButton());
+    moved_element.querySelector("summary").append(createDragHandle());
   }
+}
+
+function editButton() {
+  const element = createEditButton();
+  element.classList.add("edit");
+
+  element.addEventListener("click", (e) => {
+    const target = (e.target as HTMLElement).closest(".element");
+    editDialog(target.id);
+    const dialog = document.querySelector("dialog");
+    dialog.showModal();
+  });
+
+  return element;
 }
 
 export function prepareModal(item_id: string): string {

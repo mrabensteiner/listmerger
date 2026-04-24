@@ -77,7 +77,7 @@ export function merge(id1, id2, title, from_history = false, oldmergeid = "", it
     history.resetFuture();
   }
 
-  let target = document.getElementById(id1);
+  let target = document.getElementById(id1) as HTMLDetailsElement;
   let remove_id2 = true;
   
   let item1 = history.getMergeItem(id1);
@@ -148,6 +148,7 @@ export function merge(id1, id2, title, from_history = false, oldmergeid = "", it
   target.children[0].append(editButton());
   target.children[0].append(createDragHandle());
   target.removeAttribute("data-origin");
+  target.open = true;
 
   if (remove_id2) {
     document.getElementById(id2).remove()
