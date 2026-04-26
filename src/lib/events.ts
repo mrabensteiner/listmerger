@@ -1,4 +1,4 @@
-import { arrange, CssNames, getNextDropSibling, getPositionInList, prepareMergeModal, prepareModal, toggleDrop } from "./uihelper";
+import { arrange, CssNames, getNextDropSibling, getPositionInList, prepareEditModal, prepareModal, toggleDrop } from "./uihelper";
 import * as transfer from './transfer';
 import * as history from './history';
 import { addMergeItem, getItem, mergelistId, PREFIX_MERGED, PREFIX_MOVED, setItem } from "./globalvars";
@@ -37,8 +37,6 @@ function initDragDrop() {
   const listmerger_element = document.getElementById(mergelistId);
   const mergelist_element = listmerger_element.querySelector(".mergelist");
 
-  listmerger_element.addEventListener("pointerdown", preventDrag);
-  //listmerger_element.addEventListener("click", elementDialog);
   listmerger_element.addEventListener("dragstart", dragStart);
   listmerger_element.addEventListener("dragend", dragEnd);
   mergelist_element.addEventListener("dragenter", dragHover);
@@ -111,13 +109,6 @@ function itemToHash(e: MouseEvent) {
   }
 }
 
-function preventDrag(e: DragEvent) {
-  let element = (e.target as HTMLElement);
-
-  if(element.draggable && !element.classList.contains("element") && !element.classList.contains("draghandle")) {
-    element.draggable = false;
-  }
-}
 
 export function elementDialog(e: Event) {
   const element = (e.target as HTMLElement).closest(".element");
@@ -166,7 +157,7 @@ export function editDialog(id: string) {
   mergecontainer.style.display = "flex"
 
   const merge_center = document.createElement("div");
-  merge_center.innerHTML = prepareMergeModal(id);
+  merge_center.innerHTML = prepareEditModal("Edit", id);
 
   mergecontainer.append(merge_center);
   dialog.replaceChildren(mergecontainer);
@@ -180,7 +171,7 @@ export function editDialog(id: string) {
   close_button.innerText = "Cancel";
 
   const save_button = document.createElement("button");
-  save_button.classList.add("merge");
+  save_button.classList.add("save");
   save_button.innerText = "Save";
   save_button.autofocus = true;
 
@@ -215,7 +206,7 @@ export function mergeDialog(id1: string, id2: string) {
   const merge_child1 = document.createElement("div");
   merge_child1.innerHTML = prepareModal(id1);
   const merge_center = document.createElement("div");
-  merge_center.innerHTML = prepareMergeModal();
+  merge_center.innerHTML = prepareEditModal("Merge");
   const merge_child2 = document.createElement("div");
   merge_child2.innerHTML = prepareModal(id2);
 
@@ -270,12 +261,17 @@ export function mergeDialog(id1: string, id2: string) {
 
 export function dragStart(e: DragEvent) {
   let element = (e.target as HTMLElement)
+  
+  if (!(element instanceof HTMLElement)) {
+    e.preventDefault();
+    return;
+  }
 
-  if(!element.classList.contains(CssNames.ITEM_DRAGHANDLE)) {
+  if (!element.classList.contains(CssNames.ITEM_DRAGHANDLE)) {
     element = element.closest(".element");
   }
 
-  if((element.nodeName != "DETAILS" && !element.classList.contains(CssNames.ITEM_DRAGHANDLE))
+  if ((element.nodeName != "DETAILS" && !element.classList.contains(CssNames.ITEM_DRAGHANDLE))
     || element.classList.contains(CssNames.ITEM_ADDED)
     || element.classList.contains(CssNames.ITEM_MERGED)) {
     e.preventDefault();

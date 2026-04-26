@@ -222,7 +222,7 @@ button.icontext::before {
   margin-right: .5rem;
 }
 
-button.merge {
+dialog button {
   margin-left: .5rem;
 }
 

@@ -1,5 +1,5 @@
 import * as Mustache from 'mustache';
-import { DIALOG_TEMPLATE, getItem, ITEM_TEMPLATE, MERGE_TEMPLATE, PREFIX_MERGED, PREFIX_MOVED } from './globalvars';
+import { DIALOG_TEMPLATE, getItem, ITEM_TEMPLATE, EDIT_TEMPLATE, PREFIX_MERGED, PREFIX_MOVED } from './globalvars';
 import { editDialog } from './events';
 
 export const CssNames = {
@@ -178,6 +178,13 @@ export function generateItem(parent_id: string, item: Object): HTMLElement {
   element.innerHTML = output;
   element.setAttribute("data-role", "finding");
 
+  const summary = element.querySelector("summary");
+
+  if (summary != undefined) {
+    summary.draggable = true;
+    element.draggable = false;
+  }
+
   if(parent_id != "") {
     parent_element.append(element);
   }
@@ -196,6 +203,13 @@ export function updateItem(id: string, slice = true) {
   const item = getItem(id, true);
   const output = Mustache.render(ITEM_TEMPLATE, item);
   element.innerHTML = output;
+
+  const summary = element.querySelector("summary");
+
+  if (summary != undefined) {
+    summary.draggable = true;
+    element.draggable = false;
+  }
 
   if(moved_element != undefined) {
     moved_element.innerHTML = output;
@@ -222,9 +236,10 @@ export function prepareModal(item_id: string): string {
   return Mustache.render(DIALOG_TEMPLATE, getItem(item_id));
 }
 
-export function prepareMergeModal(item_id = "") {
+export function prepareEditModal(action: string, item_id = "") {
   const item = item_id == "" ? {} : getItem(item_id);
-  return Mustache.render(MERGE_TEMPLATE, item);
+  item["action"] = action;
+  return Mustache.render(EDIT_TEMPLATE, item);
 }
 
 export function arrange(id, position) {
