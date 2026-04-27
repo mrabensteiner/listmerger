@@ -1,60 +1,55 @@
 import * as listmerger from './lib/listmerger.js';
 
-
-function print_results(results) {
-  console.log(results);
-}
-
 const items = {
   "merged": [],
   "originlists": [
     {
-      "id": "eval1",
+      "id": "list1",
       "name": "List 1",
       "items": [
         {
           "id": "li1it1",
-          "title": "Item 1"
+          "title": "Item 1/1"
         },
         {
           "id": "li1it2",
-          "title": "Item 2"
+          "title": "Item 1/2"
         },
         {
           "id": "li1it3",
-          "title": "Item 3"
+          "title": "Item 1/3"
         },
         {
           "id": "li1it4",
-          "title": "Item 4"
+          "title": "Item 1/4"
         },
         {
           "id": "li1it5",
-          "title": "Item 5"
+          "title": "Item 1/5"
         },
         {
           "id": "li1it6",
-          "title": "Item 6"
+          "title": "Item 1/6"
         },
         {
           "id": "li1it7",
-          "title": "Item 7"
+          "title": "Item 1/7"
         },
         {
           "id": "li1it8",
-          "title": "Item 8"
+          "title": "Item 1/8"
         },
         {
           "id": "li1it9",
-          "title": "Item 9"
+          "title": "Item 1/9"
         },
         {
           "id": "li1it10",
-          "title": "Item 10"
+          "title": "Item 1/10"
         },
         {
           "id": "li1it11",
-          "title": "Item 11"
+          "title": "Item 1/11"
         },
         {
           "id": "li1it12",
@@ -114,14 +109,14 @@ const item_template = `
 <span>{{title}}</span></summary>
 `;
 
-const dialog_template = `<h1>{{title}}</h1>`;
+const dialog_template = `<h3>{{title}}</h3>`;
 
 const merge_template = `
-<h2>Merge</h2>
+<h2>{{action}}</h2>
 
 <div class='formgroup'>
   <label>Title</label>
-  <input name='title'>
+  <input name='title' value='{{title}}' autofocus>
 </div>
 `;
 

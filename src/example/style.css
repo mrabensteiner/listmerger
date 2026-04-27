@@ -140,8 +140,16 @@ html, body {
 }
 
 ::backdrop {
-  background: darkgrey;
-  opacity: 0.75;
+  background: rgb(222, 222, 222);
+  opacity: 0.8;
+}
+
+dialog {
+  border: none;
+  max-height: 90vh;
+  max-width: 90vw;
+  border-radius: .5rem;
+  box-shadow: 0 0 10px darkgray;
 }
 
 select {

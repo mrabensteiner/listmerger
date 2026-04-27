@@ -1,10 +1,5 @@
 import * as listmerger from './lib/listmerger.js';
 
-
-function print_results(results) {
-  console.log(results);
-}
-
 const items = {
   "merged": [],
   "originlists": [
@@ -21,11 +16,11 @@ const items = {
             "images/tugraz.png",
             "images/steps.png"
           ],
-          "description": "The startpage has a muted video that starts autmatically."
+          "description": "The start page has a muted video that starts automatically."
         },
         {
           "id": "li1it2",
-          "title": "Study Programms",
+          "title": "Study Programs",
           "author": ["John Doe"],
           "category": ["User Control and Freedom"],
           "images": ["images/studies.png"],
@@ -33,11 +28,11 @@ const items = {
         },
         {
           "id": "li1it3",
-          "title": "Consultation and Tipps Boxes",
+          "title": "Consultation and Tips Boxes",
           "author": ["John Doe"],
           "category": ["Aesthetic and Minimalist Design"],
           "images": ["images/tipps.png"],
-          "description": "This is an item about the Consultation and Tipps Boxes."
+          "description": "This is an item about the Consultation and Tips Boxes."
         },
         {
           "id": "li1it4",
@@ -53,15 +48,15 @@ const items = {
           "author": ["John Doe"],
           "category": ["Visibility of System Status"],
           "images": ["images/majors.png"],
-          "description": "A variety of Marjos."
+          "description": "A variety of Majors."
         },
         {
           "id": "li1it6",
-          "title": "Tiles for Study Programms",
+          "title": "Tiles for Study Programs",
           "author": ["John Doe"],
           "category": ["Help and Documentation"],
           "images": ["images/studies.png"],
-          "description": "Study programms are shown as tiles."
+          "description": "Study programs are shown as tiles."
         },
         {
           "id": "li1it7",
@@ -89,7 +84,7 @@ const items = {
         },
         {
           "id": "li1it10",
-          "title": "This is an example with a very long title to show how the Application copes with it and the <summary> element breaks it to multiple lines. A title should nevertheless not be that long. Also, multiple senteces are maybe a bit unnecessary.",
+          "title": "This is an example with a very long title to show how the Application copes with it and the <summary> element breaks it to multiple lines. A title should nevertheless not be that long. Also, multiple sentences are maybe a bit unnecessary.",
           "author": ["John Doe"],
           "category": ["Aesthetic and Minimalist Design"],
           "images": ["images/steps.png"],
@@ -97,11 +92,11 @@ const items = {
         },
         {
           "id": "li1it11",
-          "title": "Import Information about the Study Programm",
+          "title": "Import Information about the Study Program",
           "author": ["John Doe"],
           "category": ["Match Between the System and the Real World"],
           "images": ["images/studydata.png"],
-          "description": "We alredy have 11 items in this list, it represents a long list.",
+          "description": "We already have 11 items in this list, it represents a long list.",
         },
         {
           "id": "li1it12",
@@ -123,7 +118,7 @@ const items = {
           "author": ["Max Mustermann"],
           "category": ["User Control and Freedom"],
           "images": ["images/majors.png"],
-          "description": "The Master Programme offers 8 specialisation.",
+          "description": "The Master Programe offers 8 specialisation.",
         },
         {
           "id": "li2it2",
@@ -131,11 +126,11 @@ const items = {
           "author": ["Max Mustermann"],
           "category": ["Consistency and Standards"],
           "images": ["images/studydata.png"],
-          "description": "A box at the top show the key facts about the programm.",
+          "description": "A box at the top show the key facts about the program.",
         },
         {
           "id": "li2it3",
-          "title": "Tipps",
+          "title": "Tips",
           "author": ["Max Mustermann"],
           "category": ["Visibility of System Status"],
           "images": ["images/tipps.png"],
@@ -149,7 +144,7 @@ const items = {
       "items": [
         {
           "id": "li3it1",
-          "title": "3x4 Grid of Master Programms at TU Graz",
+          "title": "3x4 Grid of Master Programs at TU Graz",
           "author": ["Mario Rossi"],
           "category": ["Match Between the System and the Real World"],
           "images": ["images/studies.png"],
@@ -177,7 +172,7 @@ const items = {
           "author": ["Mario Rossi"],
           "category": ["Aesthetic and Minimalist Design"],
           "images": ["images/footer.png"],
-          "description": "The logo is integrated into the background image in an unusual color.",
+          "description": "The logo is integrated into the background image in an unusual colour.",
         },
         {
           "id": "li3it5",
@@ -243,22 +238,39 @@ const item_template = `
 `;
 
 const dialog_template = `
-<h1>{{title}}</h1>
+<h3>{{title}}</h3>
+
 {{#author.length}}
-  <div>Author: {{#author}}{{.}}{{/author}}</div>
+  <div>
+    <label>Author</label>
+    {{#author}}<span class='enum'>{{.}}</span>{{/author}}
+  </div>
 {{/author.length}}
-{{#category}}
-  <div>Category: {{.}}</div>
-{{/category}}
+{{#category.length}}
+  <div>
+    <label>Category</label>
+    {{#category}}<span class='enum'>{{.}}</span>{{/category}}
+  </div>
+{{/category.length}}
 <div>
-  {{#images}}
-    <img class='thumbnail' src='{{.}}'/>
-  {{/images}}
+  {{#images.length}}
+    <label>Images</label>
+    {{#images}}
+      <img class='thumbnail' src='{{.}}'/>
+    {{/images}}
+  {{/images.length}}
 </div>
-<div>{{description}}</div>
+{{#description}}
+  <label>Description</label>
+    {{.}}
+{{/description}}
+
 <div>
-<label>Merged with</label>
-{{#merged}}{{.}}{{/merged}}
+{{#mergedfrom.length}}
+<hr/>
+<label>Merged from</label>
+{{#mergedfrom}}<span class="enum">{{title}} ({{parent}})</span>{{/mergedfrom}} 
+{{/mergedfrom.length}}
 </div>
 `;
 
