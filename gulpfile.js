@@ -19,6 +19,10 @@ function cleanPackage() {
     return del('package', {force: true});
 }
 
+function copyMinimalCss() {
+    return src('./src/example/minimal.css', {encoding: false}).pipe(dest('./dist/'));
+}
+
 function copyExampleFolder() {
     return src('./src/example/**/*', {encoding: false}).pipe(dest('./dist/example'));
 }
@@ -35,6 +39,6 @@ exports.clean = cleanDistFolder;
 
 exports.cleanAll = parallel(cleanDistFolder, cleanNodeModules, cleanPackageLock, cleanPackage);
 
-exports.build = series(cleanDistFolder, bundle, copyExampleFolder, copyLibFileToExample);
+exports.build = series(cleanDistFolder, bundle, copyExampleFolder, copyLibFileToExample, copyMinimalCss);
 
 exports.dev = series(exports.build, watcher);

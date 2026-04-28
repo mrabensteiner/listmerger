@@ -1,0 +1,100 @@
+.tabbar {
+  display: flex;
+  flex-wrap: wrap;
+  overflow: auto;
+}
+
+.tabbar > details {
+  display: contents;
+}
+
+.tabbar > details[open] > summary {
+  background-color: lightgray;
+  z-index: 1;
+  border-bottom: none;
+}
+
+.tabbar > details[open]::details-content {
+  display: contents;
+}
+
+.tabbar > details > summary {
+  order: 0;
+  display: block;
+}
+
+.tabbar > details > section {
+  margin-top: -1px;
+  order: 1;
+  width: 100%;
+  background-color: lightgrey;
+}
+
+.container {
+  display: flex;
+  flex-direction: row;
+  overflow: hidden;
+}
+
+.container > div {
+  width: 50%;
+  padding: 1rem;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.zone {
+  background-color: lightgray;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: auto;
+}
+
+.zone .element > summary {
+  display: flex;
+  justify-content: space-between;
+  flex-direction: row;
+  align-items: center;
+}
+
+.zone .element > summary, .zone .element {
+  background: #eee;
+}
+
+.zone > div.dragg {
+  box-shadow: 0 0 10px rgb(36, 166, 210);
+}
+
+.zone.drag {
+  box-shadow: 0 0 10px #0f08;
+}
+
+.draghandle {
+  float: right;
+  padding: .1rem .5rem;
+  height: 1.25rem;
+}
+
+.indicator {
+  background-color: black;
+  color: white;
+}
+
+select {
+  display: none;
+}
+
+.tablist.compact {
+  > select {
+    display: block;
+  }
+  .tabbar > details > summary {
+    height: 1px;
+    opacity: 0;
+    padding: 0;
+    margin: 0;
+    pointer-events: none;
+  }
+}
