@@ -152,7 +152,7 @@ dialog {
   box-shadow: 0 0 10px darkgray;
 }
 
-select {
+#detailsselector {
   display: none;
   height: auto;
   padding: .5rem;
@@ -166,7 +166,7 @@ select {
 }
 
 .tablist.compact {
-  > select {
+  > #detailsselector {
     display: block;
   }
   .tabbar > details > summary {
