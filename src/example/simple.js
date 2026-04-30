@@ -105,7 +105,7 @@ const items = {
 }
 
 const item_template = `
-<summary {{#mergedto}}title="Merged to {{title}}"{{/mergedto}}>
+<summary {{#mergedto}}title="Merged into {{title}}"{{/mergedto}}>
 <span>{{title}}</span></summary>
 `;
 

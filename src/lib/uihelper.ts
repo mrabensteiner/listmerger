@@ -91,7 +91,7 @@ export function toggleDrop(e, dropOrigin) {
   if (classlist.contains(CssNames.HOVER_DRAG)) {
     classlist.remove(CssNames.HOVER_DRAG);
   }
-  if ((classlist.contains(CssNames.MERGED_ZONE) || classlist.contains(CssNames.ITEM)) && e.target.id != dropOrigin) {
+  if ((classlist.contains(CssNames.MERGED_ZONE) || classlist.contains(CssNames.ITEM)) && target.id != dropOrigin) {
     classlist.add(CssNames.HOVER_DRAG);
   }
 }
@@ -139,7 +139,7 @@ export function loadItems(items: Object) {
     summary_element.append(indicator_element);
 
     mergeallbutton_element.classList.add("moveall");
-    mergeallbutton_element.innerHTML = "Move All";
+    mergeallbutton_element.innerHTML = "Move Remaining";
 
     const list_id = list["id"] + "-list";
     list_element.id = list_id;
@@ -239,7 +239,12 @@ export function prepareModal(item_id: string): string {
 export function prepareEditModal(action: string, item_id = "") {
   const item = item_id == "" ? {} : getItem(item_id);
   item["action"] = action;
-  return Mustache.render(EDIT_TEMPLATE, item);
+  let container = document.createElement("div");
+  container.innerHTML = Mustache.render(EDIT_TEMPLATE, item);
+  container.querySelectorAll("select").forEach(select => {
+    select.value = item[select.name];
+  });
+  return container;
 }
 
 export function arrange(id, position) {

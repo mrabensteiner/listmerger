@@ -12,6 +12,7 @@ const items = {
           "title": "Video on the Start Page",
           "author": ["John Doe"],
           "category": ["Visibility of System Status"],
+          "severity": 2,
           "images": [
             "images/tugraz.png",
             "images/steps.png"
@@ -23,6 +24,7 @@ const items = {
           "title": "Study Programs",
           "author": ["John Doe"],
           "category": ["User Control and Freedom"],
+          "severity": 3,
           "images": ["images/studies.png"],
           "description": "This is the second item in the list."
         },
@@ -31,6 +33,7 @@ const items = {
           "title": "Consultation and Tips Boxes",
           "author": ["John Doe"],
           "category": ["Aesthetic and Minimalist Design"],
+          "severity": 1,
           "images": ["images/tipps.png"],
           "description": "This is an item about the Consultation and Tips Boxes."
         },
@@ -39,6 +42,7 @@ const items = {
           "title": "Admission",
           "author": ["John Doe"],
           "category": ["User Control and Freedom"],
+          "severity": 0,
           "images": ["images/steps.png"],
           "description": "In this graphic, the steps for admission are shown."
         },
@@ -47,6 +51,7 @@ const items = {
           "title": "Major Selection",
           "author": ["John Doe"],
           "category": ["Visibility of System Status"],
+          "severity": 4,
           "images": ["images/majors.png"],
           "description": "A variety of Majors."
         },
@@ -117,6 +122,7 @@ const items = {
           "title": "Description of Majors",
           "author": ["Max Mustermann"],
           "category": ["User Control and Freedom"],
+          "severity": 0,
           "images": ["images/majors.png"],
           "description": "The Master Programe offers 8 specialisation.",
         },
@@ -125,6 +131,7 @@ const items = {
           "title": "Study Data",
           "author": ["Max Mustermann"],
           "category": ["Consistency and Standards"],
+          "severity": 1,
           "images": ["images/studydata.png"],
           "description": "A box at the top show the key facts about the program.",
         },
@@ -133,6 +140,7 @@ const items = {
           "title": "Tips",
           "author": ["Max Mustermann"],
           "category": ["Visibility of System Status"],
+          "severity": 1,
           "images": ["images/tipps.png"],
           "description": "Short description.",
         }
@@ -147,6 +155,7 @@ const items = {
           "title": "3x4 Grid of Master Programs at TU Graz",
           "author": ["Mario Rossi"],
           "category": ["Match Between the System and the Real World"],
+          "severity": 2,
           "images": ["images/studies.png"],
           "description": "A practical alternative to a long list.",
         },
@@ -155,6 +164,7 @@ const items = {
           "title": "The Homepage of TU Graz",
           "author": ["Mario Rossi"],
           "category": ["Flexibility and Efficiency of Use"],
+          "severity": 3,
           "images": ["images/tugraz.png"],
           "description": "TU Graz is one of four universities in Austria's second largest city.",
         },
@@ -163,6 +173,7 @@ const items = {
           "title": "Large White Space to the Left",
           "author": ["Mario Rossi"],
           "category": ["Visibility of System Status"],
+          "severity": 2,
           "images": ["images/faculty.png"],
           "description": "To the right, institutes are listed.",
         },
@@ -171,6 +182,7 @@ const items = {
           "title": "Custom Footer with the Logo",
           "author": ["Mario Rossi"],
           "category": ["Aesthetic and Minimalist Design"],
+          "severity": 3,
           "images": ["images/footer.png"],
           "description": "The logo is integrated into the background image in an unusual colour.",
         },
@@ -179,6 +191,7 @@ const items = {
           "title": "Last Item of the whole Example",
           "author": ["Mario Rossi"],
           "category": ["Error Prevention"],
+          "severity": 0,
           "images": ["images/studies.png"],
           "description": "The list of Mario Rossi now has 5 items.",
         }
@@ -187,8 +200,21 @@ const items = {
   ]
 }
 
+const severity_template = `
+<div class='formgroup'>
+  <label>Severity</label>
+  <select name="severity">
+    <option value="4">Very High</option>
+    <option value="3">High</option>
+    <option value="2">Medium</option>
+    <option value="1">Low</option>
+    <option value="0">Very Low</option>
+  </select>
+</div>
+`
+
 const item_template = `
-<summary {{#mergedto}}title="Merged to {{title}}"{{/mergedto}}>
+<summary {{#mergedto}}title="Merged into {{title}}"{{/mergedto}}>
 
 <img class='thumbnail' src='{{images.0}}'/>
 <span>{{title}}</span></summary>
@@ -215,6 +241,13 @@ const item_template = `
     {{/images}}
   {{/images.length}}
 </div>
+{{#severity}}
+<div>
+  <label>Severity</label>
+  <span class="severity severity-{{.}}"></span>
+</div>
+{{/severity}}
+<div>
 {{#description}}
   <label>Description</label>
     {{.}}
@@ -223,7 +256,7 @@ const item_template = `
 
 {{#mergedto}}
 <hr/>
-<label>Merged to</label>
+<label>Merged into</label>
 <a href="#{{mergedto.id}}">{{mergedto.title}}</a>
 {{/mergedto}}
 
@@ -260,10 +293,19 @@ const dialog_template = `
     {{/images}}
   {{/images.length}}
 </div>
+
+{{#severity}}
+<div>
+  <label>Severity</label>
+  <span class="severity severity-{{.}}"></span>
+</div>
+{{/severity}}
+
 {{#description}}
   <label>Description</label>
     {{.}}
 {{/description}}
+
 
 <div>
 {{#mergedfrom.length}}
@@ -286,6 +328,7 @@ const merge_template = `
   <label>Description</label>
   <textarea name='description'>{{description}}</textarea>
 </div>
+${severity_template}
 `;
 
 function save_console() {

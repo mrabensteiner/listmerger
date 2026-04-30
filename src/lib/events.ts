@@ -148,7 +148,12 @@ export function mergeInputClick(e: Event) {
   const value = element.getAttribute("data-value");
   
   const input_element = element.parentElement.querySelector(`[name="${attribute}"]`);
-  (input_element as HTMLInputElement).value += value;
+
+  if(element.dataset.singlevalue == "1") {
+    (input_element as HTMLInputElement).value = value;
+  } else {
+    (input_element as HTMLInputElement).value += value;
+  }
 }
 
 export function editDialog(id: string) {
@@ -156,8 +161,7 @@ export function editDialog(id: string) {
   mergecontainer.classList.add("mergecontainer");
   mergecontainer.style.display = "flex"
 
-  const merge_center = document.createElement("div");
-  merge_center.innerHTML = prepareEditModal("Edit", id);
+  const merge_center = prepareEditModal("Edit", id);
 
   mergecontainer.append(merge_center);
   dialog.replaceChildren(mergecontainer);
@@ -205,8 +209,7 @@ export function mergeDialog(id1: string, id2: string) {
 
   const merge_child1 = document.createElement("div");
   merge_child1.innerHTML = prepareModal(id1);
-  const merge_center = document.createElement("div");
-  merge_center.innerHTML = prepareEditModal("Merge");
+  const merge_center = prepareEditModal("Merge", id1);
   const merge_child2 = document.createElement("div");
   merge_child2.innerHTML = prepareModal(id2);
 
@@ -215,7 +218,7 @@ export function mergeDialog(id1: string, id2: string) {
   mergecontainer.append(merge_child2);
   dialog.replaceChildren(mergecontainer);
 
-  merge_center.querySelectorAll("input, textarea").forEach((element: HTMLInputElement) => {
+  merge_center.querySelectorAll("input, textarea, select").forEach((element: HTMLInputElement) => {
     const button1 = document.createElement("button");
     button1.innerHTML = ">>";
     button1.setAttribute("data-attribute", element.name);
@@ -236,6 +239,11 @@ export function mergeDialog(id1: string, id2: string) {
     }
     element.parentElement.append(button2);
     button2.addEventListener("click", mergeInputClick);
+
+    if(element.tagName == "SELECT") {
+      button1.dataset.singlevalue = "1";
+      button2.dataset.singlevalue = "1";
+    }
   });
 
   const button_container = document.createElement("div");
@@ -409,7 +417,7 @@ export function saveEdit(id: string) {
   let new_item = {};
   Object.assign(new_item, item);
 
-  dialog.querySelectorAll("input, textarea").forEach((element: HTMLInputElement) => {
+  dialog.querySelectorAll("input, textarea, select").forEach((element: HTMLInputElement) => {
     const key = element.name;
     const value = element.value;
 
@@ -436,7 +444,7 @@ export function merge(event: Event) {
 
   let new_item = {};
 
-  dialog.querySelectorAll("input, textarea").forEach((element: HTMLInputElement) => {
+  dialog.querySelectorAll("input, textarea, select").forEach((element: HTMLInputElement) => {
     const key = element.name;
     const value = element.value;
 
