@@ -2,7 +2,7 @@ const rollup = require("rollup");
 const rollupCommonJs = require("@rollup/plugin-commonjs");
 const rollupTypeScript = require("@rollup/plugin-typescript");
 const {default: rollupNodeResolve} = require("@rollup/plugin-node-resolve");
-const {terser: rollupTerser} = require("rollup-plugin-terser");
+const terser = require("@rollup/plugin-terser");
 const {default: rollupGzip} = require("rollup-plugin-gzip");
 const fs = require("fs");
 
@@ -14,13 +14,17 @@ async function bundle() {
       rollupCommonJs(),
       rollupTypeScript({
         tsconfig: './tsconfig.json',
-        include: ["src/lib/**"]
+        include: ["src/lib/**"],
+        compilerOptions: {
+          declaration: false,
+          declarationDir: undefined,
+        },
       }),
     ]
   });
 
-  const minPlugins = [rollupTerser()];
-  const gZipPlugins = [rollupTerser(), rollupGzip()];
+  const minPlugins = [terser()];
+  const gZipPlugins = [terser(), rollupGzip()];
 
   function writeLib(format) {
     const location = `./dist/library/${format}`;

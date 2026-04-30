@@ -1,22 +1,22 @@
 const {src, dest, series, parallel, task} = require('gulp');
-const del = require('del');
+const {deleteAsync} = require('del');
 const {bundle} = require("./gulp-tasks/bundle");
 const {watcher} = require("./gulp-tasks/watch");
 
 function cleanDistFolder() {
-    return del('dist', {force: true});
+    return deleteAsync('dist', {force: true});
 }
 
 function cleanNodeModules() {
-    return del('node_modules', {force: true});
+    return deleteAsync('node_modules', {force: true});
 }
 
 function cleanPackageLock() {
-    return del('yarn-lock.json', {force: true});
+    return deleteAsync('yarn-lock.json', {force: true});
 }
 
 function cleanPackage() {
-    return del('package', {force: true});
+    return deleteAsync('package', {force: true});
 }
 
 function copyMinimalCss() {

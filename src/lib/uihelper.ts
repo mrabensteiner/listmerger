@@ -1,4 +1,4 @@
-import * as Mustache from 'mustache';
+import mustache from 'mustache';
 import { DIALOG_TEMPLATE, getItem, ITEM_TEMPLATE, EDIT_TEMPLATE, PREFIX_MERGED, PREFIX_MOVED } from './globalvars';
 import { editDialog } from './events';
 
@@ -174,7 +174,7 @@ export function generateItem(parent_id: string, item: Object): HTMLElement {
   element.draggable = true;
   element.classList.add("element");
   
-  var output = Mustache.render(ITEM_TEMPLATE, item);
+  var output = mustache.render(ITEM_TEMPLATE, item);
   element.innerHTML = output;
   element.setAttribute("data-role", "finding");
 
@@ -201,7 +201,7 @@ export function updateItem(id: string, slice = true) {
   const moved_element = document.getElementById(PREFIX_MOVED + id);
 
   const item = getItem(id, true);
-  const output = Mustache.render(ITEM_TEMPLATE, item);
+  const output = mustache.render(ITEM_TEMPLATE, item);
   element.innerHTML = output;
 
   const summary = element.querySelector("summary");
@@ -233,14 +233,14 @@ function editButton() {
 }
 
 export function prepareModal(item_id: string): string {
-  return Mustache.render(DIALOG_TEMPLATE, getItem(item_id));
+  return mustache.render(DIALOG_TEMPLATE, getItem(item_id));
 }
 
 export function prepareEditModal(action: string, item_id = "") {
   const item = item_id == "" ? {} : getItem(item_id);
   item["action"] = action;
   let container = document.createElement("div");
-  container.innerHTML = Mustache.render(EDIT_TEMPLATE, item);
+  container.innerHTML = mustache.render(EDIT_TEMPLATE, item);
   container.querySelectorAll("select").forEach(select => {
     select.value = item[select.name];
   });
