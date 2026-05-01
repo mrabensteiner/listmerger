@@ -217,7 +217,7 @@ const item_template = `
 <summary {{#mergedto}}title="Merged into {{title}}"{{/mergedto}}>
 
 <img class='thumbnail' src='{{images.0}}'/>
-<span>{{title}}</span></summary>
+<span data-edit="title" contenteditable>{{title}}</span></summary>
 
 <section>
 
@@ -250,7 +250,7 @@ const item_template = `
 <div>
 {{#description}}
   <label>Description</label>
-    {{.}}
+    <div data-edit="description" contenteditable>{{.}}</div>
 {{/description}}
 <div>
 

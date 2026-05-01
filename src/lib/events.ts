@@ -44,6 +44,52 @@ function initDragDrop() {
   mergelist_element.addEventListener("dragover", dragOver);
   mergelist_element.addEventListener("drop", drop);
 
+  listmerger_element.addEventListener("input", (e) => {
+    const target = e.target as HTMLElement;
+
+    if (target.contentEditable && !target.dataset.listening) {
+      target.dataset.listening = "1";
+      target.addEventListener("blur", (e) => {
+
+        const id = target.closest(".element").id;
+        const key = target.dataset.edit;
+        const value = target.innerText;
+        
+        const item = getItem(id);
+
+        if(item[key] != value) {
+          let new_item = {};
+          Object.assign(new_item, item);
+          new_item[key] = value;
+          setItem(id, new_item);
+
+          history.log(history.Tasks.Edit, id, "", "", [], "", item);
+        }
+      }, { once: true });
+    }
+  });
+
+  listmerger_element.addEventListener("mousedown", (e) => {
+    const target = e.target as HTMLElement;
+    if (target.tagName == "SUMMARY") {
+      target.draggable = true;
+    }
+  });
+  listmerger_element.addEventListener("click", (e) => {
+    const target = e.target as HTMLElement;
+
+    if (target.contentEditable == "true") {
+      e.preventDefault();
+      if((target.closest(".element") as HTMLDetailsElement).open == false) {
+        (target.closest(".element") as HTMLDetailsElement).open = true;
+        target.closest("summary").setAttribute("draggable", "false"); 
+
+      } else if (target.tagName == "SUMMARY") {
+        target.draggable = true;
+      }
+    }
+});
+
   listmerger_element.addEventListener("click", itemToHash);
   window.addEventListener('hashchange', updateHash);
 
