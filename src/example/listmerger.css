@@ -98,3 +98,7 @@
     pointer-events: none;
   }
 }
+
+[contenteditable]:focus {
+  cursor: text;
+}

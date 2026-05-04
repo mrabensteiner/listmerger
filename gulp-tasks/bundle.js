@@ -1,56 +1,76 @@
+const path = require("path");
 const rollup = require("rollup");
 const rollupCommonJs = require("@rollup/plugin-commonjs");
 const rollupTypeScript = require("@rollup/plugin-typescript");
-const {default: rollupNodeResolve} = require("@rollup/plugin-node-resolve");
+const { default: rollupNodeResolve } = require("@rollup/plugin-node-resolve");
 const terser = require("@rollup/plugin-terser");
-const {default: rollupGzip} = require("rollup-plugin-gzip");
 const fs = require("fs");
+const zlib = require("zlib");
+
+function gzipFile(file) {
+  const source = fs.readFileSync(file);
+  fs.writeFileSync(`${file}.gz`, zlib.gzipSync(source));
+}
 
 async function bundle() {
-  const bundle = await rollup.rollup({
-    input: './src/lib/index.ts',
+  const build = await rollup.rollup({
+    input: path.resolve(process.cwd(), "src/lib/index.ts"),
     plugins: [
       rollupNodeResolve({ browser: true }),
       rollupCommonJs(),
       rollupTypeScript({
-        tsconfig: './tsconfig.json',
-        include: ["src/lib/**"],
+        tsconfig: path.resolve(process.cwd(), "tsconfig.json"),
         compilerOptions: {
           declaration: false,
           declarationDir: undefined,
         },
       }),
-    ]
+    ],
   });
 
   const minPlugins = [terser()];
-  const gZipPlugins = [terser(), rollupGzip()];
 
-  function writeLib(format) {
-    const location = `./dist/library/${format}`;
+  async function writeLib(format) {
+    const location = path.resolve(process.cwd(), `dist/library/${format}`);
+    const formatString =
+      format === "iife"
+        ? "IIFE"
+        : format === "esm"
+          ? "ESM"
+          : format === "cjs"
+            ? "CommonJS"
+            : "";
     const config = [
-      { extension: 'js', plugins: [] },
-      { extension: 'min.js', plugins: minPlugins },
-      { extension: 'gz.js', plugins: gZipPlugins },
+      { extension: "js", plugins: [], sourcemap: true, gzip: true },
+      { extension: "min.js", plugins: minPlugins, sourcemap: false, gzip: true },
     ];
-    return config.map((conf) => bundle.write({
-      file:`${location}/listmerger.${conf.extension}`,
-      format: format === "esm" ? "es" : format,
-      name: 'listmerger',
-      plugins: conf.plugins,
-      sourcemap: true,
-    }).then(() => {
-      const fileData = fs.readFileSync(`${location}/listmerger.${conf.extension}`, 'utf8');
-      const formatString = format === 'iife' ? 'IIFE' : format === 'esm' ? 'ESM' : format === 'cjs' ? 'CommonJS' : '';
-      const dataWithHeaderLine = `// Listmerger v0.1 ${formatString}\n` + fileData;
-      fs.writeFileSync(`${location}/listmerger.${conf.extension}`, dataWithHeaderLine, 'utf8');
-    }))
+
+    for (const conf of config) {
+      const file = path.join(location, `listmerger.${conf.extension}`);
+
+      await build.write({
+        file,
+        format: format === "esm" ? "es" : format,
+        name: "listmerger",
+        plugins: conf.plugins,
+        sourcemap: conf.sourcemap,
+        banner: `// ListMerger v0.1 ${formatString}`,
+      });
+
+      if (!fs.existsSync(file)) {
+        throw new Error(`Expected output file was not created: ${file}`);
+      }
+
+      if (conf.gzip) {
+        gzipFile(file);
+      }
+    }
   }
 
-  return Promise.all([
-      ...writeLib('esm'),
-      ...writeLib('iife'),
-      ...writeLib('cjs')])
+  await writeLib("esm");
+  await writeLib("iife");
+  await writeLib("cjs");
+  await build.close();
 }
 
-module.exports = {bundle}
+module.exports = { bundle };
