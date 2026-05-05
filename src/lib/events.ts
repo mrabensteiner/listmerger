@@ -1,7 +1,7 @@
-import { arrange, CssNames, getNextDropSibling, getPositionInList, prepareEditModal, prepareModal, toggleDrop } from "./uihelper";
+import { arrange, CssNames, getNextDropSibling, getPositionInList, prepareEditModal, prepareModal, toggleDrop, updateItem } from "./uihelper";
 import * as transfer from './transfer';
 import * as history from './history';
-import { addMergeItem, getItem, mergelistId, PREFIX_MERGED, PREFIX_MOVED, setItem } from "./globalvars";
+import { getItem, mergelistId, PREFIX_MERGED, PREFIX_MOVED, setItem } from "./globalvars";
 
 export enum Action {
   None,
@@ -49,11 +49,25 @@ function initDragDrop() {
 
     if (target.contentEditable && !target.dataset.listening) {
       target.dataset.listening = "1";
-      target.addEventListener("blur", (e) => {
 
-        const id = target.closest(".element").id;
-        const key = target.dataset.edit;
-        const value = target.innerText;
+      const id = target.closest(".element").id;
+
+      target.addEventListener("blur", (e) => {
+        let key =  target.dataset.edit;
+        let value: any = target.innerText;
+
+        if (target.tagName == "SELECT") {
+          const select = target as HTMLSelectElement;
+          const options = select.selectedOptions;
+
+          key = select.name;
+          value = options.length == 1 ? options[0].value : Array.from(options).map(option => option.value);
+          
+          if (!value.length) {
+            updateItem(id);
+            return;
+          }
+        }
         
         const item = getItem(id);
 
@@ -65,6 +79,10 @@ function initDragDrop() {
 
           history.log(history.Tasks.Edit, id, "", "", [], "", item);
         }
+
+        if (target.tagName == "SELECT") {
+          updateItem(id);
+        }
       }, { once: true });
     }
   });
@@ -73,20 +91,21 @@ function initDragDrop() {
     const target = e.target as HTMLElement;
     if (target.tagName == "SUMMARY") {
       target.draggable = true;
+    } else if (target.contentEditable && target.tagName == "SPAN") {
+      if((target.closest(".element") as HTMLDetailsElement).open == false) {
+        e.preventDefault();
+        (target.closest(".element") as HTMLDetailsElement).open = true;
+        target.parentElement.focus();
+      } else if (target.closest("summary")) {
+        target.closest("summary").draggable = false; 
+      }
     }
   });
+
   listmerger_element.addEventListener("click", (e) => {
     const target = e.target as HTMLElement;
-
-    if (target.contentEditable == "true") {
+    if (target.contentEditable && target.tagName == "SPAN") {
       e.preventDefault();
-      if((target.closest(".element") as HTMLDetailsElement).open == false) {
-        (target.closest(".element") as HTMLDetailsElement).open = true;
-        target.closest("summary").setAttribute("draggable", "false"); 
-
-      } else if (target.tagName == "SUMMARY") {
-        target.draggable = true;
-      }
     }
 });
 

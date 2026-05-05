@@ -217,20 +217,34 @@ const item_template = `
 <summary {{#mergedto}}title="Merged into {{title}}"{{/mergedto}}>
 
 <img class='thumbnail' src='{{images.0}}'/>
-<span data-edit="title" contenteditable>{{title}}</span></summary>
+<span data-edit="title" contenteditable='plaintext-only'>{{title}}</span></summary>
 
 <section>
 
 {{#author.length}}
   <div>
     <label>Author</label>
+    <span class="selectedit" data-name="author" data-options='["John Doe","Max Mustermann","Mario Rossi"]' data-values="{{author}}" data-mode="multiple">
     {{#author}}<span class='enum'>{{.}}</span>{{/author}}
+    </span>
   </div>
 {{/author.length}}
 {{#category.length}}
   <div>
     <label>Category</label>
+    <span class="selectedit" data-name="category" data-values="{{category}}" data-mode="multiple" data-options='[
+      "Visibility of System Status",
+      "Match Between the System and the Real World",
+      "User Control and Freedom",
+      "Consistency and Standards",
+      "Error Prevention",
+      "Recognition Rather than Recall",
+      "Flexibility and Efficiency of Use",
+      "Aesthetic and Minimalist Design",
+      "Help Users Recognize, Diagnose, and Recover from Errors",
+      "Help and Documentation"]'>
     {{#category}}<span class='enum'>{{.}}</span>{{/category}}
+    </span>
   </div>
 {{/category.length}}
 <div>
@@ -244,7 +258,7 @@ const item_template = `
 {{#severity}}
 <div>
   <label>Severity</label>
-  <span class="severity severity-{{.}}"></span>
+  <span class="severity severity-{{.}} selectedit" data-name="severity" data-options='{"0": "Very Low", "1": "Low", "2": "Medium", "3": "High", "4": "Very High"}' data-values="{{.}}" data-mode="class" data-class="severity-">
 </div>
 {{/severity}}
 <div>
@@ -347,6 +361,78 @@ function save_json() {
   a.download = "items.json";
   a.click();
 }
+
+function init_select_edit() {
+  const parent = document.getElementById("listmerger");
+
+  parent.addEventListener("dblclick", (e) => {
+    const target = e.target.closest(".selectedit");
+
+    if (!target) {
+      return;
+    }
+
+    const innerText = target.innerHTML;
+    const name = target.dataset.name;
+    let options = JSON.parse(target.dataset.options);
+    let values = target.dataset.values;
+
+    if(Array.isArray(options)) {
+      options = Object.fromEntries(
+        options.map(key => [key, key])
+      );
+    }
+
+    try {
+      values = JSON.parse(values);
+    } catch {
+      values = values.split(',').map(item => item.trim());
+    }
+
+    const mode = target.dataset.mode;
+    const classprefix = target.dataset.class;
+
+    if (mode == "class") {
+      target.classList.forEach(classname => {
+        if (classname.startsWith(classprefix)) {
+          target.classList.remove(classname);
+        }
+      });
+    } else {
+      target.innerHTML = "";
+    }
+
+    const select = document.createElement("select");
+    select.name = name;
+
+    if (mode == "multiple") {
+      select.multiple = true;
+    }
+
+    Object.entries(options).forEach(element => {
+      const option = document.createElement("option");
+      option.value = element[0];
+      option.innerText = element[1];
+
+      if (Array.isArray(values) && (values.includes(element[0]) || values.includes(element[1]))) {
+        option.selected = true;
+      } else if (values == element[0] || values == element[1]) {
+        option.selected = true;
+      }
+
+      select.append(option);
+    });
+    target.append(select);
+    select.focus();
+
+    select.addEventListener("blur", () => {
+      select.remove();
+      target.innerHTML = innerText;
+    });
+  });
+}
+
+init_select_edit();
 
 document.getElementById("save-console").addEventListener("click", save_console);
 document.getElementById("save-json").addEventListener("click", save_json);
