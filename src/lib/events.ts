@@ -68,7 +68,7 @@ function initDragDrop() {
             return;
           }
         }
-        
+
         const item = getItem(id);
 
         if(item[key] != value) {
@@ -87,25 +87,39 @@ function initDragDrop() {
     }
   });
 
+  let contentEditable = "";
+
   listmerger_element.addEventListener("mousedown", (e) => {
     const target = e.target as HTMLElement;
+    contentEditable = "";
+
     if (target.tagName == "SUMMARY") {
       target.draggable = true;
-    } else if (target.contentEditable && target.tagName == "SPAN") {
-      if((target.closest(".element") as HTMLDetailsElement).open == false) {
-        e.preventDefault();
-        (target.closest(".element") as HTMLDetailsElement).open = true;
-        target.parentElement.focus();
-      } else if (target.closest("summary")) {
+    } else if (target.isContentEditable && target.closest("summary")) {
+      contentEditable = target.contentEditable;
+      target.contentEditable = "false";
+      const element = target.closest(".element") as HTMLDetailsElement;
+
+      if (!element || element.open == true) {
+        target.contentEditable = contentEditable;
         target.closest("summary").draggable = false; 
       }
     }
   });
 
+  listmerger_element.addEventListener("mouseup", (e) => {
+    if (contentEditable) {
+      (e.target as HTMLElement).contentEditable = contentEditable;
+    }
+  });
+
   listmerger_element.addEventListener("click", (e) => {
     const target = e.target as HTMLElement;
-    if (target.contentEditable && target.tagName == "SPAN") {
+    if (target.isContentEditable && target.closest("summary")) {
       e.preventDefault();
+      if((target.closest("details") as HTMLDetailsElement).open == false) {
+        (target.closest("details") as HTMLDetailsElement).open = true;
+      }
     }
 });
 
@@ -139,7 +153,7 @@ function initDragDrop() {
         (document.getElementById("detailsselector") as HTMLSelectElement).value = order;
       }
     } else if(key == "m") {
-      const target = (e.target as HTMLElement).closest(".element");
+      const target = (e.target as HTMLElement).closest(".element:not(.added, .merged)");
 
       if (target == undefined || target.id.startsWith(PREFIX_MERGED) || target.id.startsWith(PREFIX_MOVED)) {
         return;

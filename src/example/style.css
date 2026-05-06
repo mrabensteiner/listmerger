@@ -266,25 +266,40 @@ button:disabled::before {
 }
 
 
-.zone:not(#mlist) .element summary::before {
+.zone .element summary::before {
   color: grey;
-  content: url(icons/open.svg);
+  content: url(icons/caret.svg);
   margin-right: 1rem;
   height: 1rem;
   width: 1rem;
+  transition: .1s all ease-in-out;
+  vertical-align: center;
 }
+
+.zone .element[open] summary::before {
+  transform: rotate(90deg);
+}
+
 .added, .merged {
   color: #999;
   cursor: not-allowed;
   opacity: .7;
 }
 
-.zone:not(#mlist) .element.added summary::before {
+.zone:not(#mlist) .element.added summary span::after {
   content: url(icons/check.svg);
+  height: 1rem;
+  width: 1rem;
+  margin-left: .5rem;
+  display: inline-block;
 }
 
-.zone:not(#mlist) .element.merged summary::before {
+.zone:not(#mlist) .element.merged summary span::after {
   content: url(icons/merge.svg);
+  height: 1rem;
+  width: 1rem;
+  margin-left: .5rem;
+  display: inline-block;
 }
 
 .element span {
