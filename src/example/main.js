@@ -213,11 +213,11 @@ const severity_template = `
 </div>
 `
 
-const item_template = `
+const item_template = `s
 <summary {{#mergedto}}title="Merged into {{title}}"{{/mergedto}}>
-
+  <span data-edit="title" contenteditable='plaintext-only'>{{title}}</span>
 <img class='thumbnail' src='{{images.0}}'/>
-<span data-edit="title" contenteditable='plaintext-only'>{{title}}</span></summary>
+</summary>
 
 <section>
 

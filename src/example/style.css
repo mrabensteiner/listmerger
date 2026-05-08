@@ -112,7 +112,7 @@ html, body {
   border: 1px solid darkgray;
   border-radius: 2px;
   object-fit: cover;
-  margin-right: .5rem;
+  margin-left: .5rem;
 }
 
 .zone > div.dragg {
