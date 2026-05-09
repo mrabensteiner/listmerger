@@ -222,7 +222,7 @@ button.icontext::before {
   margin-right: .5rem;
 }
 
-dialog button {
+dialog .buttons button {
   margin-left: .5rem;
 }
 

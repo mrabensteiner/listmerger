@@ -1,7 +1,6 @@
 import { createDragHandle, CssNames, generateItem, updateAllIndicators, updateItem } from "./uihelper"
 import * as history from "./history"
-import { addMergeItem, getItem, mergelistId, PREFIX_MERGED, PREFIX_MOVED, updateMergedTo } from "./globalvars"
-import { editDialog } from "./events";
+import { addMergeItem, getItem, mergelistId, PREFIX_MERGED, PREFIX_MOVED, updateMergedInto } from "./globalvars"
 
 export function move(id, from_history = false) {
   if (!from_history) {
@@ -124,7 +123,7 @@ export function merge(id1, id2, title, from_history = false, oldmergeid = "", it
   addMergeItem(item);
 
   mergedfrom.forEach(item_id => {
-    updateMergedTo(item_id, newid);
+    updateMergedInto(item_id, newid);
     updateItem(item_id);
   });
 
@@ -209,12 +208,12 @@ export function mergeUndo(id) {
   }
   
   mergeHistoryItems(mergeitem.historyA).forEach(id => {
-    updateMergedTo(id, mergeitem.historyA.id);
+    updateMergedInto(id, mergeitem.historyA.id);
     updateItem(id);
   });
   
   mergeHistoryItems(mergeitem.historyB).forEach(id => {
-    updateMergedTo(id, mergeitem.historyB.id);
+    updateMergedInto(id, mergeitem.historyB.id);
     updateItem(id);
   });
 

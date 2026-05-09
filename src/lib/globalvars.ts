@@ -67,8 +67,8 @@ export function getItem(id: string, full = false): Object {
         item = structuredClone(element);
         item["parent"] = list["name"];
 
-        if(full && element["mergedto"] != undefined && element["mergedto"] != "") {
-          item["mergedto"] = getItem(element["mergedto"]);
+        if(full && element["mergedinto"] != undefined && element["mergedinto"] != "") {
+          item["mergedinto"] = getItem(element["mergedinto"]);
         }
       }
     });
@@ -84,10 +84,10 @@ export function addMergeItem(item: Object) {
   items["merged"].push(item);
 }
 
-export function updateMergedTo(item_id: string, mergedto_id: string) {
+export function updateMergedInto(item_id: string, mergedinto_id: string) {
 
-  if(item_id == mergedto_id) {
-    mergedto_id = "";
+  if(item_id == mergedinto_id) {
+    mergedinto_id = "";
   }
 
   item_id = item_id.startsWith(PREFIX_MOVED) ? item_id.slice(PREFIX_MOVED.length) : item_id;
@@ -95,7 +95,7 @@ export function updateMergedTo(item_id: string, mergedto_id: string) {
   items["originlists"].forEach(list => {
     list["items"].forEach(element => {
       if(element.id == item_id) {
-        element["mergedto"] = mergedto_id;
+        element["mergedinto"] = mergedinto_id;
       }
     });
   });

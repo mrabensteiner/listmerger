@@ -213,8 +213,8 @@ const severity_template = `
 </div>
 `
 
-const item_template = `s
-<summary {{#mergedto}}title="Merged into {{title}}"{{/mergedto}}>
+const item_template = `
+<summary {{#mergedinto}}title="Merged into {{title}}"{{/mergedinto}}>
   <span data-edit="title" contenteditable='plaintext-only'>{{title}}</span>
 <img class='thumbnail' src='{{images.0}}'/>
 </summary>
@@ -224,7 +224,7 @@ const item_template = `s
 {{#author.length}}
   <div>
     <label>Author</label>
-    <span class="selectedit" data-name="author" data-options='["John Doe","Max Mustermann","Mario Rossi"]' data-values="{{author}}" data-mode="multiple">
+    <span class="selectedit" data-name="author" data-values="{{author}}" data-mode="multiple" data-options='["John Doe","Max Mustermann","Mario Rossi"]'>
     {{#author}}<span class='enum'>{{.}}</span>{{/author}}
     </span>
   </div>
@@ -247,37 +247,42 @@ const item_template = `s
     </span>
   </div>
 {{/category.length}}
+
+{{#images.length}}
 <div>
-  {{#images.length}}
     <label>Images</label>
     {{#images}}
       <img class='thumbnail' src='{{.}}'/>
     {{/images}}
-  {{/images.length}}
 </div>
+{{/images.length}}
+
 {{#severity}}
 <div>
   <label>Severity</label>
-  <span class="severity severity-{{.}} selectedit" data-name="severity" data-options='{"0": "Very Low", "1": "Low", "2": "Medium", "3": "High", "4": "Very High"}' data-values="{{.}}" data-mode="class" data-class="severity-">
+  <span class="severity severity-{{.}} selectedit" data-name="severity" data-values="{{.}}" data-mode="class" data-class="severity-" data-options='{"0": "Very Low", "1": "Low", "2": "Medium", "3": "High", "4": "Very High"}'>
 </div>
 {{/severity}}
-<div>
+
 {{#description}}
+<div>
   <label>Description</label>
     <div data-edit="description" contenteditable>{{.}}</div>
+</div>
 {{/description}}
-<div>
 
-{{#mergedto}}
+{{#mergedinto}}
 <hr/>
 <label>Merged into</label>
-<a href="#{{mergedto.id}}">{{mergedto.title}}</a>
-{{/mergedto}}
+<a href="#{{mergedinto.id}}">{{mergedinto.title}}</a>
+{{/mergedinto}}
 
 {{#mergedfrom.length}}
 <hr/>
 <label>Merged from</label>
-{{#mergedfrom}}<span class="enum"><a href="#{{id}}">{{title}} ({{parent}})</a></span>{{/mergedfrom}} 
+{{#mergedfrom}}
+  <span class="enum"><a href="#{{id}}">{{parent}}: {{title}}</a></span>
+{{/mergedfrom}} 
 {{/mergedfrom.length}}
 
 </div>
