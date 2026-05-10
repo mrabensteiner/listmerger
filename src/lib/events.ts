@@ -103,15 +103,14 @@ function initDragDrop() {
       if (!element || element.open == true) {
         target.contentEditable = contentEditable;
         target.closest("summary").draggable = false; 
+      } else {
+        target.addEventListener("mouseup", () => {
+            target.contentEditable = contentEditable;
+        });
       }
     }
   });
 
-  listmerger_element.addEventListener("mouseup", (e) => {
-    if (contentEditable) {
-      (e.target as HTMLElement).contentEditable = contentEditable;
-    }
-  });
 
   listmerger_element.addEventListener("click", (e) => {
     const target = e.target as HTMLElement;

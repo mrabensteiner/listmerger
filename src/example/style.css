@@ -161,8 +161,6 @@ dialog {
   font-family: sans-serif;
   width: 100%;
   padding-left: 1rem;
-  background-color: lightblue;
-  border: 2px solid lightskyblue;
 }
 
 .tablist.compact {
