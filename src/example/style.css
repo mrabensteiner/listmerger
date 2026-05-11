@@ -105,6 +105,10 @@ html, body {
   padding: 1rem;
 }
 
+summary > .thumbnail {
+  margin-left: .5rem;
+}
+
 .thumbnail {
   height: 3rem;
   width: 4rem;
@@ -112,7 +116,25 @@ html, body {
   border: 1px solid darkgray;
   border-radius: 2px;
   object-fit: cover;
-  margin-left: .5rem;
+}
+
+:not(summary) > .thumbnail {
+  margin-right: .25rem;
+}
+
+.thumbnail-full {
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.imageedit[data-active="true"] {
+  border: 2px dashed rgb(122, 122, 255);
+  border-radius: .5rem;
+  padding: .2rem;
+  margin: -.1rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: .25rem;
 }
 
 .zone > div.dragg {

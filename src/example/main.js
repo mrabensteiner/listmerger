@@ -251,9 +251,11 @@ const item_template = `
 {{#images.length}}
 <div>
     <label>Images</label>
+  <div class="imageedit">
     {{#images}}
       <img class='thumbnail' src='{{.}}'/>
     {{/images}}
+  </div>
 </div>
 {{/images.length}}
 
@@ -367,20 +369,74 @@ function save_json() {
   a.click();
 }
 
+function image_edit(editContainer) {
+  let active = editContainer.dataset.active == "true";
+  editContainer.dataset.active = !active;
+
+  // Focus on the box and remove selections
+  editContainer.tabIndex = 0;
+  editContainer.focus();
+  window.getSelection().empty();
+
+  let draggedImage = null;
+
+  editContainer.addEventListener("dragstart", (e) => {
+    if (e.target.classList.contains("thumbnail")) {
+      draggedImage = e.target;
+      e.target.classList.add("dragging");
+    }
+  });
+  
+  editContainer.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    const image = e.target.closest(".thumbnail");
+
+    if (image && image !== draggedImage) {
+      const rect = image.getBoundingClientRect();
+      const next = (e.clientX > rect.left + rect.width / 2) ? image.nextElementSibling : image;
+      editContainer.insertBefore(draggedImage, next);
+    }
+  });
+  
+  editContainer.addEventListener('dragend', (e) => {
+    if (e.target.classList.contains("thumbnail")) {
+      e.target.classList.remove("dragging");
+
+      const element = editContainer.closest(".element");
+
+      if (!element) {
+        return;
+      }
+
+      const id = element.id;
+      const order = Array.from(editContainer.children).map(img => img.src);
+
+      // alternative: saving when finishing image editing?
+      listmerger.edit(id, "images", order)
+    }
+  });
+}
+
 function init_select_edit() {
   const parent = document.getElementById("listmerger");
 
   parent.addEventListener("dblclick", (e) => {
-    const target = e.target.closest(".selectedit");
+    const selectTarget = e.target.closest(".selectedit");
+    const imageTarget = e.target.parentNode.querySelector(":scope > .imageedit");
 
-    if (!target) {
+    if (!selectTarget && !imageTarget) {
       return;
     }
 
-    const innerText = target.innerHTML;
-    const name = target.dataset.name;
-    let options = JSON.parse(target.dataset.options);
-    let values = target.dataset.values;
+    if (imageTarget) {
+      image_edit(imageTarget);
+      return;
+    }
+
+    const innerText = selectTarget.innerHTML;
+    const name = selectTarget.dataset.name;
+    let options = JSON.parse(selectTarget.dataset.options);
+    let values = selectTarget.dataset.values;
 
     if(Array.isArray(options)) {
       options = Object.fromEntries(
@@ -394,17 +450,17 @@ function init_select_edit() {
       values = values.split(',').map(item => item.trim());
     }
 
-    const mode = target.dataset.mode;
-    const classprefix = target.dataset.class;
+    const mode = selectTarget.dataset.mode;
+    const classprefix = selectTarget.dataset.class;
 
     if (mode == "class") {
-      target.classList.forEach(classname => {
+      selectTarget.classList.forEach(classname => {
         if (classname.startsWith(classprefix)) {
-          target.classList.remove(classname);
+          selectTarget.classList.remove(classname);
         }
       });
     } else {
-      target.innerHTML = "";
+      selectTarget.innerHTML = "";
     }
 
     const select = document.createElement("select");
@@ -427,13 +483,28 @@ function init_select_edit() {
 
       select.append(option);
     });
-    target.append(select);
+    selectTarget.append(select);
     select.focus();
 
     select.addEventListener("blur", () => {
+
+      if (select.closest("dialog")) {
+        return;
+      }
+
       select.remove();
-      target.innerHTML = innerText;
+      selectTarget.innerHTML = innerText;
     });
+  });
+
+  parent.addEventListener("click", (e) => {
+    if (e.target.closest(".imageedit") && e.target.closest(".imageedit").dataset.active == "true" && e.target.tagName == "IMG") {
+      if (e.target.classList.contains("imageedit-inactive")) {
+        e.target.classList.remove("imageedit-inactive");
+      } else {
+        e.target.classList.add("imageedit-inactive");
+      }
+    }
   });
 }
 
@@ -443,3 +514,27 @@ document.getElementById("save-console").addEventListener("click", save_console);
 document.getElementById("save-json").addEventListener("click", save_json);
 
 listmerger.init("listmerger", "undo", "redo", items, item_template, dialog_template, merge_template);
+
+// Image thumbnail previews
+document.addEventListener("click", (e) => {
+  if (e.target.tagName == "IMG" && e.target.classList.contains("thumbnail") && !e.target.closest(".imageedit[data-active='true']")) {
+    const dialog = document.createElement("dialog");
+    document.getElementById("listmerger").append(dialog);
+
+    const image = document.createElement("img");
+    image.src = e.target.src;
+    image.classList.add("thumbnail-full")
+
+    dialog.append(image);
+    dialog.showModal();
+
+    dialog.addEventListener("close", (e) => {
+      dialog.remove();
+    });
+    dialog.addEventListener("click", (e) => {
+      if (e.target === dialog) {
+        dialog.close();
+      }
+    });
+  }
+});

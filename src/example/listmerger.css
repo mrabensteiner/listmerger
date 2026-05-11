@@ -100,3 +100,17 @@
 [contenteditable]:focus {
   cursor: text;
 }
+
+.imageedit[data-active="true"] {
+  border: 2px dashed blue;
+  line-height: 0;
+}
+
+.imageedit-inactive {
+  display: none;
+}
+
+.imageedit[data-active="true"] > img.imageedit-inactive {
+  display: inline;
+  opacity: .5;
+}

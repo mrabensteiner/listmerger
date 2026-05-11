@@ -25,7 +25,8 @@ export function init() {
 }
 
 function initDialog() {
-  dialog = document.querySelector("dialog");
+  dialog = document.createElement("dialog");
+  document.getElementById(mergelistId).append(dialog);
 
   const closebutton = document.querySelector("dialog button#closebutton");
   const mergebutton = document.querySelector("#mergebutton");
@@ -44,43 +45,48 @@ function initDragDrop() {
   mergelist_element.addEventListener("dragover", dragOver);
   mergelist_element.addEventListener("drop", drop);
 
+  
+
+  listmerger_element.addEventListener("drop", (e) => {
+    // prevent dropping into a text field
+    if((e.target as HTMLElement).contentEditable) {
+      e.preventDefault();
+    }
+  });
+
   listmerger_element.addEventListener("input", (e) => {
     const target = e.target as HTMLElement;
-
+          
     if (target.contentEditable && !target.dataset.listening) {
       target.dataset.listening = "1";
 
-      const id = target.closest(".element").id;
+      const element = target.closest(".element");
 
       target.addEventListener("blur", (e) => {
         let key =  target.dataset.edit;
         let value: any = target.innerText;
-
+          
         if (target.tagName == "SELECT") {
           const select = target as HTMLSelectElement;
           const options = select.selectedOptions;
 
           key = select.name;
           value = options.length == 1 ? options[0].value : Array.from(options).map(option => option.value);
-          
-          if (!value.length) {
-            updateItem(id);
+
+          if (element && !value.length) {
+            updateItem(element.id);
             return;
           }
         }
 
-        const item = getItem(id);
-
-        if(item[key] != value) {
-          let new_item = {};
-          Object.assign(new_item, item);
-          new_item[key] = value;
-          setItem(id, new_item);
-
-          history.log(history.Tasks.Edit, id, "", "", [], "", item);
+        if (!element) {
+          return;
         }
+    
+        const id = element.id;
+        const updated = transfer.edit(id, key, value);
 
-        if (target.tagName == "SELECT") {
+        if (!updated && target.tagName == "SELECT") {
           updateItem(id);
         }
       }, { once: true });
@@ -263,7 +269,7 @@ export function editDialog(id: string) {
 
   close_button.addEventListener("click", dialogClose);
   save_button.addEventListener("click", () => {
-    saveEdit(id);
+    saveEditDialog(id);
   });
 }
 
@@ -490,7 +496,7 @@ export function drop(e: DragEvent) {
   history.log(history.Tasks.Move, dropOrigin);
 }
 
-export function saveEdit(id: string) {
+export function saveEditDialog(id: string) {
   const item = getItem(id);
   let new_item = {};
   Object.assign(new_item, item);
@@ -504,7 +510,7 @@ export function saveEdit(id: string) {
 
   setItem(id, new_item);
 
-  transfer.edit(id);
+  transfer.saveEditDialog(id);
   history.log(history.Tasks.Edit, id, "", "", [], "", item);
 
   dialog.close();
@@ -522,9 +528,17 @@ export function merge(event: Event) {
 
   let new_item = {};
 
-  dialog.querySelectorAll("input, textarea, select").forEach((element: HTMLInputElement) => {
-    const key = element.name;
-    const value = element.value;
+  dialog.querySelectorAll("input, textarea, select").forEach((element: HTMLElement) => {
+    let key = (element as HTMLInputElement).name;
+    let value: string|string[] = (element as HTMLInputElement).value;
+    
+    if (element instanceof HTMLSelectElement) {
+      const select = element as HTMLSelectElement;
+      const options = select.selectedOptions;
+
+      key = select.name;
+      value = options.length == 1 ? options[0].value : Array.from(options).map(option => option.value);
+    }
 
     new_item[key] = value;
   });
@@ -536,20 +550,22 @@ export function merge(event: Event) {
   const keys2 = Object.keys(item2);
 
   keys1.forEach(key => {
-    if(Array.isArray(item1[key])) {
-      new_item[key] = item1[key];
+    if (!Array.isArray(new_item[key])) {
+      if (Array.isArray(item1[key])) {
+        new_item[key] = item1[key];
 
-      if(Array.isArray(item2[key])) {
-        item2[key].forEach(value => {
-          if(!new_item[key].includes(value)) {
-            new_item[key].push(value);
-          }
-        });
+        if(Array.isArray(item2[key])) {
+          item2[key].forEach(value => {
+            if(!new_item[key].includes(value)) {
+              new_item[key].push(value);
+            }
+          });
+        }
+      } else if(Array.isArray(item2[key])) {
+        new_item[key] = item2[key];
+      } else if(new_item[key] == "") {
+        new_item[key] = item1[key];
       }
-    } else if(Array.isArray(item2[key])) {
-      new_item[key] = item2[key];
-    } else if(new_item[key] == "") {
-      new_item[key] = item1[key];
     }
   });
 

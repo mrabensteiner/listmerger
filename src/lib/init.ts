@@ -17,3 +17,5 @@ export function init(id: string, id_undo: string, id_redo: string, items: Object
 export function getAllItems() {
   return g.getAllItems();
 }
+
+export { edit } from './transfer'

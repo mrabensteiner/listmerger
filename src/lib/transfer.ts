@@ -1,6 +1,6 @@
 import { createDragHandle, CssNames, generateItem, updateAllIndicators, updateItem } from "./uihelper"
 import * as history from "./history"
-import { addMergeItem, getItem, mergelistId, PREFIX_MERGED, PREFIX_MOVED, updateMergedInto } from "./globalvars"
+import { addMergeItem, getItem, mergelistId, PREFIX_MERGED, PREFIX_MOVED, setItem, updateMergedInto } from "./globalvars"
 
 export function move(id, from_history = false) {
   if (!from_history) {
@@ -50,7 +50,25 @@ export function moveAllUndo(moved) {
   })
 }
 
-export function edit(id) {
+export function edit(id: string, key: string, value: any) {
+  const item = getItem(id);
+
+  if (JSON.stringify(item[key]) == JSON.stringify(value)) {
+    return false;
+  }
+
+  let new_item = {};
+  Object.assign(new_item, item);
+  new_item[key] = value;
+
+  setItem(id, new_item);
+  history.log(history.Tasks.Edit, id, "", "", [], "", item);
+  updateItem(id);
+
+  return true;
+}
+
+export function saveEditDialog(id) {
   updateItem(id, false);
   const element = document.getElementById(id);
   element.children[0].append(createDragHandle());
