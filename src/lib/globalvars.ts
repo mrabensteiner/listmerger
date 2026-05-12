@@ -54,7 +54,9 @@ export function getItem(id: string, full = false): Object {
 
         merged_ids.forEach(id => {
           id = id.startsWith(PREFIX_MOVED) ? id.slice(PREFIX_MOVED.length) : id;
-          merged_full.push(getItem(id))
+          const item = getItem(id);
+          item["parent_id"] = element.id;
+          merged_full.push(item)
         });
         
         item["mergedfrom"] = merged_full;
@@ -98,5 +100,30 @@ export function updateMergedInto(item_id: string, mergedinto_id: string) {
         element["mergedinto"] = mergedinto_id;
       }
     });
+  });
+}
+
+export function mergeDetach(from_id: string, to_id: string) {
+  from_id = from_id.startsWith(PREFIX_MOVED) ? from_id.slice(PREFIX_MOVED.length) : from_id;
+  
+  items["originlists"].forEach(list => {
+    list["items"].forEach(element => {
+      if(element.id == from_id) {
+        element["mergedinto"] = "";
+      }
+    });
+  });
+  
+  items["merged"].forEach(element => {
+    if(element.id == to_id) {
+      const tmp = element["mergedfrom"];
+      element["mergedfrom"] = [];
+
+      tmp.forEach(mergedfrom => {
+        if (mergedfrom != from_id) {
+          element["mergedfrom"].push(mergedfrom);
+        }
+      });
+    }
   });
 }

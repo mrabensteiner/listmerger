@@ -277,13 +277,17 @@ const item_template = `
 <hr/>
 <label>Merged into</label>
 <a href="#{{mergedinto.id}}">{{mergedinto.title}}</a>
+<a href="#" class="detach" data-from="{{id}}" data-to="{{mergedinto.id}}">DE</a>
 {{/mergedinto}}
 
 {{#mergedfrom.length}}
 <hr/>
 <label>Merged from</label>
 {{#mergedfrom}}
-  <span class="enum"><a href="#{{id}}">{{parent}}: {{title}}</a></span>
+  <span class="enum">
+    <a href="#{{id}}">{{parent}}: {{title}}</a>
+    <a href="#" class="detach" data-from="{{id}}" data-to="{{parent_id}}">DE</a>
+  </span>
 {{/mergedfrom}} 
 {{/mergedfrom.length}}
 

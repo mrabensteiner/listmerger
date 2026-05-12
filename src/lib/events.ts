@@ -1,7 +1,7 @@
-import { arrange, CssNames, getNextDropSibling, getPositionInList, prepareEditModal, prepareModal, toggleDrop, updateItem } from "./uihelper";
+import { arrange, CssNames, getNextDropSibling, getPositionInList, prepareEditModal, prepareModal, toggleDrop, updateAllIndicators, updateItem } from "./uihelper";
 import * as transfer from './transfer';
 import * as history from './history';
-import { getItem, mergelistId, PREFIX_MERGED, PREFIX_MOVED, setItem } from "./globalvars";
+import { getItem, mergeDetach, mergelistId, PREFIX_MERGED, PREFIX_MOVED, setItem } from "./globalvars";
 
 export enum Action {
   None,
@@ -125,6 +125,8 @@ function initDragDrop() {
       if((target.closest("details") as HTMLDetailsElement).open == false) {
         (target.closest("details") as HTMLDetailsElement).open = true;
       }
+    } else if (target.classList.contains("detach")) {
+      detach(e);
     }
 });
 
@@ -617,4 +619,16 @@ function moveAll(e: Event) {
   if(moved.length) {
     history.log(history.Tasks.MoveAll, (e.target as Element).nextElementSibling.id, "", "", moved);
   }
+}
+
+function detach(e: MouseEvent) {
+  const target = (e.target as HTMLElement);
+  const from = target.dataset.from;
+  const to = target.dataset.to;
+
+  mergeDetach(from, to);
+  document.getElementById(from).classList.remove(CssNames.ITEM_MERGED);
+  updateAllIndicators();
+  updateItem(from);
+  updateItem(to);
 }
