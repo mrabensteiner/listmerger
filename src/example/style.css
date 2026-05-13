@@ -226,6 +226,14 @@ p {
   width: 1rem;
 }
 
+.open::before {
+  content: url(icons/openfile.svg);
+  float: left;
+  margin-right: .5rem;
+  height: 1rem;
+  width: 1rem;
+}
+
 .moveall::before {
   content: url(icons/moveall.svg);
   float: left;

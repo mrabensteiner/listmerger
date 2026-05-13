@@ -182,6 +182,11 @@ function updateHash() {
     element.open = true;
 
     const tab = element.closest("[name='tabs']") as HTMLDetailsElement;
+
+    if (tab == undefined) {
+      return;
+    }
+
     const tab_select = document.getElementById(CssNames.TAB_SELECTOR) as HTMLSelectElement
     tab_select.value = tab.dataset.order;
   }

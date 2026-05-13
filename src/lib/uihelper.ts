@@ -113,10 +113,17 @@ export function getNextDropSibling(e: DragEvent): HTMLElement {
 
 export function loadItems(items: Object) {
   const tabbar = document.querySelector(".tabbar");
+  const mlist = document.getElementById("mlist");
+  const select = document.getElementById("detailsselector");
+  tabbar.innerHTML = "";
+  mlist.innerHTML = "";
+  select.innerHTML = "";
+
+  items["merged"].forEach(item => {
+    generateItem("mlist", getItem(item.id, true));
+  });
 
   items["originlists"].forEach(list => {
-
-
     const details_element = document.createElement("details");
     const summary_element = document.createElement("summary");
     const indicator_element = document.createElement("span");
@@ -143,7 +150,6 @@ export function loadItems(items: Object) {
     section_element.append(mergeallbutton_element);
     section_element.append(list_element);
 
-    const select = document.getElementById("detailsselector");
     const option_element = document.createElement("option");
     option_element.value = ""+(tabbar.children.length );
     option_element.innerText = list["name"] + " ()";
@@ -168,6 +174,10 @@ export function generateItem(parent_id: string, item: Object): HTMLElement {
   element.innerHTML = item["title"];
   element.draggable = true;
   element.classList.add("element");
+  
+  if (item.mergedinto) {
+    element.classList.add("merged");
+  }
   
   var output = mustache.render(ITEM_TEMPLATE, item);
   element.innerHTML = output;

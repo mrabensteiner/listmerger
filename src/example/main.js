@@ -356,6 +356,25 @@ const merge_template = `
 ${severity_template}
 `;
 
+function open() {
+  const input = document.createElement("input");
+  input.type = "file";
+  input.accept = ".json";
+
+  input.onchange = async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+    try {
+      const text = await file.text();
+      const items = JSON.parse(text);
+      listmerger.init("listmerger", "undo", "redo", items, item_template, dialog_template, merge_template);
+    } catch (err) {
+      console.error("Error parsing JSON:", err);
+    }
+  };
+  input.click();
+}
+
 function save_console() {
   console.log(listmerger.getAllItems());
 }
@@ -514,6 +533,7 @@ function init_select_edit() {
 
 init_select_edit();
 
+document.getElementById("open").addEventListener("click", open);
 document.getElementById("save-console").addEventListener("click", save_console);
 document.getElementById("save-json").addEventListener("click", save_json);
 
