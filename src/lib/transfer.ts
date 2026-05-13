@@ -1,8 +1,8 @@
-import { createDragHandle, CssNames, generateItem, updateAllIndicators, updateItem } from "./uihelper"
+import { arrange, createDragHandle, CssNames, generateItem, updateAllIndicators, updateItem } from "./uihelper"
 import * as history from "./history"
 import { addMergeItem, getItem, mergelistId, PREFIX_MERGED, PREFIX_MOVED, setItem, updateMergedInto } from "./globalvars"
 
-export function move(id, from_history = false) {
+export function move(id: string, position = -1, from_history = false) {
   if (!from_history) {
     history.resetFuture();
   }
@@ -17,6 +17,11 @@ export function move(id, from_history = false) {
   clone.children[0].append(createDragHandle());
 
   target.append(clone);
+
+  if (position >= 0) {
+    arrange(clone.id, position);
+  }
+  
   element.classList.add(CssNames.ITEM_ADDED);
   updateAllIndicators();
 }
@@ -37,7 +42,7 @@ export function moveAll(zonefindings, from_history = false) {
   let moved = [];
   zonefindings.forEach(element => {
     if (!element.classList.contains(CssNames.ITEM_ADDED) && !element.classList.contains(CssNames.ITEM_MERGED)) {
-      move(element.id, from_history);
+      move(element.id, -1, from_history);
       moved.push(element.id);
     }
   });

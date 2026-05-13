@@ -389,6 +389,8 @@ export function dragStart(e: DragEvent) {
 }
 
 export function dragEnd(e: Event) {
+  document.querySelector(".arrangebar")?.remove();
+
   document.querySelectorAll(`.${CssNames.HOVER_DRAG}`).forEach((e) => {
     e.classList.remove(CssNames.HOVER_DRAG);
   })
@@ -416,6 +418,23 @@ export function dragOver(e: DragEvent) {
   }
 
   if(dragAction == Action.Move) {
+    const zone = (e.target as HTMLElement).closest(".zone");
+    let nextSibling = getNextDropSibling(e);
+
+    if (zone && zone.children.length > 1) {
+      if (document.querySelector(".arrangebar")) {
+        document.querySelector(".arrangebar")?.remove();
+      }
+
+      let bar = document.createElement("hr");
+      bar.classList.add("arrangebar");
+
+      if (nextSibling != undefined) {
+        mergeListElement.insertBefore(bar, nextSibling)
+      } else {
+        mergeListElement.append(bar)
+      }
+    }
     return;
   }
 
@@ -494,8 +513,13 @@ export function drop(e: DragEvent) {
 
   (droporigin_element as HTMLDetailsElement).open = false;
 
-  transfer.move(dropOrigin);
-  history.log(history.Tasks.Move, dropOrigin);
+  const nextSibling = getNextDropSibling(e);
+  let dropPosition = nextSibling != undefined
+      ? getPositionInList(nextSibling.id)
+      : mergeListElement.length - 1;
+  
+  transfer.move(dropOrigin, dropPosition);
+  history.log(history.Tasks.Move, dropOrigin, "", dropPosition.toString());
 }
 
 export function saveEditDialog(id: string) {

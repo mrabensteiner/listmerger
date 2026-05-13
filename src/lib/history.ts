@@ -101,7 +101,7 @@ export function redo() {
     updateItem(last.id1);
     last.item = tmp;
   } else if (last.action == Tasks.Move) {
-    transfer.move(last.id1, true)
+    transfer.move(last.id1, +last.id3-1, true)
   } else if (last.action == Tasks.MoveAll) {
     let zonefindings = document.getElementById(last.id1).querySelectorAll("[data-role='finding']");
     transfer.moveAll(zonefindings, true);

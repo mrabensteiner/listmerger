@@ -52,7 +52,8 @@ export function createDragHandle() {
   draghandle.classList.add(CssNames.ITEM_DRAGHANDLE);
   draghandle.draggable = true;
   draghandle.src = dragIconPath;
-  return draghandle;
+  //return draghandle;
+  return "";
 }
 
 function selectTab(e: Event) {
@@ -101,10 +102,11 @@ export function getPositionInList(id: string): number {
   return [...siblings].indexOf(element);
 }
 
-export function getNextDropSibling(e: DragEvent): Element {
+export function getNextDropSibling(e: DragEvent): HTMLElement {
   let siblings = [...document.querySelectorAll(`#mlist .element:not(.${CssNames.ITEM_DRAGGING}`)];
   let nextSibling = siblings.find((sibling: HTMLDivElement) => {
-    return e.pageY <= sibling.offsetTop + sibling.offsetHeight / 2;
+    const rect = sibling.getBoundingClientRect();
+    return e.clientY <= rect.top + rect.height / 2;
   });
   return nextSibling;
 }
