@@ -27,11 +27,6 @@ export function init() {
 function initDialog() {
   dialog = document.createElement("dialog");
   document.getElementById(mergelistId).append(dialog);
-
-  const closebutton = document.querySelector("dialog button#closebutton");
-  const mergebutton = document.querySelector("#mergebutton");
-  closebutton.addEventListener("click", dialogClose);
-  mergebutton.addEventListener("click", merge);
 }
 
 function initDragDrop() {
@@ -40,8 +35,6 @@ function initDragDrop() {
 
   listmerger_element.addEventListener("dragstart", dragStart);
   listmerger_element.addEventListener("dragend", dragEnd);
-  mergelist_element.addEventListener("dragenter", dragHover);
-  mergelist_element.addEventListener("dragleave", dragHover);
   mergelist_element.addEventListener("dragover", dragOver);
   mergelist_element.addEventListener("drop", drop);
 
@@ -395,6 +388,7 @@ export function dragStart(e: DragEvent) {
 
 export function dragEnd(e: Event) {
   document.querySelector(".arrangebar")?.remove();
+  document.querySelector(".drag")?.classList.remove("drag");
 
   document.querySelectorAll(`.${CssNames.HOVER_DRAG}`).forEach((e) => {
     e.classList.remove(CssNames.HOVER_DRAG);
@@ -408,31 +402,23 @@ export function dragEnd(e: Event) {
     dragAction = Action.None;
 }
 
-export function dragHover(e: DragEvent) {
-  e.preventDefault();
-  if(dragAction == Action.Move) {
-    toggleDrop(e, dropOrigin) 
-  }
-}
-
 export function dragOver(e: DragEvent) {
   e.preventDefault();
-
-  if((e.target as HTMLElement).closest(".element")) {
-    e.dataTransfer.dropEffect = "copy";
-  }
 
   if(dragAction == Action.Move) {
     const zone = (e.target as HTMLElement).closest(".zone");
     let nextSibling = getNextDropSibling(e);
+    toggleDrop(e, dropOrigin) 
 
-    if (zone && zone.children.length > 1) {
-      if (document.querySelector(".arrangebar")) {
-        document.querySelector(".arrangebar")?.remove();
+    if (zone && zone.children.length > 0) {
+      let bar = document.querySelector(".arrangebar");
+
+      if (bar == undefined) {
+        bar = document.createElement("hr");
+        bar.classList.add("arrangebar");
+      } else if (bar.nextElementSibling == nextSibling) {
+        return;
       }
-
-      let bar = document.createElement("hr");
-      bar.classList.add("arrangebar");
 
       if (nextSibling != undefined) {
         mergeListElement.insertBefore(bar, nextSibling)

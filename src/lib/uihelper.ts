@@ -63,20 +63,16 @@ function selectTab(e: Event) {
 }
 
 export function toggleDrop(e, dropOrigin) {
+  document.querySelector(".drag")?.classList.remove("drag");
+
   if (e.target == undefined) return;
-
-
-  if(e.target.closest(".drag")) {
-    e.target.closest(".drag").classList.remove("drag");
-    return;
-  }
 
   let target = e.target.closest(".element");
 
   if(target == undefined) {
-    target= e.target.closest(".zone")
+    target = e.target.closest(".zone")
   }
-  if(target == undefined) {
+  if(target == undefined || target.querySelector(`#${dropOrigin}`)) {
     return;
   }
 
@@ -87,6 +83,13 @@ export function toggleDrop(e, dropOrigin) {
   }
   if ((classlist.contains(CssNames.MERGED_ZONE) || classlist.contains(CssNames.ITEM)) && target.id != dropOrigin) {
     classlist.add(CssNames.HOVER_DRAG);
+  } 
+  if (target.id == dropOrigin) {
+    e.dataTransfer.dropEffect = "none";
+  } else if (e.target.closest(".element")) {
+    e.dataTransfer.dropEffect = "copy";
+  } else {
+    e.dataTransfer.dropEffect = "move";
   }
 }
 
@@ -98,7 +101,7 @@ export function getOwnPosition(id: string): number {
 
 export function getPositionInList(id: string): number {
   const element = document.getElementById(id);
-  const siblings = element.parentElement.children;
+  const siblings = element.closest(".zone").querySelectorAll(".element");
   return [...siblings].indexOf(element);
 }
 

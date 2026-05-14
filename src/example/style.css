@@ -142,7 +142,7 @@ summary > .thumbnail {
 }
 
 .zone.drag {
-  box-shadow: 0 0 10px #0f08;
+  box-shadow: 0 0 10px #1a5fb4;
 }
 
 .draghandle {
@@ -158,7 +158,7 @@ summary > .thumbnail {
 
 [data-role='finding'].drag,
 [data-role='finding']:has(.draghandle.drag) {
-  box-shadow: 0 0 10px #00f8;
+  box-shadow: 0 0 10px #1a5fb4;
 }
 
 ::backdrop {

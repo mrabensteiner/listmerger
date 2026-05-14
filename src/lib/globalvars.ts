@@ -52,14 +52,16 @@ export function getItem(id: string, full = false): Object {
         const merged_ids = element["mergedfrom"];
         const merged_full = [];
 
-        merged_ids.forEach(id => {
-          id = id.startsWith(PREFIX_MOVED) ? id.slice(PREFIX_MOVED.length) : id;
-          const item = getItem(id);
-          item["parent_id"] = element.id;
-          merged_full.push(item)
-        });
-        
-        item["mergedfrom"] = merged_full;
+        if (merged_ids) {
+          merged_ids.forEach(id => {
+            id = id.startsWith(PREFIX_MOVED) ? id.slice(PREFIX_MOVED.length) : id;
+            const item = getItem(id);
+            item["parent_id"] = element.id;
+            merged_full.push(item)
+          });
+
+          item["mergedfrom"] = merged_full;
+        }
       }
     }
   });
