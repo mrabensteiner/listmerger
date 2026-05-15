@@ -1,24 +1,25 @@
-import { getItem, setItem } from './globalvars';
+import { getItem, mergeDetach, setItem, updateMerged, updateMergedInto } from './globalvars';
 import * as transfer from './transfer'
-import { arrange, updateItem } from './uihelper';
+import { arrange, CssNames, updateAllIndicators, updateItem } from './uihelper';
 
 export enum Tasks {
     Edit,
     Move,
     MoveAll,
     Merge,
-    Arrange
+    Arrange,
+    Detach
 }
 
 export function init() {
   updateButtons();
 
-  document.getElementById("undo").addEventListener("click", (e) => {
+  document.getElementById("undo")?.addEventListener("click", (e) => {
     e.preventDefault();
     undo();
   })
 
-  document.getElementById("redo").addEventListener("click", (e) => {
+  document.getElementById("redo")?.addEventListener("click", (e) => {
     e.preventDefault();
     redo();
   })
@@ -54,7 +55,7 @@ export function updateButtons() {
   redo_button.disabled = future.length == 0;
 }
 
-export function log(task, id1 = "", id2 = "", id3 = "", array=[], title = "", item = {}) {
+export function log(task: Tasks, id1 = "", id2 = "", id3 = "", array: any[] =[], title = "", item = {}) {
   history.push({
     action: task,
     id1: id1,
@@ -85,6 +86,12 @@ export function undo() {
     transfer.mergeUndo(last.id3)
   } else if (last.action == Tasks.Arrange) {
     arrange(last.id1, +last.id2);
+  } else if (last.action == Tasks.Detach) {
+    updateMerged(last.id2, last.array);
+    document.getElementById(last.id1)?.classList.add(CssNames.ITEM_MERGED);
+    updateAllIndicators();
+    updateItem(last.id1);
+    updateItem(last.id2);
   }
   future.push(last);
 
@@ -103,12 +110,18 @@ export function redo() {
   } else if (last.action == Tasks.Move) {
     transfer.move(last.id1, +last.id3-1, true)
   } else if (last.action == Tasks.MoveAll) {
-    let zonefindings = document.getElementById(last.id1).querySelectorAll("[data-role='finding']");
+    let zonefindings = document.getElementById(last.id1)?.querySelectorAll("[data-role='finding']");
     transfer.moveAll(zonefindings, true);
   } else if (last.action == Tasks.Merge) {
     transfer.merge(last.id1, last.id2, last.title, true, last.id3, last.item);
   } else if (last.action == Tasks.Arrange) {
     arrange(last.id1, +last.id3);
+  } else if (last.action == Tasks.Detach) {
+    mergeDetach(last.id1, last.id2);
+    document.getElementById(last.id1)?.classList.remove(CssNames.ITEM_MERGED);
+    updateAllIndicators();
+    updateItem(last.id1);
+    updateItem(last.id2);
   }
 
   history.push(last);

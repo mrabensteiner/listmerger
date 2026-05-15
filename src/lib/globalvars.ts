@@ -85,8 +85,19 @@ export function getAllItems() {
   return items;
 }
 
-export function addMergeItem(item: Object) {
-  items["merged"].push(item);
+export function addMergeItem(item: Object, position = -1) {
+  if (position < 0) {
+    position = items["merged"].length;
+  }
+  items["merged"].splice(position, 0, item);
+}
+
+export function updateMerged(item_id: string, mergedfrom: string[]) {
+ items["merged"].forEach(element => {
+    if(element.id == item_id) {
+      element["mergedfrom"] = mergedfrom
+    }
+ })
 }
 
 export function updateMergedInto(item_id: string, mergedinto_id: string) {
@@ -106,17 +117,7 @@ export function updateMergedInto(item_id: string, mergedinto_id: string) {
   });
 }
 
-export function mergeDetach(from_id: string, to_id: string) {
-  from_id = from_id.startsWith(PREFIX_MOVED) ? from_id.slice(PREFIX_MOVED.length) : from_id;
-  
-  items["originlists"].forEach(list => {
-    list["items"].forEach(element => {
-      if(element.id == from_id) {
-        element["mergedinto"] = "";
-      }
-    });
-  });
-  
+export function mergeAttach(from_id: string, to_id: string) {
   items["merged"].forEach(element => {
     if(element.id == to_id) {
       const tmp = element["mergedfrom"];
@@ -129,4 +130,32 @@ export function mergeDetach(from_id: string, to_id: string) {
       });
     }
   });
+}
+
+export function mergeDetach(from_id: string, to_id: string) {
+  from_id = from_id.startsWith(PREFIX_MOVED) ? from_id.slice(PREFIX_MOVED.length) : from_id;
+  let previouslist: string[] = [];
+  
+  items["originlists"].forEach(list => {
+    list["items"].forEach(element => {
+      if(element.id == from_id) {
+        element["mergedinto"] = "";
+      }
+    });
+  });
+  
+  items["merged"].forEach(element => {
+    if(element.id == to_id) {
+      previouslist = element["mergedfrom"];
+      element["mergedfrom"] = [];
+
+      previouslist.forEach(mergedfrom => {
+        if (mergedfrom != from_id) {
+          element["mergedfrom"].push(mergedfrom);
+        }
+      });
+    }
+  });
+
+  return previouslist;
 }

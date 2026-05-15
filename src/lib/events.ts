@@ -645,7 +645,8 @@ function detach(e: MouseEvent) {
   const from = target.dataset.from;
   const to = target.dataset.to;
 
-  mergeDetach(from, to);
+  let previouslist = mergeDetach(from, to);
+  history.log(history.Tasks.Detach, from, to, "", previouslist);
   document.getElementById(from).classList.remove(CssNames.ITEM_MERGED);
   updateAllIndicators();
   updateItem(from);
