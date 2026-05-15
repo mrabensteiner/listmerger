@@ -20,7 +20,7 @@ function cleanPackage() {
 }
 
 function copyMinimalCss() {
-    return src('./src/example/listmerger.css', {encoding: false}).pipe(dest('./dist/'));
+    return src('./src/example/listmerger.css', {encoding: false}).pipe(dest('./dist/library'));
 }
 
 function copyExampleFolder() {
