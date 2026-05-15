@@ -72,6 +72,7 @@ export function getItem(id: string, full = false): Object {
         item["parent"] = list["name"];
 
         if(full && element["mergedinto"] != undefined && element["mergedinto"] != "") {
+          item["parent_id"] = element.id;
           item["mergedinto"] = getItem(element["mergedinto"]);
         }
       }

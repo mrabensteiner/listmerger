@@ -137,6 +137,12 @@ summary > .thumbnail {
   gap: .25rem;
 }
 
+img.detach {
+  cursor: pointer;
+  height: 1rem;
+  width: 1rem;
+}
+
 .zone > div.dragg {
   box-shadow: 0 0 10px rgb(36, 166, 210) !important;
 }
@@ -407,6 +413,7 @@ hr {
 
 select {
   width: 100%;
+  flex: 1
 }
 
 .severity::before {
@@ -422,22 +429,22 @@ select {
 }
 
 .severity.severity-4::before {
-  content: "Very High";
+  content: "Catastrophic Problem";
   background-color: red;
 }
 .severity.severity-3::before {
-  content: "High";
+  content: "Major Problem";
   background-color: orange;
 }
 .severity.severity-2::before {
-  content: "Medium";
+  content: "Minor Problem";
   background-color: lightskyblue;
 }
 .severity.severity-1::before {
-  content: "Low";
+  content: "Cosmetic Problem only";
   background-color: lightgreen;
 }
 .severity.severity-0::before {
-  content: "Very Low";
+  content: "Not a Problem at all";
   background-color: darkgreen;
 }

@@ -231,12 +231,14 @@ export function mergeInputClick(e: Event) {
   const attribute = element.getAttribute("data-attribute");
   const value = element.getAttribute("data-value");
   
-  const input_element = element.parentElement.querySelector(`[name="${attribute}"]`);
+  const input_element = (element.parentElement.querySelector(`[name="${attribute}"]`) as HTMLInputElement);
 
   if(element.dataset.singlevalue == "1") {
-    (input_element as HTMLInputElement).value = value;
-  } else {
-    (input_element as HTMLInputElement).value += value;
+    input_element.value = value;
+  } else if (element.dataset.direction == "left" && input_element.value != value) {
+    input_element.value = value + " " + input_element.value;
+  } else if (element.dataset.direction == "right") {
+    input_element.value += " " + value;
   }
 }
 
@@ -307,6 +309,7 @@ export function mergeDialog(id1: string, id2: string) {
     button1.innerHTML = ">>";
     button1.setAttribute("data-attribute", element.name);
     button1.setAttribute("data-value", item1[element.name]);
+    button1.dataset.direction = "left";
     if(item1[element.name] == undefined) {
       button1.disabled = true;
     }
@@ -318,6 +321,7 @@ export function mergeDialog(id1: string, id2: string) {
     button2.innerHTML = "<<";
     button2.setAttribute("data-attribute", element.name);
     button2.setAttribute("data-value", item2[element.name]);
+    button2.dataset.direction = "right";
     if(item2[element.name] == undefined) {
       button2.disabled = true;
     }

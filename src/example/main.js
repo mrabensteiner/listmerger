@@ -204,11 +204,11 @@ const severity_template = `
 <div class='formgroup'>
   <label>Severity</label>
   <select name="severity">
-    <option value="4">Very High</option>
-    <option value="3">High</option>
-    <option value="2">Medium</option>
-    <option value="1">Low</option>
-    <option value="0">Very Low</option>
+    <option value="4">Catastrophic Problem</option>
+    <option value="3">Major Problem</option>
+    <option value="2">Minor Problem</option>
+    <option value="1">Cosmetic Problem only</option>
+    <option value="0">Not a Problem at all</option>
   </select>
 </div>
 `
@@ -250,11 +250,11 @@ const item_template = `
 
 {{#images.length}}
 <div>
-    <label>Images</label>
+  <label>Images</label>
   <div class="imageedit">
-    {{#images}}
-      <img class='thumbnail' src='{{.}}'/>
-    {{/images}}
+  {{#images}}
+    <img class='thumbnail' src='{{.}}'/>
+  {{/images}}
   </div>
 </div>
 {{/images.length}}
@@ -262,14 +262,16 @@ const item_template = `
 {{#severity}}
 <div>
   <label>Severity</label>
-  <span class="severity severity-{{.}} selectedit" data-name="severity" data-values="{{.}}" data-mode="class" data-class="severity-" data-options='{"0": "Very Low", "1": "Low", "2": "Medium", "3": "High", "4": "Very High"}'>
+  <span class="severity severity-{{.}} selectedit" data-name="severity" data-values="{{.}}" data-mode="class" data-class="severity-" data-options='{
+    "0": "Not a Problem at all", "1": "Cosmetic Problem only", "2": "Minor Problem", "3": "Major Problem", "4": "Catastrophic Problem"
+  }'>
 </div>
 {{/severity}}
 
 {{#description}}
 <div>
   <label>Description</label>
-    <div data-edit="description" contenteditable>{{.}}</div>
+  <div data-edit="description" contenteditable>{{.}}</div>
 </div>
 {{/description}}
 
@@ -277,7 +279,7 @@ const item_template = `
 <hr/>
 <label>Merged into</label>
 <a href="#{{mergedinto.id}}">{{mergedinto.title}}</a>
-<a href="#" class="detach" data-from="{{id}}" data-to="{{mergedinto.id}}">DE</a>
+<img class="detach" data-from="{{parent_id}}" data-to="{{mergedinto.id}}" src="icons/detach.svg"/>
 {{/mergedinto}}
 
 {{#mergedfrom.length}}
@@ -285,8 +287,10 @@ const item_template = `
 <label>Merged from</label>
 {{#mergedfrom}}
   <span class="enum">
-    <a href="#{{id}}">{{parent}}: {{title}}</a>
-    <a href="#" class="detach" data-from="{{id}}" data-to="{{parent_id}}">DE</a>
+    <a href="#{{id}}">
+      {{parent}}: {{title}}
+    </a>
+      <img href="#" class="detach" data-from="{{id}}" data-to="{{parent_id}}" src="icons/detach.svg"/>
   </span>
 {{/mergedfrom}} 
 {{/mergedfrom.length}}
@@ -349,11 +353,31 @@ const merge_template = `
   <input name='title' value="{{title}}">
 </div>
 
+{{#category.length}}
+  <div>
+    <label>Category</label>
+    <span class="selectedit" data-name="category" data-values="{{category}}" data-mode="multiple" data-options='[
+      "Visibility of System Status",
+      "Match Between the System and the Real World",
+      "User Control and Freedom",
+      "Consistency and Standards",
+      "Error Prevention",
+      "Recognition Rather than Recall",
+      "Flexibility and Efficiency of Use",
+      "Aesthetic and Minimalist Design",
+      "Help Users Recognize, Diagnose, and Recover from Errors",
+      "Help and Documentation"]'>
+    {{#category}}<span class='enum'>{{.}}</span>{{/category}}
+    </span>
+  </div>
+{{/category.length}}
+
+${severity_template}
+
 <div class='formgroup'>
   <label>Description</label>
   <textarea name='description'>{{description}}</textarea>
 </div>
-${severity_template}
 `;
 
 function open() {
@@ -444,8 +468,13 @@ function init_select_edit() {
   const parent = document.getElementById("listmerger");
 
   parent.addEventListener("dblclick", (e) => {
-    const selectTarget = e.target.closest(".selectedit");
-    const imageTarget = e.target.parentNode.querySelector(":scope > .imageedit");
+    let selectTarget = e.target.closest(".selectedit");
+    let imageTarget = e.target.closest(".imageedit");
+
+    if (!selectTarget && !imageTarget) {
+      selectTarget = e.target.parentNode.querySelector(":scope > .selectedit");
+      imageTarget = e.target.parentNode.querySelector(":scope > .imageedit");
+    }
 
     if (!selectTarget && !imageTarget) {
       return;
@@ -457,6 +486,7 @@ function init_select_edit() {
     }
 
     const innerText = selectTarget.innerHTML;
+    let preserveclassname = "";
     const name = selectTarget.dataset.name;
     let options = JSON.parse(selectTarget.dataset.options);
     let values = selectTarget.dataset.values;
@@ -479,6 +509,7 @@ function init_select_edit() {
     if (mode == "class") {
       selectTarget.classList.forEach(classname => {
         if (classname.startsWith(classprefix)) {
+          preserveclassname = classname;
           selectTarget.classList.remove(classname);
         }
       });
@@ -517,6 +548,10 @@ function init_select_edit() {
 
       select.remove();
       selectTarget.innerHTML = innerText;
+
+      if (preserveclassname != "") {
+        selectTarget.classList.add(preserveclassname);
+      }
     });
   });
 
