@@ -226,7 +226,7 @@ export function updateItem(id: string, slice = true) {
 }
 
 export function prepareModal(item_id: string): string {
-  return mustache.render(DIALOG_TEMPLATE, getItem(item_id));
+  return mustache.render(DIALOG_TEMPLATE, getItem(item_id, true));
 }
 
 export function prepareEditModal(action: string, item_id = "") {

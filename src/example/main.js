@@ -279,7 +279,8 @@ const item_template = `
 <hr/>
 <label>Merged into</label>
 <a href="#{{mergedinto.id}}">{{mergedinto.title}}</a>
-<img class="detach" data-from="{{parent_id}}" data-to="{{mergedinto.id}}" src="icons/detach.svg"/>
+<img class="detach" data-from="{{parent_id}}" data-to="{{mergedinto.id}}" src="icons/detach.svg"
+  title="Detach this item from '{mergedinto.title}'" alt="Detach"/>
 {{/mergedinto}}
 
 {{#mergedfrom.length}}
@@ -287,10 +288,9 @@ const item_template = `
 <label>Merged from</label>
 {{#mergedfrom}}
   <span class="enum">
-    <a href="#{{id}}">
-      {{parent}}: {{title}}
-    </a>
-      <img href="#" class="detach" data-from="{{id}}" data-to="{{parent_id}}" src="icons/detach.svg"/>
+    <a href="#{{id}}">{{parent}}: {{title}}</a>
+    <img href="#" class="detach" data-from="{{id}}" data-to="{{parent_id}}" src="icons/detach.svg"
+      title="Detach '{title}' from this merged item" alt="Detach"/>
   </span>
 {{/mergedfrom}} 
 {{/mergedfrom.length}}
@@ -340,7 +340,7 @@ const dialog_template = `
 {{#mergedfrom.length}}
 <hr/>
 <label>Merged from</label>
-{{#mergedfrom}}<span class="enum">{{title}} ({{parent}})</span>{{/mergedfrom}} 
+{{#mergedfrom}}<span class="enum">{{parent}}: {{title}}</span>{{/mergedfrom}} 
 {{/mergedfrom.length}}
 </div>
 `;

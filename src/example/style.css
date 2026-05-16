@@ -139,7 +139,7 @@ summary > .thumbnail {
 
 img.detach {
   cursor: pointer;
-  height: 1rem;
+  height: .75rem;
   width: 1rem;
 }
 
@@ -300,6 +300,7 @@ button:disabled::before {
   width: 1rem;
   transition: .1s all ease-in-out;
   vertical-align: center;
+  cursor: pointer;
 }
 
 .zone .element[open] summary::before {
