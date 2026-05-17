@@ -15,25 +15,7 @@ export function init(id: string, id_undo: string, id_redo: string, items: Object
 }
 
 export function getAllItems() {
-  let items = g.getAllItems();
-
-  let merged = items["merged"]
-  items["merged"] = [];
-
-  console.log(merged)
-  console.log(items["merged"])
-
-  const elements = document.getElementById("mlist")?.childNodes.forEach(element => {
-    console.log(element, element.id)
-
-    if (element.id.startsWith(g.PREFIX_MERGED)) {
-      items["merged"].push(g.getItem(element.id))
-    } else if (element.id.startsWith(g.PREFIX_MOVED)) {
-      items["merged"].push(g.getItem(element.id.slice(g.PREFIX_MOVED.length)))
-    }
-  });
-
-  return items;
+  return g.getAllItems();
 }
 
 export { edit } from './transfer'

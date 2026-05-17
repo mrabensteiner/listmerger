@@ -1,6 +1,6 @@
 import { arrange, createDragHandle, CssNames, generateItem, updateAllIndicators, updateItem } from "./uihelper"
 import * as history from "./history"
-import { addMergeItem, getItem, mergelistId, PREFIX_MERGED, PREFIX_MOVED, setItem, updateMergedInto } from "./globalvars"
+import { addItemFromList, addMergeItem, getItem, mergelistId, PREFIX_MERGED, PREFIX_MOVED, removeItem, setItem, updateMergedInto } from "./globalvars"
 
 export function move(id: string, position = -1, from_history = false) {
   if (!from_history) {
@@ -21,6 +21,8 @@ export function move(id: string, position = -1, from_history = false) {
   if (position >= 0) {
     arrange(clone.id, position);
   }
+
+  addItemFromList(id, position, clone.id);
   
   element.classList.add(CssNames.ITEM_ADDED);
   updateAllIndicators();
@@ -31,6 +33,7 @@ export function moveUndo(id) {
   element.classList.remove(CssNames.ITEM_ADDED);
   let clone = document.getElementById(PREFIX_MOVED + id);
   clone.remove();
+  removeItem(PREFIX_MOVED + id);
   updateAllIndicators();
 }
 

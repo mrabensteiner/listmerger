@@ -81,6 +81,37 @@ export function getItem(id: string, full = false): Object {
   return item;
 }
 
+export function addItemFromList(id: string, position = -1, new_id = id) {
+  items["originlists"].forEach(list => {
+    list["items"].forEach(element => {
+      if(element.id == id) {
+        let item = structuredClone(element);
+        item.id = new_id;
+
+        addMergeItem(item, position);
+      }
+    });
+  });
+}
+
+export function removeItem(id: string) {
+  items["merged"].forEach(element => {
+    if(element.id == id) {
+      const i = items["merged"].indexOf(element);
+      items["merged"].splice(i, 1);
+    }
+  });
+}
+
+export function replaceItem(id: string, new_item: Object) {
+  items["merged"].forEach(element => {
+    if(element.id == id) {
+      const i = items["merged"].indexOf(element);
+      items["merged"][i] = new_item;
+    }
+  });
+}
+
 export function getAllItems() {
   return items;
 }
