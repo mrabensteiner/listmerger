@@ -609,7 +609,11 @@ export function merge(event: Event) {
 
   let mergeid: string = transfer.merge(target.id, dropOrigin, new_item["title"], false, "", new_item)
   new_item["id"] = mergeid;
-  history.log(history.Tasks.Merge, targetid, dropOrigin, mergeid, [], new_item["title"], new_item)
+  history.log(history.Tasks.Merge, targetid, dropOrigin, mergeid, [], new_item["title"], {
+    A: item1,
+    B: item2,
+    merged: new_item
+  });
   
 
   dialog.close();

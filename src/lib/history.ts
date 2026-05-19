@@ -55,7 +55,7 @@ export function updateButtons() {
   redo_button.disabled = future.length == 0;
 }
 
-export function log(task: Tasks, id1 = "", id2 = "", id3 = "", array: any[] =[], title = "", item = {}) {
+export function log(task: Tasks, id1 = "", id2 = "", id3 = "", array: any[] =[], title = "", item = {}, item2 = {}) {
   history.push({
     action: task,
     id1: id1,
@@ -63,7 +63,8 @@ export function log(task: Tasks, id1 = "", id2 = "", id3 = "", array: any[] =[],
     id3: id3,
     array: array,
     title: title,
-    item: item
+    item: item,
+    item2: item2
   })
 
   updateButtons();
@@ -83,7 +84,7 @@ export function undo() {
   } else if (last.action == Tasks.MoveAll) {
     transfer.moveAllUndo(last.array)
   } else if (last.action == Tasks.Merge) {
-    transfer.mergeUndo(last.id3)
+    transfer.mergeUndo(last.id3, last.item.A, last.item.B)
   } else if (last.action == Tasks.Arrange) {
     arrange(last.id1, +last.id2);
   } else if (last.action == Tasks.Detach) {
@@ -113,7 +114,7 @@ export function redo() {
     let zonefindings = document.getElementById(last.id1)?.querySelectorAll("[data-role='finding']");
     transfer.moveAll(zonefindings, true);
   } else if (last.action == Tasks.Merge) {
-    transfer.merge(last.id1, last.id2, last.title, true, last.id3, last.item);
+    transfer.merge(last.id1, last.id2, last.title, true, last.id3, last.item.merged);
   } else if (last.action == Tasks.Arrange) {
     arrange(last.id1, +last.id3);
   } else if (last.action == Tasks.Detach) {
