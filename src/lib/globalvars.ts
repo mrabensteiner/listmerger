@@ -112,6 +112,16 @@ export function replaceItem(id: string, new_item: Object) {
   });
 }
 
+export function itemUpdateStatus(id: string, status: string = "") {
+   items["originlists"].forEach(list => {
+    list["items"].forEach(element => {
+      if(element.id == id) {
+        element.status = status;
+      }
+    });
+  });
+}
+
 export function getAllItems() {
   return items;
 }
@@ -151,7 +161,7 @@ export function updateMergedInto(item_id: string, mergedinto_id: string) {
 export function mergeAttach(from_id: string, to_id: string) {
   items["merged"].forEach(element => {
     if(element.id == to_id) {
-      const tmp = element["mergedfrom"];
+      const tmp = element["mergedfrom"] != undefined ? element["mergedfrom"] : [from_id];
       element["mergedfrom"] = [];
 
       tmp.forEach(mergedfrom => {

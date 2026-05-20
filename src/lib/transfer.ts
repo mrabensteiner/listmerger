@@ -1,11 +1,13 @@
 import { arrange, createDragHandle, CssNames, generateItem, updateAllIndicators, updateItem } from "./uihelper"
 import * as history from "./history"
-import { addItemFromList, addMergeItem, getItem, mergelistId, PREFIX_MERGED, PREFIX_MOVED, removeItem, setItem, updateMergedInto } from "./globalvars"
+import { addItemFromList, getItem, itemUpdateStatus, mergelistId, PREFIX_MERGED, PREFIX_MOVED, removeItem, replaceItem, setItem, updateMergedInto } from "./globalvars"
 
 export function move(id: string, position = -1, from_history = false) {
   if (!from_history) {
     history.resetFuture();
   }
+
+  setStatus(id, "moved");
 
   let element = document.getElementById(id)
   let target = document.getElementById(mergelistId).querySelector(`.${CssNames.MERGED_ZONE}`);
@@ -24,13 +26,11 @@ export function move(id: string, position = -1, from_history = false) {
 
   addItemFromList(id, position, clone.id);
   
-  element.classList.add(CssNames.ITEM_ADDED);
   updateAllIndicators();
 }
 
-export function moveUndo(id) {
-  let element = document.getElementById(id);
-  element.classList.remove(CssNames.ITEM_ADDED);
+export function moveUndo(id: string) {
+  setStatus(id, "");
   let clone = document.getElementById(PREFIX_MOVED + id);
   clone.remove();
   removeItem(PREFIX_MOVED + id);
@@ -44,7 +44,7 @@ export function moveAll(zonefindings, from_history = false) {
 
   let moved = [];
   zonefindings.forEach(element => {
-    if (!element.classList.contains(CssNames.ITEM_ADDED) && !element.classList.contains(CssNames.ITEM_MERGED)) {
+    if (!["moved", "merged"].includes(element.dataset.status)) {
       move(element.id, -1, from_history);
       moved.push(element.id);
     }
@@ -88,67 +88,29 @@ export function merge(id1, id2, title, from_history = false, oldmergeid = "", it
   }
 
   let target = document.getElementById(id1) as HTMLDetailsElement;
-  let remove_id2 = true;
   
-  let item1 = history.getMergeItem(id1);
-  let item2 = history.getMergeItem(id2);
+  let item1 = getItem(id1);
+  let item2 = getItem(id2);
+  const remove_id2 = item2["status"] == "moved" || item2["status"] == "mergeitem";
 
-  if (item1 == undefined) {
-    let origin1 = document.getElementById(id1).getAttribute("data-origin");
-    let origin1_element = document.getElementById(origin1);
-    origin1_element.classList.remove(CssNames.ITEM_ADDED)
-    origin1_element.classList.add(CssNames.ITEM_MERGED)
-
-    item1 = {
-      id: id1,
-      title: origin1_element.innerHTML,
-      origin: origin1_element.id
-    }
-  }
-
-  if (item2 == undefined) {
-    let origin2 = document.getElementById(id2).getAttribute("data-origin");
-
-    // directly dragged from the list, not the mergelist
-    if (origin2 == undefined) {
-      origin2 = id2;
-      remove_id2 = false;
-    }
-
-    let origin2_element = document.getElementById(origin2);
-    origin2_element.classList.remove(CssNames.ITEM_ADDED)
-    origin2_element.classList.add(CssNames.ITEM_MERGED)
-
-    item2 = {
-      id: id2,
-      title: origin2_element.innerHTML,
-      origin: origin2_element.id
-    }
-  }
+  setStatus(id1, "merged");;
+  setStatus(id2, "merged");
 
   // TODO better way to create new id
   let newid = PREFIX_MERGED + id1 + "+" + id2;
   if (oldmergeid != "") {
     newid = oldmergeid;
   }
-
-  const historyitem = {
-    id: newid,
-    title: title,
-    historyA: item1,
-    historyB: item2
-  };
-  history.addMergeItem(newid, historyitem);
-
-  const mergedfrom = mergeHistoryItems(historyitem);
-
-  item["mergedfrom"] = mergedfrom;//mergedfrom.map((id) => getItem(id));
-
+  const mergedfrom1 = Array.isArray(item1.mergedfrom) ? item1.mergedfrom : [item1.id];
+  const mergedfrom2 = Array.isArray(item2.mergedfrom) ? item2.mergedfrom : [item2.id];
 
   item["id"] = newid;
-  addMergeItem(item);
+  item["mergedfrom"] = mergedfrom1.concat(mergedfrom2);
+  item["status"] = "mergeitem";
+  replaceItem(id1, item);
 
-  mergedfrom.forEach(item_id => {
+
+  item["mergedfrom"].forEach(item_id => {
     updateMergedInto(item_id, newid);
     updateItem(item_id);
   });
@@ -161,87 +123,50 @@ export function merge(id1, id2, title, from_history = false, oldmergeid = "", it
 
   if (remove_id2) {
     document.getElementById(id2).remove()
+    removeItem(id2);
   }
 
   updateAllIndicators();
   return newid;
 }
 
-function mergeHistoryItems(item: Object): Array<string> {
-  let history_list = [];
-
-  if(!item.hasOwnProperty("historyA")) {
-    return [item["id"]];
-  }
-
-  if(item["historyA"].hasOwnProperty("origin")) {
-    history_list.push(item["historyA"]["origin"]);
-  } else {
-    history_list = history_list.concat(mergeHistoryItems(item["historyA"]));
-  }
-
-  if(item["historyB"].hasOwnProperty("origin")) {
-    history_list.push(item["historyB"]["origin"]);
-  } else {
-    history_list = history_list.concat(mergeHistoryItems(item["historyB"]));
-  }
-
-  return history_list;
-}
-
-export function mergeUndo(id) {
-  let mergeitem = history.getMergeItem(id);
+export function mergeUndo(id: string, itemA: Object, itemB: Object) {
   let mergeelement = document.getElementById(id);
 
-
-  // Item A is a moved item
-  if (mergeitem.historyA.id.startsWith(PREFIX_MOVED)) {
-    mergeelement.setAttribute("data-origin", mergeitem.historyA.origin);
-    document.getElementById(mergeitem.historyA.origin).classList.remove(CssNames.ITEM_MERGED);
-    document.getElementById(mergeitem.historyA.origin).classList.add(CssNames.ITEM_ADDED);
+  if (itemB["status"] == "mergeitem") {
+    generateItem("mlist", itemB);
   }
 
-  // Bring Item A to its previous state
-  if (mergeitem.historyA.id.startsWith(PREFIX_MERGED) || mergeitem.historyA.id.startsWith(PREFIX_MOVED)) {
-    mergeelement.id = mergeitem.historyA.id;
-    mergeelement.innerHTML = generateItem("", getItem(mergeelement.id)).innerHTML;
-    mergeelement.children[0].append(createDragHandle());
-  }
-
-  // Item B was taken from the merged list
-  if (mergeitem.historyB.id.startsWith(PREFIX_MERGED) || mergeitem.historyB.id.startsWith(PREFIX_MOVED)) {
-    let newelement = generateItem("mlist", mergeitem.historyB);
-    
-    // document.createElement("div");
-    // newelement.innerHTML = mergeitem.historyB.title;
-    // newelement.id = mergeitem.historyB.id;
-    // newelement.draggable = true;
-    // newelement.append(createDragHandle());
-
-    if (mergeitem.historyB.origin != null) {
-      document.getElementById(mergeitem.historyB.origin).classList.remove(CssNames.ITEM_MERGED);
-      document.getElementById(mergeitem.historyB.origin).classList.add(CssNames.ITEM_ADDED);
-
-      newelement.setAttribute("data-origin", mergeitem.historyB.origin)
-    }
-
-    //document.getElementById("mlist").append(newelement)
-  }
-  // Item B was taken directly from an evaluators list
-  else {
-    let element = document.getElementById(mergeitem.historyB.id);
-    element.classList.remove(CssNames.ITEM_MERGED);
-  }
+  itemA.id = itemA.status == "moved" ? PREFIX_MOVED + itemA.id : itemA.id;
+  itemB.status == "moved" ? move(itemB.id) : false;
+  mergeelement.id = itemA.id;
   
-  mergeHistoryItems(mergeitem.historyA).forEach(id => {
-    updateMergedInto(id, mergeitem.historyA.id);
-    updateItem(id);
-  });
-  
-  mergeHistoryItems(mergeitem.historyB).forEach(id => {
-    updateMergedInto(id, mergeitem.historyB.id);
-    updateItem(id);
-  });
+  replaceItem(id, itemA);
+  updateItem(itemA.id);
 
-  history.deleteMergeItem(id);
+  setStatus(itemA.id, itemA.status);
+  setStatus(itemB.id, itemB.status);
+  
+  if (itemA["mergedfrom"] != undefined) {
+    itemA["mergedfrom"].forEach(id => {
+      updateMergedInto(id, itemA.id);
+      updateItem(id);
+    });
+  }
+
+  if (itemB["mergedfrom"] != undefined) {
+    itemB["mergedfrom"].forEach(id => {
+      updateMergedInto(id, itemB.id);
+      updateItem(id);
+    });
+  }
+}
+
+function setStatus(id: string, status = "") {
+  id = id.startsWith(PREFIX_MOVED) ? id.slice(PREFIX_MOVED.length) : id;
+  id = id.startsWith(PREFIX_MOVED) ? id.slice(PREFIX_MOVED.length) : id;
+
+  const element = document.getElementById(id) as HTMLElement;
+  element.dataset.status = status;
+  itemUpdateStatus(id, status);
 }

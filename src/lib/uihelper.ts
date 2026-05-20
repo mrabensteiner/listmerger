@@ -177,10 +177,7 @@ export function generateItem(parent_id: string, item: Object): HTMLElement {
   element.innerHTML = item["title"];
   element.draggable = true;
   element.classList.add("element");
-  
-  if (item.mergedinto) {
-    element.classList.add("merged");
-  }
+  element.dataset.status = item["status"];
   
   var output = mustache.render(ITEM_TEMPLATE, item);
   element.innerHTML = output;
@@ -211,6 +208,7 @@ export function updateItem(id: string, slice = true) {
   const item = getItem(id, true);
   const output = mustache.render(ITEM_TEMPLATE, item);
   element.innerHTML = output;
+  element.dataset.status = item["status"];
 
   const summary = element.querySelector("summary");
 

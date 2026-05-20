@@ -368,8 +368,7 @@ export function dragStart(e: DragEvent) {
   }
 
   if ((element.nodeName != "DETAILS" && !element.classList.contains(CssNames.ITEM_DRAGHANDLE))
-    || element.classList.contains(CssNames.ITEM_ADDED)
-    || element.classList.contains(CssNames.ITEM_MERGED)) {
+    || ["moved", "merged"].includes(element.dataset.status as string) && element.closest(".tabbar")) {
     e.preventDefault();
     return;  
   }
@@ -502,7 +501,7 @@ export function drop(e: DragEvent) {
     dragAction = Action.None;
     return;
   }
-  else if (droporigin_element.classList.contains(CssNames.ITEM_ADDED) || droporigin_element.classList.contains(CssNames.ITEM_MERGED)) {
+  else if (["moved", "merged"].includes(droporigin_element.dataset.status as string) && droporigin_element?.closest(".tabbar")) {
     return;
   }
 
@@ -593,17 +592,6 @@ export function merge(event: Event) {
   keys2.filter(n => !keys1.includes(n)).forEach(key => {
     new_item[key] = item2[key];
   });
-
-  let origin_id = dropOrigin;
-
-  if(dropOriginelement.hasAttribute("data-origin")) {
-    origin_id = dropOriginelement.getAttribute("data-origin");
-    let origin_element = document.getElementById(origin_id);
-    origin_element.classList.remove(CssNames.ITEM_ADDED);
-    origin_element.classList.add(CssNames.ITEM_MERGED);
-  } else {
-    dropOriginelement.classList.add(CssNames.ITEM_MERGED);
-  }
 
   (dropOriginelement as HTMLDetailsElement).open = false;
 
