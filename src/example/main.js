@@ -253,7 +253,7 @@ const item_template = `
   <label>Images</label>
   <div class="imageedit">
   {{#images}}
-    <img class='thumbnail' src='{{.}}'/>
+      <div class="imageedit-container"><img class="thumbnail" src="{{.}}"/></div>
   {{/images}}
   </div>
 </div>
@@ -318,7 +318,7 @@ const dialog_template = `
   {{#images.length}}
     <label>Images</label>
     {{#images}}
-      <img class='thumbnail' src='{{.}}'/>
+      <div><img class='thumbnail' src='{{.}}'/></div>
     {{/images}}
   {{/images.length}}
 </div>
@@ -428,15 +428,15 @@ function image_edit(editContainer) {
   let draggedImage = null;
 
   editContainer.addEventListener("dragstart", (e) => {
-    if (e.target.classList.contains("thumbnail")) {
-      draggedImage = e.target;
+    if (e.target.closest(".imageedit-container")) {
+      draggedImage = e.target.closest(".imageedit-container");
       e.target.classList.add("dragging");
     }
   });
   
   editContainer.addEventListener("dragover", (e) => {
     e.preventDefault();
-    const image = e.target.closest(".thumbnail");
+    const image = e.target.closest(".imageedit-container");
 
     if (image && image !== draggedImage) {
       const rect = image.getBoundingClientRect();
@@ -446,7 +446,7 @@ function image_edit(editContainer) {
   });
   
   editContainer.addEventListener('dragend', (e) => {
-    if (e.target.classList.contains("thumbnail")) {
+    if (e.target.closest(".imageedit-container")) {
       e.target.classList.remove("dragging");
 
       const element = editContainer.closest(".element");
@@ -456,7 +456,7 @@ function image_edit(editContainer) {
       }
 
       const id = element.id;
-      const order = Array.from(editContainer.children).map(img => img.src);
+      const order = Array.from(editContainer.children).map(container => container.querySelector("img").src);
 
       // alternative: saving when finishing image editing?
       listmerger.edit(id, "images", order)
@@ -556,11 +556,13 @@ function init_select_edit() {
   });
 
   parent.addEventListener("click", (e) => {
-    if (e.target.closest(".imageedit") && e.target.closest(".imageedit").dataset.active == "true" && e.target.tagName == "IMG") {
-      if (e.target.classList.contains("imageedit-inactive")) {
-        e.target.classList.remove("imageedit-inactive");
+    console.log(e.target)
+    if (e.target.closest(".imageedit") && e.target.closest(".imageedit").dataset.active == "true") {
+      const container = e.target.closest(".imageedit-container");
+      if (container.classList.contains("imageedit-inactive")) {
+        container.classList.remove("imageedit-inactive");
       } else {
-        e.target.classList.add("imageedit-inactive");
+        container.classList.add("imageedit-inactive");
       }
     }
   });
