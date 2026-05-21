@@ -163,6 +163,9 @@ export function loadItems(items: Object) {
     tabbar.append(details_element);
 
     list["items"].forEach(item => {
+      if (item["mergedinto"] != undefined && item["mergedinto"].length > 0) {
+        item = getItem(item.id, true);
+      }
       generateItem(list_id, item);
     });
   });
@@ -267,8 +270,8 @@ function updateMergeIndicator() {
 function updateOriginIndicators() {
   document.querySelectorAll(".tabbar > details").forEach((element) => {
     const count_total = element.querySelector(".zone").children.length;
-    const count_added = element.querySelectorAll(".zone .added").length;
-    const count_merged = element.querySelectorAll(".zone .merged").length;
+    const count_added = element.querySelectorAll(".zone [data-status='moved']").length;
+    const count_merged = element.querySelectorAll(".zone [data-status='merged']").length;
 
     const indicator_element = element.querySelector(".indicator");
     const option_indicator_element = document.querySelector(`#detailsselector option[value='${element.attributes["data-order"].value}']`);

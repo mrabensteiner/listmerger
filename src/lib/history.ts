@@ -88,11 +88,7 @@ export function undo() {
   } else if (last.action == Tasks.Arrange) {
     arrange(last.id1, +last.id2);
   } else if (last.action == Tasks.Detach) {
-    updateMerged(last.id2, last.array);
-    document.getElementById(last.id1)?.classList.add(CssNames.ITEM_MERGED);
-    updateAllIndicators();
-    updateItem(last.id1);
-    updateItem(last.id2);
+    transfer.attach(last.id1, last.id2, last.array);
   }
   future.push(last);
 
@@ -118,11 +114,7 @@ export function redo() {
   } else if (last.action == Tasks.Arrange) {
     arrange(last.id1, +last.id3);
   } else if (last.action == Tasks.Detach) {
-    mergeDetach(last.id1, last.id2);
-    document.getElementById(last.id1)?.classList.remove(CssNames.ITEM_MERGED);
-    updateAllIndicators();
-    updateItem(last.id1);
-    updateItem(last.id2);
+    transfer.detach(last.id1, last.id2);
   }
 
   history.push(last);

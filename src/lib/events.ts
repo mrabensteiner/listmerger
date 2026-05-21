@@ -276,16 +276,6 @@ export function editDialog(id: string) {
 }
 
 export function mergeDialog(id1: string, id2: string) {
-  const element1 = document.getElementById(id1);
-  const element2 = document.getElementById(id2);
-
-  if(id1.startsWith(PREFIX_MOVED)) {
-    id1 = element1.getAttribute("data-origin");
-  }
-  if(id2.startsWith(PREFIX_MOVED)) {
-    id2 = element2.getAttribute("data-origin");
-  }
-
   let item1 = getItem(id1);
   let item2 = getItem(id2);
 
@@ -572,7 +562,7 @@ export function merge(event: Event) {
   keys1.forEach(key => {
     if (!Array.isArray(new_item[key])) {
       if (Array.isArray(item1[key])) {
-        new_item[key] = item1[key];
+        new_item[key] = [].concat(item1[key]);
 
         if(Array.isArray(item2[key])) {
           item2[key].forEach(value => {
@@ -582,7 +572,7 @@ export function merge(event: Event) {
           });
         }
       } else if(Array.isArray(item2[key])) {
-        new_item[key] = item2[key];
+        new_item[key] = [].concat(item2[key]);
       } else if(new_item[key] == "") {
         new_item[key] = item1[key];
       }
@@ -633,14 +623,10 @@ function moveAll(e: Event) {
 }
 
 function detach(e: MouseEvent) {
-  const target = (e.target as HTMLElement);
-  const from = target.dataset.from;
-  const to = target.dataset.to;
+  const target = e.target as HTMLElement;
+  const from = target.dataset.from as string;
+  const to = target.dataset.to as string;
 
-  let previouslist = mergeDetach(from, to);
+  let previouslist = transfer.detach(from, to);
   history.log(history.Tasks.Detach, from, to, "", previouslist);
-  document.getElementById(from).classList.remove(CssNames.ITEM_MERGED);
-  updateAllIndicators();
-  updateItem(from);
-  updateItem(to);
 }

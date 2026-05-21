@@ -1,6 +1,6 @@
 import { arrange, createDragHandle, CssNames, generateItem, updateAllIndicators, updateItem } from "./uihelper"
 import * as history from "./history"
-import { addItemFromList, getItem, itemUpdateStatus, mergelistId, PREFIX_MERGED, PREFIX_MOVED, removeItem, replaceItem, setItem, updateMergedInto } from "./globalvars"
+import { addItemFromList, addMergeItem, getItem, itemUpdateStatus, mergeDetach, mergelistId, PREFIX_MERGED, PREFIX_MOVED, removeItem, replaceItem, setItem, updateMerged, updateMergedInto } from "./globalvars"
 
 export function move(id: string, position = -1, from_history = false) {
   if (!from_history) {
@@ -134,18 +134,22 @@ export function mergeUndo(id: string, itemA: Object, itemB: Object) {
   let mergeelement = document.getElementById(id);
 
   if (itemB["status"] == "mergeitem") {
+    addMergeItem(itemB);
     generateItem("mlist", itemB);
   }
 
-  itemA.id = itemA.status == "moved" ? PREFIX_MOVED + itemA.id : itemA.id;
+  itemA.id = itemA.status == "moved" && !itemA.id.startsWith(PREFIX_MOVED) ? PREFIX_MOVED + itemA.id : itemA.id;
   itemB.status == "moved" ? move(itemB.id) : false;
   mergeelement.id = itemA.id;
   
   replaceItem(id, itemA);
-  updateItem(itemA.id);
 
   setStatus(itemA.id, itemA.status);
   setStatus(itemB.id, itemB.status);
+  updateMergedInto(itemA.id);
+  updateMergedInto(itemB.id);
+  updateItem(itemA.id);
+  updateItem(itemB.id);
   
   if (itemA["mergedfrom"] != undefined) {
     itemA["mergedfrom"].forEach(id => {
@@ -162,6 +166,21 @@ export function mergeUndo(id: string, itemA: Object, itemB: Object) {
   }
 }
 
+export function attach(from_id: string, to_id: string, order: Array<string>) {
+  updateMerged(to_id, order);
+  setStatus(from_id, "merged");
+  updateItem(from_id);
+  updateItem(to_id);
+}
+
+export function detach(from_id: string, to_id: string) {
+  const previouslist = mergeDetach(from_id, to_id);
+  setStatus(from_id, "");
+  updateItem(from_id);
+  updateItem(to_id);
+  return previouslist;
+}
+
 function setStatus(id: string, status = "") {
   id = id.startsWith(PREFIX_MOVED) ? id.slice(PREFIX_MOVED.length) : id;
   id = id.startsWith(PREFIX_MOVED) ? id.slice(PREFIX_MOVED.length) : id;
@@ -169,4 +188,5 @@ function setStatus(id: string, status = "") {
   const element = document.getElementById(id) as HTMLElement;
   element.dataset.status = status;
   itemUpdateStatus(id, status);
+  updateAllIndicators();
 }

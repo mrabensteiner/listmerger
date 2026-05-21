@@ -141,7 +141,7 @@ export function updateMerged(item_id: string, mergedfrom: string[]) {
  })
 }
 
-export function updateMergedInto(item_id: string, mergedinto_id: string) {
+export function updateMergedInto(item_id: string, mergedinto_id: string = item_id) {
 
   if(item_id == mergedinto_id) {
     mergedinto_id = "";
