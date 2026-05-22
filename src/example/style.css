@@ -491,3 +491,24 @@ select {
   content: "Not a Problem at all";
   background-color: darkgreen;
 }
+
+label::after {
+  content: 'Edit';
+  background: #1a5fb436 url('icons/edit.svg') no-repeat .2rem;
+    background-size: auto;
+  background-size: .6rem;
+  color: #1a5fb4;
+  padding: .1rem .2rem .1rem 1rem;
+  border-radius: .2rem;
+  display: inline-block;
+  margin-left: .2rem;
+  cursor: pointer;
+}
+
+label.editing::after {
+  content: 'Save';
+  background: #df8a2236 url('icons/save_orange.svg') no-repeat .2rem;
+    background-size: auto;
+  background-size: .6rem;
+  color: #df8a22;
+}

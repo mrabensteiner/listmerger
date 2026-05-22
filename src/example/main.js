@@ -419,6 +419,7 @@ function save_json() {
 function image_edit(editContainer) {
   let active = editContainer.dataset.active == "true";
   editContainer.dataset.active = !active;
+  const start_order = Array.from(editContainer.children).map(container => container.querySelector("img").src);
 
   // Focus on the box and remove selections
   editContainer.tabIndex = 0;
@@ -458,16 +459,98 @@ function image_edit(editContainer) {
       const id = element.id;
       const order = Array.from(editContainer.children).map(container => container.querySelector("img").src);
 
-      // alternative: saving when finishing image editing?
-      listmerger.edit(id, "images", order)
+      // alternative: saving at every reorder
     }
   });
+
+  return function () {
+    editContainer.dataset.active = false;
+    const element = editContainer.closest(".element");
+    const id = element.id;
+
+    const end_order = Array.from(editContainer.children).map(container => container.querySelector("img").src);
+    
+    if (JSON.stringify(start_order) != JSON.stringify(end_order)) {
+      listmerger.edit(element.id, "images", end_order);
+    }
+  }
+}
+
+function select_edit(selectTarget) {
+  const innerText = selectTarget.innerHTML;
+  let preserveclassname = "";
+  const name = selectTarget.dataset.name;
+  let options = JSON.parse(selectTarget.dataset.options);
+  let values = selectTarget.dataset.values;
+
+  if(Array.isArray(options)) {
+    options = Object.fromEntries(
+      options.map(key => [key, key])
+    );
+  }
+
+  try {
+    values = JSON.parse(values);
+  } catch {
+    values = values.split(',').map(item => item.trim());
+  }
+
+  const mode = selectTarget.dataset.mode;
+  const classprefix = selectTarget.dataset.class;
+
+  if (mode == "class") {
+    selectTarget.classList.forEach(classname => {
+      if (classname.startsWith(classprefix)) {
+        preserveclassname = classname;
+        selectTarget.classList.remove(classname);
+      }
+    });
+  } else {
+    selectTarget.innerHTML = "";
+  }
+
+  const select = document.createElement("select");
+  select.name = name;
+
+  if (mode == "multiple") {
+    select.multiple = true;
+  }
+
+  Object.entries(options).forEach(element => {
+    const option = document.createElement("option");
+    option.value = element[0];
+    option.innerText = element[1];
+
+    if (Array.isArray(values) && (values.includes(element[0]) || values.includes(element[1]))) {
+      option.selected = true;
+    } else if (values == element[0] || values == element[1]) {
+      option.selected = true;
+    }
+
+    select.append(option);
+  });
+  selectTarget.append(select);
+  select.focus();
+
+  return function() {
+
+    if (select.closest("dialog")) {
+      return;
+    }
+
+    select.remove();
+    selectTarget.innerHTML = innerText;
+
+    if (preserveclassname != "") {
+      selectTarget.classList.add(preserveclassname);
+    }
+  };
 }
 
 function init_select_edit() {
   const parent = document.getElementById("listmerger");
 
-  parent.addEventListener("dblclick", (e) => {
+  parent.addEventListener("dblclicka", (e) => {
     let selectTarget = e.target.closest(".selectedit");
     let imageTarget = e.target.closest(".imageedit");
 
@@ -482,87 +565,45 @@ function init_select_edit() {
 
     if (imageTarget) {
       image_edit(imageTarget);
-      return;
-    }
-
-    const innerText = selectTarget.innerHTML;
-    let preserveclassname = "";
-    const name = selectTarget.dataset.name;
-    let options = JSON.parse(selectTarget.dataset.options);
-    let values = selectTarget.dataset.values;
-
-    if(Array.isArray(options)) {
-      options = Object.fromEntries(
-        options.map(key => [key, key])
-      );
-    }
-
-    try {
-      values = JSON.parse(values);
-    } catch {
-      values = values.split(',').map(item => item.trim());
-    }
-
-    const mode = selectTarget.dataset.mode;
-    const classprefix = selectTarget.dataset.class;
-
-    if (mode == "class") {
-      selectTarget.classList.forEach(classname => {
-        if (classname.startsWith(classprefix)) {
-          preserveclassname = classname;
-          selectTarget.classList.remove(classname);
-        }
-      });
     } else {
-      selectTarget.innerHTML = "";
+      select_edit(selectTarget);
     }
-
-    const select = document.createElement("select");
-    select.name = name;
-
-    if (mode == "multiple") {
-      select.multiple = true;
-    }
-
-    Object.entries(options).forEach(element => {
-      const option = document.createElement("option");
-      option.value = element[0];
-      option.innerText = element[1];
-
-      if (Array.isArray(values) && (values.includes(element[0]) || values.includes(element[1]))) {
-        option.selected = true;
-      } else if (values == element[0] || values == element[1]) {
-        option.selected = true;
-      }
-
-      select.append(option);
-    });
-    selectTarget.append(select);
-    select.focus();
-
-    select.addEventListener("blur", () => {
-
-      if (select.closest("dialog")) {
-        return;
-      }
-
-      select.remove();
-      selectTarget.innerHTML = innerText;
-
-      if (preserveclassname != "") {
-        selectTarget.classList.add(preserveclassname);
-      }
-    });
   });
 
   parent.addEventListener("click", (e) => {
-    console.log(e.target)
+    if (e.target.tagName == "LABEL") {
+      const inline_edit_element = e.target.parentNode.querySelector("[contenteditable]")
+      const image_edit_element = e.target.parentNode.querySelector(".imageedit")
+      const select_edit_element = e.target.parentNode.querySelector(".selectedit");
+      const label = e.target;
+
+      if (label.classList.contains("editing")) {
+        return;
+      } else if (inline_edit_element || image_edit_element || select_edit_element) {
+        label.classList.add("editing");
+      }
+
+      let save = function() {};
+
+      if (inline_edit_element) {
+        inline_edit_element.focus();
+      } else if (image_edit_element) {
+        save = image_edit(image_edit_element);
+      } else if (select_edit_element) {
+        save = select_edit(select_edit_element);
+      }
+
+      label.addEventListener("click", (e) => {
+        e.stopImmediatePropagation();
+        save();
+        label.classList.remove("editing");
+      }, { once: true })
+    }
+
     if (e.target.closest(".imageedit") && e.target.closest(".imageedit").dataset.active == "true") {
       const container = e.target.closest(".imageedit-container");
-      if (container.classList.contains("imageedit-inactive")) {
-        container.classList.remove("imageedit-inactive");
-      } else {
-        container.classList.add("imageedit-inactive");
+      if (container) {
+        container.classList.toggle("imageedit-inactive");
       }
     }
   });
