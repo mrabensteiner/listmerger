@@ -163,7 +163,7 @@ export function loadItems(items: Object) {
     tabbar.append(details_element);
 
     list["items"].forEach(item => {
-      if (item["mergedinto"] != undefined && item["mergedinto"].length > 0) {
+      if ((item["mergedinto"] != undefined && item["mergedinto"].length > 0) || item["images"]) {
         item = getItem(item.id, true);
       }
       generateItem(list_id, item);

@@ -78,6 +78,11 @@ export function getItem(id: string, full = false): Object {
       }
     });
   });
+
+  if (item["images"] != undefined) {
+    item["titleimg"] = item["images"].find((obj: Object) => obj["active"] != false);
+  }
+
   return item;
 }
 

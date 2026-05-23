@@ -14,8 +14,9 @@ const items = {
           "category": ["Visibility of System Status"],
           "severity": 2,
           "images": [
-            "images/tugraz.png",
-            "images/steps.png"
+            {"active": true, "src": "images/tugraz.png"},
+            {"active": false, "src": "images/studies.png"},
+            {"active": true, "src": "images/steps.png"}
           ],
           "description": "The start page has a muted video that starts automatically."
         },
@@ -25,7 +26,7 @@ const items = {
           "author": ["John Doe"],
           "category": ["User Control and Freedom"],
           "severity": 3,
-          "images": ["images/studies.png"],
+          "images": [{"active": true, "src": "images/studies.png"}],
           "description": "This is the second item in the list."
         },
         {
@@ -34,7 +35,7 @@ const items = {
           "author": ["John Doe"],
           "category": ["Aesthetic and Minimalist Design"],
           "severity": 1,
-          "images": ["images/tipps.png"],
+          "images": [{"active": true, "src": "images/tipps.png"}],
           "description": "This is an item about the Consultation and Tips Boxes."
         },
         {
@@ -43,7 +44,7 @@ const items = {
           "author": ["John Doe"],
           "category": ["User Control and Freedom"],
           "severity": 0,
-          "images": ["images/steps.png"],
+          "images": [{"active": true, "src": "images/steps.png"}],
           "description": "In this graphic, the steps for admission are shown."
         },
         {
@@ -52,7 +53,7 @@ const items = {
           "author": ["John Doe"],
           "category": ["Visibility of System Status"],
           "severity": 4,
-          "images": ["images/majors.png"],
+          "images": [{"active": true, "src": "images/majors.png"}],
           "description": "A variety of Majors."
         },
         {
@@ -60,7 +61,7 @@ const items = {
           "title": "Tiles for Study Programs",
           "author": ["John Doe"],
           "category": ["Help and Documentation"],
-          "images": ["images/studies.png"],
+          "images": [{"active": true, "src": "images/studies.png"}],
           "description": "Study programs are shown as tiles."
         },
         {
@@ -68,7 +69,7 @@ const items = {
           "title": "Footer with many Information",
           "author": ["John Doe"],
           "category": ["User Control and Freedom"],
-          "images": ["images/footer.png"],
+          "images": [{"active": true, "src": "images/footer.png"}],
           "description": "The footer contains important links, contact information, and partners."
         },
         {
@@ -76,7 +77,7 @@ const items = {
           "title": "The Faculty of Computer Science and Biomedical Engineering",
           "author": ["John Doe"],
           "category": ["Consistency and Standards"],
-          "images": ["images/faculty.png"],
+          "images": [{"active": true, "src": "images/faculty.png"}],
           "description": "This faculty is home to 11 institutes."
         },
         {
@@ -84,7 +85,7 @@ const items = {
           "title": "Selection of Majors in Computer Science",
           "author": ["John Doe"],
           "category": ["Help Users Recognize, Diagnose, and Recover from Errors"],
-          "images": ["images/majors.png"],
+          "images": [{"active": true, "src": "images/majors.png"}],
           "description": "Choose one of those."
         },
         {
@@ -92,7 +93,7 @@ const items = {
           "title": "This is an example with a very long title to show how the Application copes with it and the <summary> element breaks it to multiple lines. A title should nevertheless not be that long. Also, multiple sentences are maybe a bit unnecessary.",
           "author": ["John Doe"],
           "category": ["Aesthetic and Minimalist Design"],
-          "images": ["images/steps.png"],
+          "images": [{"active": true, "src": "images/steps.png"}],
           "description": "In contrast, a very short description."
         },
         {
@@ -100,7 +101,7 @@ const items = {
           "title": "Import Information about the Study Program",
           "author": ["John Doe"],
           "category": ["Match Between the System and the Real World"],
-          "images": ["images/studydata.png"],
+          "images": [{"active": true, "src": "images/studydata.png"}],
           "description": "We already have 11 items in this list, it represents a long list.",
         },
         {
@@ -108,7 +109,7 @@ const items = {
           "title": "Just one last Example of the Homepage",
           "author": ["John Doe"],
           "category": ["Error Prevention"],
-          "images": ["images/tugraz.png"],
+          "images": [{"active": true, "src": "images/tugraz.png"}],
           "description": "Now we really have enough items.",
         }
       ]
@@ -123,7 +124,7 @@ const items = {
           "author": ["Max Mustermann"],
           "category": ["User Control and Freedom"],
           "severity": 0,
-          "images": ["images/majors.png"],
+          "images": [{"active": true, "src": "images/majors.png"}],
           "description": "The Master Programe offers 8 specialisation.",
         },
         {
@@ -132,7 +133,7 @@ const items = {
           "author": ["Max Mustermann"],
           "category": ["Consistency and Standards"],
           "severity": 1,
-          "images": ["images/studydata.png"],
+          "images": [{"active": true, "src": "images/studydata.png"}],
           "description": "A box at the top show the key facts about the program.",
         },
         {
@@ -141,7 +142,7 @@ const items = {
           "author": ["Max Mustermann"],
           "category": ["Visibility of System Status"],
           "severity": 1,
-          "images": ["images/tipps.png"],
+          "images": [{"active": true, "src": "images/tipps.png"}],
           "description": "Short description.",
         }
       ]
@@ -156,7 +157,7 @@ const items = {
           "author": ["Mario Rossi"],
           "category": ["Match Between the System and the Real World"],
           "severity": 2,
-          "images": ["images/studies.png"],
+          "images": [{"active": true, "src": "images/studies.png"}],
           "description": "A practical alternative to a long list.",
         },
         {
@@ -165,7 +166,7 @@ const items = {
           "author": ["Mario Rossi"],
           "category": ["Flexibility and Efficiency of Use"],
           "severity": 3,
-          "images": ["images/tugraz.png"],
+          "images": [{"active": true, "src": "images/tugraz.png"}],
           "description": "TU Graz is one of four universities in Austria's second largest city.",
         },
         {
@@ -174,7 +175,7 @@ const items = {
           "author": ["Mario Rossi"],
           "category": ["Visibility of System Status"],
           "severity": 2,
-          "images": ["images/faculty.png"],
+          "images": [{"active": true, "src": "images/faculty.png"}],
           "description": "To the right, institutes are listed.",
         },
         {
@@ -183,7 +184,7 @@ const items = {
           "author": ["Mario Rossi"],
           "category": ["Aesthetic and Minimalist Design"],
           "severity": 3,
-          "images": ["images/footer.png"],
+          "images": [{"active": true, "src": "images/footer.png"}],
           "description": "The logo is integrated into the background image in an unusual colour.",
         },
         {
@@ -192,7 +193,7 @@ const items = {
           "author": ["Mario Rossi"],
           "category": ["Error Prevention"],
           "severity": 0,
-          "images": ["images/studies.png"],
+          "images": [{"active": true, "src": "images/studies.png"}],
           "description": "The list of Mario Rossi now has 5 items.",
         }
       ]
@@ -216,7 +217,7 @@ const severity_template = `
 const item_template = `
 <summary {{#mergedinto}}title="Merged into {{title}}"{{/mergedinto}}>
   <span data-edit="title" contenteditable='plaintext-only'>{{title}}</span>
-<img class='thumbnail' src='{{images.0}}'/>
+{{#titleimg}}<img class='thumbnail' src='{{src}}'/>{{/titleimg}}
 </summary>
 
 <section>
@@ -253,7 +254,7 @@ const item_template = `
   <label>Images</label>
   <div class="imageedit">
   {{#images}}
-      <div class="imageedit-container"><img class="thumbnail" src="{{.}}"/></div>
+      <div class="imageedit-container{{^active}} imageedit-inactive{{/active}}"><img class="thumbnail" src="{{src}}"/></div>
   {{/images}}
   </div>
 </div>
@@ -318,7 +319,7 @@ const dialog_template = `
   {{#images.length}}
     <label>Images</label>
     {{#images}}
-      <div><img class='thumbnail' src='{{.}}'/></div>
+      {{#active}}<div><img class='thumbnail' src='{{src}}'/></div>{{/active}}
     {{/images}}
   {{/images.length}}
 </div>
@@ -423,7 +424,6 @@ function image_edit(editContainer) {
 
   // Focus on the box and remove selections
   editContainer.tabIndex = 0;
-  editContainer.focus();
   window.getSelection().empty();
 
   let draggedImage = null;
@@ -468,7 +468,13 @@ function image_edit(editContainer) {
     const element = editContainer.closest(".element");
     const id = element.id;
 
-    const end_order = Array.from(editContainer.children).map(container => container.querySelector("img").src);
+    const end_order = Array.from(editContainer.children).map(container => {
+      return {
+        "active": !container.classList.contains("imageedit-inactive"),
+        "src": container.querySelector("img").src
+      }
+    });
+    console.log(end_order);
     
     if (JSON.stringify(start_order) != JSON.stringify(end_order)) {
       listmerger.edit(element.id, "images", end_order);
