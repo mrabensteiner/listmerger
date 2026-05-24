@@ -216,7 +216,8 @@ const severity_template = `
 
 const item_template = `
 <summary {{#mergedinto}}title="Merged into {{title}}"{{/mergedinto}}>
-  <span data-edit="title" contenteditable='plaintext-only'>{{title}}</span>
+  <span class="summary-triangle"></span>
+  <span class="title" data-edit="title" contenteditable='plaintext-only'>{{title}}</span>
 {{#titleimg}}<img class='thumbnail' src='{{src}}'/>{{/titleimg}}
 </summary>
 
@@ -224,7 +225,7 @@ const item_template = `
 
 {{#author.length}}
   <div>
-    <label>Author</label>
+    <label class="editable">Author</label>
     <span class="selectedit" data-name="author" data-values="{{author}}" data-mode="multiple" data-options='["John Doe","Max Mustermann","Mario Rossi"]'>
     {{#author}}<span class='enum'>{{.}}</span>{{/author}}
     </span>
@@ -232,7 +233,7 @@ const item_template = `
 {{/author.length}}
 {{#category.length}}
   <div>
-    <label>Category</label>
+    <label class="editable">Category</label>
     <span class="selectedit" data-name="category" data-values="{{category}}" data-mode="multiple" data-options='[
       "Visibility of System Status",
       "Match Between the System and the Real World",
@@ -251,7 +252,7 @@ const item_template = `
 
 {{#images.length}}
 <div>
-  <label>Images</label>
+  <label class="editable">Images</label>
   <div class="imageedit">
   {{#images}}
       <div class="imageedit-container{{^active}} imageedit-inactive{{/active}}"><img class="thumbnail" src="{{src}}"/></div>
@@ -262,7 +263,7 @@ const item_template = `
 
 {{#severity}}
 <div>
-  <label>Severity</label>
+  <label class="editable">Severity</label>
   <span class="severity severity-{{.}} selectedit" data-name="severity" data-values="{{.}}" data-mode="class" data-class="severity-" data-options='{
     "0": "Not a Problem at all", "1": "Cosmetic Problem only", "2": "Minor Problem", "3": "Major Problem", "4": "Catastrophic Problem"
   }'>
@@ -271,7 +272,7 @@ const item_template = `
 
 {{#description}}
 <div>
-  <label>Description</label>
+  <label class="editable">Description</label>
   <div data-edit="description" contenteditable>{{.}}</div>
 </div>
 {{/description}}
@@ -281,7 +282,7 @@ const item_template = `
 <label>Merged into</label>
 <a href="#{{mergedinto.id}}">{{mergedinto.title}}</a>
 <img class="detach" data-from="{{parent_id}}" data-to="{{mergedinto.id}}" src="icons/detach.svg"
-  title="Detach this item from '{mergedinto.title}'" alt="Detach"/>
+  title="Detach this item from '{{mergedinto.title}}'" alt="Detach"/>
 {{/mergedinto}}
 
 {{#mergedfrom.length}}
@@ -291,7 +292,7 @@ const item_template = `
   <span class="enum">
     <a href="#{{id}}">{{parent}}: {{title}}</a>
     <img href="#" class="detach" data-from="{{id}}" data-to="{{parent_id}}" src="icons/detach.svg"
-      title="Detach '{title}' from this merged item" alt="Detach"/>
+      title="Detach '{{title}}' from this merged item" alt="Detach"/>
   </span>
 {{/mergedfrom}} 
 {{/mergedfrom.length}}
@@ -474,7 +475,6 @@ function image_edit(editContainer) {
         "src": container.querySelector("img").src
       }
     });
-    console.log(end_order);
     
     if (JSON.stringify(start_order) != JSON.stringify(end_order)) {
       listmerger.edit(element.id, "images", end_order);
@@ -644,5 +644,18 @@ document.addEventListener("click", (e) => {
         dialog.close();
       }
     });
+  }
+});
+
+document.getElementById("listmerger").addEventListener("click", (e) => {
+  const target = e.target;
+  const details = target.closest("details");
+
+  if (target.closest("summary")) {
+    if (target.closest(".summary-triangle") || target.isContentEditable) {
+      details.open = details.open;
+    } else {
+      details.open = !details.open;
+    }
   }
 });

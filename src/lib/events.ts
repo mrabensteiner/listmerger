@@ -1,7 +1,7 @@
 import { arrange, CssNames, getNextDropSibling, getPositionInList, prepareEditModal, prepareModal, toggleDrop, updateAllIndicators, updateItem } from "./uihelper";
 import * as transfer from './transfer';
 import * as history from './history';
-import { getItem, mergeDetach, mergelistId, PREFIX_MERGED, PREFIX_MOVED, setItem } from "./globalvars";
+import { getItem, mergelistId, PREFIX_MERGED, PREFIX_MOVED, preventDetailsOpening, setItem } from "./globalvars";
 
 export enum Action {
   None,
@@ -115,7 +115,7 @@ function initDragDrop() {
     const target = e.target as HTMLElement;
     if (target.isContentEditable && target.closest("summary")) {
       e.preventDefault();
-      if((target.closest("details") as HTMLDetailsElement).open == false) {
+      if(!preventDetailsOpening && (target.closest("details") as HTMLDetailsElement).open == false) {
         (target.closest("details") as HTMLDetailsElement).open = true;
       }
     } else if (target.classList.contains("detach")) {

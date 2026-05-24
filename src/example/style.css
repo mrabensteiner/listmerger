@@ -332,22 +332,6 @@ button:disabled::before {
   filter: opacity(.5);
 }
 
-
-.zone .element summary::before {
-  color: grey;
-  content: url(icons/caret.svg);
-  margin-right: 1rem;
-  height: 1rem;
-  width: 1rem;
-  transition: .1s all ease-in-out;
-  vertical-align: center;
-  cursor: pointer;
-}
-
-.zone .element[open] summary::before {
-  transform: rotate(90deg);
-}
-
 .zone:not(#mlist) .element[data-status="moved"], 
 .zone:not(#mlist) .element[data-status="merged"] {
   color: #999;
@@ -371,7 +355,22 @@ button:disabled::before {
   display: inline-block;
 }
 
-.element span {
+.element summary span.summary-triangle::before {
+  color: grey;
+  content: url(icons/caret.svg);
+  display: block;
+  height: 1rem;
+  width: 1rem;
+  transition: .1s all ease-in-out;
+  cursor: pointer;
+}
+
+.element[open] summary span.summary-triangle::before {
+  transform: rotate(90deg);
+}
+
+.element summary span.title {
+  margin-left: 1rem;
   flex: 1;
 }
 .element img[src=""] {
@@ -492,7 +491,7 @@ select {
   background-color: darkgreen;
 }
 
-label::after {
+label.editable::after {
   content: 'Edit';
   background: #1a5fb436 url('icons/edit.svg') no-repeat .2rem;
     background-size: auto;
@@ -505,10 +504,14 @@ label::after {
   cursor: pointer;
 }
 
-label.editing::after {
+label.editable.editing::after {
   content: 'Save';
   background: #df8a2236 url('icons/save_orange.svg') no-repeat .2rem;
     background-size: auto;
   background-size: .6rem;
   color: #df8a22;
+}
+
+details.element[open] [contenteditable] {
+  cursor: text;
 }

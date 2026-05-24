@@ -8,6 +8,7 @@ export let DIALOG_TEMPLATE = "";
 export let EDIT_TEMPLATE = "";
 
 export let items = {};
+export let preventDetailsOpening = true;
 
 export function setMergelistId(id: string) {
     mergelistId = id;
