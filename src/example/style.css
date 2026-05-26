@@ -339,7 +339,7 @@ button:disabled::before {
   opacity: .7;
 }
 
-.zone:not(#mlist) .element[data-status="moved"] summary span::after {
+.zone:not(#mlist) .element[data-status="moved"] summary span.title::after {
   content: url(icons/check.svg);
   height: 1rem;
   width: 1rem;
@@ -347,7 +347,7 @@ button:disabled::before {
   display: inline-block;
 }
 
-.zone:not(#mlist) .element[data-status="merged"] summary span::after {
+.zone:not(#mlist) .element[data-status="merged"] summary span.title::after {
   content: url(icons/merge.svg);
   height: 1rem;
   width: 1rem;
@@ -413,7 +413,7 @@ details > section > div {
   margin-bottom: .75rem;
 }
 
-label {
+section label {
   display: block;
   margin-bottom: .25rem;
   color: darkgray;

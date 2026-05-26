@@ -15,7 +15,9 @@ export function init(id: string, id_undo: string, id_redo: string, items: Object
 }
 
 export function getAllItems() {
-  return g.getAllItems();
+  const items = g.getAllItems();
+  items["version"] = "ListMerger JSON Version 0.1";
+  return items;
 }
 
 export { edit } from './transfer'

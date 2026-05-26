@@ -629,10 +629,13 @@ document.addEventListener("click", (e) => {
     const dialog = document.createElement("dialog");
     document.getElementById("listmerger").append(dialog);
 
+    const closeButton = document.createElement("button");
+    closeButton.classList.add("close");
+    dialog.append(closeButton);
+
     const image = document.createElement("img");
     image.src = e.target.src;
     image.classList.add("thumbnail-full")
-
     dialog.append(image);
     dialog.showModal();
 
@@ -640,7 +643,7 @@ document.addEventListener("click", (e) => {
       dialog.remove();
     });
     dialog.addEventListener("click", (e) => {
-      if (e.target === dialog) {
+      if (e.target === dialog || e.target.classList.contains("close")) {
         dialog.close();
       }
     });
