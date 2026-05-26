@@ -302,7 +302,7 @@ const item_template = `
 `;
 
 const dialog_template = `
-<h3>{{title}}</h3>
+<h3>{{parent}}: {{title}}</h3>
 
 {{#author.length}}
   <div>

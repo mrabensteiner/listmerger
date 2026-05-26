@@ -413,7 +413,7 @@ details > section > div {
   margin-bottom: .75rem;
 }
 
-section label {
+section label, dialog label {
   display: block;
   margin-bottom: .25rem;
   color: darkgray;
