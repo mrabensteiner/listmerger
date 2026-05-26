@@ -13,7 +13,7 @@ html, body {
 .tabbar {
   display: flex;
   flex-wrap: wrap;
-  overflow: auto;
+  overflow: hidden;
 }
 
 .tabbar > details {
@@ -49,7 +49,7 @@ html, body {
   padding: 1rem;
   width: 100%;
   background-color: lightgrey;
-  border: 1px solid grey
+  border: 1px solid grey;
 }
 
 .container {

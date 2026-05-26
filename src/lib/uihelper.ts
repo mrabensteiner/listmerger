@@ -45,6 +45,15 @@ export function init_responsive_tablist(id: string) {
       }
     });
   }).observe(document.querySelector(id));
+
+
+  new ResizeObserver(zones => {
+    zones.forEach(element => {
+      const target = element.target;
+      const tabbar = target.closest(".tabbar");
+      target.style.height = tabbar.getBoundingClientRect().height + tabbar.offsetTop - target.offsetTop - 61  + "px"
+    });
+  }).observe(document.querySelector(".tablist .zone")) 
 }
 
 export function createDragHandle() {
