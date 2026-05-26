@@ -654,7 +654,7 @@ document.getElementById("listmerger").addEventListener("click", (e) => {
   const target = e.target;
   const details = target.closest("details");
 
-  if (target.closest("summary")) {
+  if (target.closest("summary:has(> .summary-triangle)")) {
     if (target.closest(".summary-triangle") || target.isContentEditable) {
       details.open = details.open;
     } else {
