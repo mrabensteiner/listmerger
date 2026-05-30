@@ -120,6 +120,10 @@ function initDragDrop() {
       }
     } else if (target.classList.contains("detach")) {
       detach(e);
+    } else if (target.classList.contains("move") && !(target.closest("details").dataset.status == "moved" || target.closest("details").dataset.status == "merged")) {
+      const id = target.closest(".element")?.id;
+      transfer.move(id);
+      history.log(history.Tasks.Move, id);
     }
 });
 

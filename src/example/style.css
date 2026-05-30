@@ -337,6 +337,11 @@ button:disabled::before {
   color: #999;
   cursor: not-allowed;
   opacity: .7;
+
+  .summary-move {
+    opacity: 0;
+    cursor: inherit;
+  }
 }
 
 .zone:not(#mlist) .element[data-status="moved"] summary span.title::after {
@@ -353,6 +358,32 @@ button:disabled::before {
   width: 1rem;
   margin-left: .5rem;
   display: inline-block;
+}
+
+.zone:not(#mlist) .element summary span.summary-move {
+  box-shadow: inset 2.75rem 0 #1a5fb433;
+  margin: -1rem 1rem -1rem -1rem;
+  padding: 0 1rem;
+  align-self: stretch;
+  border-radius: 5px 0 0 5px;
+  cursor: pointer;
+  display: flex;
+
+  &:hover {
+    box-shadow: inset 2.75rem 0 #1a5fb466;
+  }
+  
+  &:active {
+    box-shadow: inset 2.75rem 0 #1a5fb499;
+  }
+}
+
+.summary-move::before {
+  content: url(icons/move.svg);
+  display: block;
+  height: 1rem;
+  width: 1rem;
+  align-self: center;
 }
 
 .element summary span.summary-triangle::before {
