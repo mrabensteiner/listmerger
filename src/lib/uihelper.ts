@@ -282,8 +282,11 @@ function updateOriginIndicators() {
     const count_added = element.querySelectorAll(".zone [data-status='moved']").length;
     const count_merged = element.querySelectorAll(".zone [data-status='merged']").length;
 
+    const moveall_element = element.querySelector(".moveall") as HTMLButtonElement;
     const indicator_element = element.querySelector(".indicator");
     const option_indicator_element = document.querySelector(`#detailsselector option[value='${element.attributes["data-order"].value}']`);
+
+    moveall_element.disabled = count_added + count_merged == count_total; 
 
     const indicator_content = `${count_added + count_merged}/${count_total}`;
     indicator_element.innerHTML = indicator_content;

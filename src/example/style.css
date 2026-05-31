@@ -127,12 +127,7 @@ summary > .thumbnail {
   display: inline;
 }
 
-.imageedit:not([data-active="true"]) .imageedit-inactive {
-  display: none;
-}
-
-.imageedit[data-active="true"] .imageedit-inactive img {
-  display: inline;
+.imageedit .imageedit-inactive {
   opacity: .5;
 }
 
