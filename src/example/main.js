@@ -434,6 +434,9 @@ function image_edit(editContainer) {
     if (e.target.closest(".imageedit-container")) {
       draggedImage = e.target.closest(".imageedit-container");
       e.target.classList.add("dragging");
+
+      // Prevent calling event.preventDefault() in the library's event.ts
+      e.dataTransfer.setData("inner", "true");
     }
   });
   
@@ -444,13 +447,32 @@ function image_edit(editContainer) {
     if (image && image !== draggedImage) {
       const rect = image.getBoundingClientRect();
       const next = (e.clientX > rect.left + rect.width / 2) ? image.nextElementSibling : image;
-      editContainer.insertBefore(draggedImage, next);
+      
+      let bar = document.querySelector(".arrangebar");
+
+      if (bar == undefined) {
+        bar = document.createElement("hr");
+        bar.classList.add("arrangebar");
+      } else if (bar.nextElementSibling == next) {
+        return;
+      }
+
+      if (next != undefined) {
+        editContainer.insertBefore(bar, next)
+      } else {
+        editContainer.append(bar)
+      }
     }
   });
   
   editContainer.addEventListener('dragend', (e) => {
-    if (e.target.closest(".imageedit-container")) {
-      e.target.classList.remove("dragging");
+    const bar = document.querySelector(".arrangebar");
+    const image = e.target.closest(".imageedit-container");
+
+    if (bar && image) {
+      image.classList.remove("dragging");
+      editContainer.insertBefore(image, bar);
+      bar.remove();
 
       const element = editContainer.closest(".element");
 
@@ -460,8 +482,6 @@ function image_edit(editContainer) {
 
       const id = element.id;
       const order = Array.from(editContainer.children).map(container => container.querySelector("img").src);
-
-      // alternative: saving at every reorder
     }
   });
 

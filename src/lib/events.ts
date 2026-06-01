@@ -363,7 +363,11 @@ export function dragStart(e: DragEvent) {
 
   if ((element.nodeName != "DETAILS" && !element.classList.contains(CssNames.ITEM_DRAGHANDLE))
     || ["moved", "merged"].includes(element.dataset.status as string) && element.closest(".tabbar")) {
-    e.preventDefault();
+    
+    if (!(e.dataTransfer?.getData("inner"))) {
+      e.preventDefault();
+    }
+      // - what if other dragging???
     return;  
   }
 
@@ -400,6 +404,10 @@ export function dragEnd(e: Event) {
 }
 
 export function dragOver(e: DragEvent) {
+  if (e.dataTransfer?.getData("inner") == "true") {
+    return;
+  }
+
   e.preventDefault();
 
   if(dragAction == Action.Move) {
