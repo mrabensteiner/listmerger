@@ -90,6 +90,13 @@ export function undo() {
   } else if (last.action == Tasks.Detach) {
     transfer.attach(last.id1, last.id2, last.array);
   }
+
+  document.getElementById(last.id1).parentElement.closest("details").open = true;
+  window.history.replaceState(null, "", '#' + last.id1);
+  document.getElementById(last.id1)?.scrollIntoView({ 
+    behavior: 'smooth', 
+    block: 'nearest' 
+  });
   future.push(last);
 
   updateButtons();
@@ -117,6 +124,12 @@ export function redo() {
     transfer.detach(last.id1, last.id2);
   }
 
+  document.getElementById(last.id1).parentElement.closest("details").open = true;
+  window.history.replaceState(null, "", '#' + last.id1);
+  document.getElementById(last.id1)?.scrollIntoView({ 
+    behavior: 'smooth', 
+    block: 'nearest' 
+  });
   history.push(last);
 
   updateButtons();

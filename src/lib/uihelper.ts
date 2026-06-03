@@ -46,14 +46,16 @@ export function init_responsive_tablist(id: string) {
     });
   }).observe(document.querySelector(id));
 
-
-  new ResizeObserver(zones => {
-    zones.forEach(element => {
-      const target = element.target;
-      const tabbar = target.closest(".tabbar");
-      target.style.height = tabbar.getBoundingClientRect().height + tabbar.offsetTop - target.offsetTop - 61  + "px"
-    });
-  }).observe(document.querySelector(".tablist .zone")) 
+  document.querySelectorAll(".tablist .zone").forEach(zone => {
+    new ResizeObserver(zones => {
+      zones.forEach(element => {
+        const target = element.target;
+        const tabbar = target.closest(".tabbar");
+        target.style.height = "100vh"
+        target.style.height = tabbar.getBoundingClientRect().height + tabbar.offsetTop - target.offsetTop - 62  + "px"
+      });
+    }).observe(zone) 
+  });
 }
 
 export function createDragHandle() {
