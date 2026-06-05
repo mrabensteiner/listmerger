@@ -489,6 +489,10 @@ hr {
   margin: .5rem 0;
 }
 
+hr.arrangebar {
+  border-color: #1a5fb499;
+}
+
 select {
   width: 100%;
   flex: 1

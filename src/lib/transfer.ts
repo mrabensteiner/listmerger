@@ -24,9 +24,10 @@ export function move(id: string, position = -1, from_history = false) {
     arrange(clone.id, position);
   }
 
-  addItemFromList(id, position, clone.id);
-  
+  addItemFromList(id, position, clone.id);  
   updateAllIndicators();
+
+  return clone.id;
 }
 
 export function moveUndo(id: string) {

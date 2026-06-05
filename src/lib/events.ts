@@ -122,8 +122,12 @@ function initDragDrop() {
       detach(e);
     } else if (target.classList.contains("move") && !(target.closest("details").dataset.status == "moved" || target.closest("details").dataset.status == "merged")) {
       const id = target.closest(".element")?.id;
-      transfer.move(id);
+      const newid = transfer.move(id);
       history.log(history.Tasks.Move, id);
+      document.getElementById(newid)?.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'nearest' 
+      });
     }
 });
 
