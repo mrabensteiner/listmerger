@@ -20,7 +20,7 @@ function cleanPackage() {
 }
 
 function copyMinimalCss() {
-    return src('./src/example/listmerger.css', {encoding: false}).pipe(dest('./dist/library'));
+    return src('./src/example/listmerger.css', {encoding: false}).pipe(dest('./dist/library/'));
 }
 
 function copyExampleFolder() {
@@ -39,6 +39,6 @@ exports.clean = cleanDistFolder;
 
 exports.cleanAll = parallel(cleanDistFolder, cleanNodeModules, cleanPackageLock, cleanPackage);
 
-exports.build = series(cleanDistFolder, bundle, copyExampleFolder, copyLibFileToExample, copyMinimalCss);
+exports.build = series(cleanDistFolder, copyMinimalCss, bundle, copyExampleFolder, copyLibFileToExample);
 
 exports.dev = series(exports.build, watcher);

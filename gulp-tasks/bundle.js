@@ -1,3 +1,5 @@
+const {src, dest, pipe } = require('gulp');
+const rename = require('gulp-rename');
 const path = require("path");
 const rollup = require("rollup");
 const rollupCommonJs = require("@rollup/plugin-commonjs");
@@ -6,10 +8,16 @@ const { default: rollupNodeResolve } = require("@rollup/plugin-node-resolve");
 const terser = require("@rollup/plugin-terser");
 const fs = require("fs");
 const zlib = require("zlib");
+const csso = require('gulp-csso');
 
 function gzipFile(file) {
   const source = fs.readFileSync(file);
   fs.writeFileSync(`${file}.gz`, zlib.gzipSync(source));
+}
+
+function bundleCss() {
+  src("dist/library/listmerger.css").pipe(csso()).pipe(rename('listmerger.min.css')).pipe(dest("./dist/library/"));
+  gzipFile("dist/library/listmerger.css");
 }
 
 async function bundle() {
@@ -71,6 +79,8 @@ async function bundle() {
   await writeLib("iife");
   await writeLib("cjs");
   await build.close();
+  
+  bundleCss();
 }
 
 module.exports = { bundle };
