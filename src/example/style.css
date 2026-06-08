@@ -111,11 +111,11 @@ summary > .thumbnail {
 
 .thumbnail {
   height: 3rem;
-  width: 4rem;
+  width: 4.5rem;
   background-color: lightgray;
   border: 1px solid darkgray;
   border-radius: 2px;
-  object-fit: cover;
+  object-fit: contain;
 }
 
 .imageedit[data-active="true"] {
@@ -386,7 +386,7 @@ button:disabled::before {
   margin: -1rem -1rem -1rem 1rem;
   border-radius: 0 5px 5px 0;
   order: 1;
-  
+
   &::before {
     rotate: 180deg;
   }

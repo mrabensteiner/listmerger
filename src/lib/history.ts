@@ -54,6 +54,19 @@ export function updateButtons() {
 
   undo_button.disabled = history.length == 0;
   redo_button.disabled = future.length == 0;
+
+  if (!undo_button.disabled) {
+    const string = historyItemToString(history.at(-1));
+    undo_button.title = `Undo ${string}`;
+  } else {
+    undo_button.title = "";
+  }
+  if (!redo_button.disabled) {
+    const string = historyItemToString(future.at(-1));
+    redo_button.title = `Redo ${string}`;
+  } else {
+    redo_button.title = "";
+  }
 }
 
 export function log(task: Tasks, id1 = "", id2 = "", id3 = "", array: any[] =[], title = "", item = {}, item2 = {}) {
@@ -138,4 +151,39 @@ export function redo() {
   history.push(last);
 
   updateButtons();
+}
+
+function historyItemToString(historyitem: any) {
+  let item = getItem(historyitem.id1);
+  let string = "";
+
+  if (historyitem.action == Tasks.Edit) {
+    string = `edit '${item.parent}: ${item.title}'`;
+  }
+  else if (historyitem.action == Tasks.Move) {
+    string = `move '${item.parent}: ${item.title}' to mergelist`;
+  }
+  else if (historyitem.action == Tasks.UnMove) {
+    string = `remove '${item.parent}: ${item.title}' from mergelist`;
+  }
+  else if (historyitem.action == Tasks.MoveAll) {
+    item = getItem(historyitem.array[0]);
+    string = `move all from '${item.parent}'`;
+  }
+  else if (historyitem.action == Tasks.Merge) {
+    const item2 = getItem(historyitem.id2);
+    const mergeitem = getItem(historyitem.id3);
+    const title1 = item.parent == undefined ? historyitem.item.A.title : `${item.parent}: ${item.title}`;
+    const title2 = item2.parent == undefined ? historyitem.item.B.title : `${item2.parent}: ${item2.title}`;
+    string = `merge '${title1}' and '${title2}' to '${mergeitem.title}'`;
+  }
+  else if (historyitem.action == Tasks.Arrange) {
+    string = `arrange '${item.parent}: ${item.title}'`;
+  }
+  else if (historyitem.action == Tasks.Detach) {
+    const item2 = getItem(historyitem.id2);
+    string = `detach '${item.parent}: ${item.title}' from '${item2.parent}: ${item2.title}'`;
+  }
+
+  return string;
 }
