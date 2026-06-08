@@ -334,7 +334,8 @@ button:disabled::before {
 }
 
 .zone:not(#mlist) .element[data-status="moved"], 
-.zone:not(#mlist) .element[data-status="merged"] {
+.zone:not(#mlist) .element[data-status="merged"],
+.zone#mlist .element[data-status="mergeitem"] {
   color: #999;
   cursor: inherit;
   opacity: .7;
@@ -365,14 +366,44 @@ button:disabled::before {
   display: inline-block;
 }
 
+.zone .element summary .summary-move {
+  padding: 0 1rem;
+  align-self: stretch;
+  cursor: pointer;
+  display: flex;
+
+  &::before {
+    content: url(icons/move.svg);
+    display: block;
+    height: 1rem;
+    width: 1rem;
+    align-self: center;
+  }
+}
+
+.zone#mlist .element summary .summary-move {
+  box-shadow: inset -2.75rem 0 #1a5fb433;
+  margin: -1rem -1rem -1rem 1rem;
+  border-radius: 0 5px 5px 0;
+  order: 1;
+  
+  &::before {
+    rotate: 180deg;
+  }
+
+  &:hover {
+    box-shadow: inset -2.75rem 0 #1a5fb466;
+  }
+  
+  &:active {
+    box-shadow: inset -2.75rem 0 #1a5fb499;
+  }
+}
+
 .zone:not(#mlist) .element summary .summary-move {
   box-shadow: inset 2.75rem 0 #1a5fb433;
   margin: -1rem 1rem -1rem -1rem;
-  padding: 0 1rem;
-  align-self: stretch;
   border-radius: 5px 0 0 5px;
-  cursor: pointer;
-  display: flex;
 
   &:hover {
     box-shadow: inset 2.75rem 0 #1a5fb466;
@@ -381,14 +412,6 @@ button:disabled::before {
   &:active {
     box-shadow: inset 2.75rem 0 #1a5fb499;
   }
-}
-
-.zone:not(#mlist) .element summary .summary-move::before {
-  content: url(icons/move.svg);
-  display: block;
-  height: 1rem;
-  width: 1rem;
-  align-self: center;
 }
 
 .element summary span.summary-triangle::before {

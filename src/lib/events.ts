@@ -120,7 +120,13 @@ function initDragDrop() {
       }
     } else if (target.classList.contains("detach")) {
       detach(e);
-    } else if (target.classList.contains("move") && !(target.closest("details").dataset.status == "moved" || target.closest("details").dataset.status == "merged")) {
+    } else if (target.classList.contains("move") && target.closest("#mlist") && target.closest("details").dataset.status != "mergeitem") {
+      const element = target.closest(".element") as HTMLElement;
+      const origin = element.dataset.origin as string;
+      const position = Array.prototype.slice.call(element.parentElement.children).indexOf(element);
+      transfer.moveUndo(origin);
+      history.log(history.Tasks.UnMove, origin, "", position.toString());
+    } else if (target.classList.contains("move") && !(target.closest("#mlist")) && !(target.closest("details").dataset.status == "moved" || target.closest("details").dataset.status == "merged")) {
       const id = target.closest(".element")?.id;
       const newid = transfer.move(id);
       history.log(history.Tasks.Move, id);

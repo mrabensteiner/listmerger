@@ -5,6 +5,7 @@ import { arrange, CssNames, updateAllIndicators, updateItem } from './uihelper';
 export enum Tasks {
     Edit,
     Move,
+    UnMove,
     MoveAll,
     Merge,
     Arrange,
@@ -81,6 +82,8 @@ export function undo() {
     last.item = tmp;
   } else if (last.action == Tasks.Move) {
     transfer.moveUndo(last.id1)
+  } else if (last.action == Tasks.UnMove) {
+    transfer.move(last.id1, +last.id3, true)
   } else if (last.action == Tasks.MoveAll) {
     transfer.moveAllUndo(last.array)
   } else if (last.action == Tasks.Merge) {
@@ -113,6 +116,8 @@ export function redo() {
     last.item = tmp;
   } else if (last.action == Tasks.Move) {
     transfer.move(last.id1, +last.id3-1, true)
+  } else if (last.action == Tasks.UnMove) {
+    transfer.moveUndo(last.id1)
   } else if (last.action == Tasks.MoveAll) {
     let zonefindings = document.getElementById(last.id1)?.querySelectorAll("[data-role='finding']");
     transfer.moveAll(zonefindings, true);
