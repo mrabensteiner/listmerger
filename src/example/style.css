@@ -199,11 +199,6 @@ img.detach {
   height: 1.25rem;
 }
 
-.dragging {
-  opacity: .5;
-  border: 1px dashed darkgray !important;
-}
-
 [data-role='finding'].drag,
 [data-role='finding']:has(.draghandle.drag) {
   box-shadow: 0 0 10px #1a5fb4;
@@ -334,8 +329,7 @@ button:disabled::before {
 }
 
 .zone:not(#mlist) .element[data-status="moved"], 
-.zone:not(#mlist) .element[data-status="merged"],
-.zone#mlist .element[data-status="mergeitem"] {
+.zone:not(#mlist) .element[data-status="merged"] {
   color: #999;
   cursor: inherit;
   opacity: .7;
@@ -343,8 +337,12 @@ button:disabled::before {
   summary {
     cursor: inherit;
   }
+}
 
-  .summary-move {
+.zone:not(#mlist) .element[data-status="moved"], 
+.zone:not(#mlist) .element[data-status="merged"],
+.zone#mlist .element[data-status="mergeitem"] {
+    .summary-move {
     opacity: 0;
     cursor: inherit;
   }

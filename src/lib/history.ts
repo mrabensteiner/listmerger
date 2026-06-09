@@ -94,7 +94,7 @@ export function undo() {
     updateItem(last.id1);
     last.item = tmp;
   } else if (last.action == Tasks.Move) {
-    transfer.moveUndo(last.id1)
+    transfer.moveUndo(last.id1, true)
   } else if (last.action == Tasks.UnMove) {
     transfer.move(last.id1, +last.id3, true)
   } else if (last.action == Tasks.MoveAll) {
@@ -107,7 +107,9 @@ export function undo() {
     transfer.attach(last.id1, last.id2, last.array);
   }
 
-  document.getElementById(last.id1).parentElement.closest("details").open = true;
+  if (document.getElementById(last.id1) && document.getElementById(last.id1).parentElement.closest("details")) {
+    document.getElementById(last.id1).parentElement.closest("details").open = true;
+  }
   window.history.replaceState(null, "", '#' + last.id1);
   document.getElementById(last.id1)?.scrollIntoView({ 
     behavior: 'smooth', 
@@ -130,7 +132,7 @@ export function redo() {
   } else if (last.action == Tasks.Move) {
     transfer.move(last.id1, +last.id3-1, true)
   } else if (last.action == Tasks.UnMove) {
-    transfer.moveUndo(last.id1)
+    transfer.moveUndo(last.id1, true)
   } else if (last.action == Tasks.MoveAll) {
     let zonefindings = document.getElementById(last.id1)?.querySelectorAll("[data-role='finding']");
     transfer.moveAll(zonefindings, true);
@@ -142,7 +144,9 @@ export function redo() {
     transfer.detach(last.id1, last.id2);
   }
 
-  document.getElementById(last.id1).parentElement.closest("details").open = true;
+  if (document.getElementById(last.id1) && document.getElementById(last.id1).parentElement.closest("details")) {
+    document.getElementById(last.id1).parentElement.closest("details").open = true;
+  }
   window.history.replaceState(null, "", '#' + last.id1);
   document.getElementById(last.id1)?.scrollIntoView({ 
     behavior: 'smooth', 
@@ -175,7 +179,7 @@ function historyItemToString(historyitem: any) {
     const mergeitem = getItem(historyitem.id3);
     const title1 = item.parent == undefined ? historyitem.item.A.title : `${item.parent}: ${item.title}`;
     const title2 = item2.parent == undefined ? historyitem.item.B.title : `${item2.parent}: ${item2.title}`;
-    string = `merge '${title1}' and '${title2}' to '${mergeitem.title}'`;
+    string = `merge '${title1}' and '${title2}' to '${historyitem.item.merged.title}'`;
   }
   else if (historyitem.action == Tasks.Arrange) {
     string = `arrange '${item.parent}: ${item.title}'`;

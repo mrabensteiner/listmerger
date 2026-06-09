@@ -30,7 +30,11 @@ export function move(id: string, position = -1, from_history = false) {
   return clone.id;
 }
 
-export function moveUndo(id: string) {
+export function moveUndo(id: string, from_history = false) {
+  if (!from_history) {
+    history.resetFuture();
+  }
+
   setStatus(id, "");
   let clone = document.getElementById(PREFIX_MOVED + id);
   clone.remove();
@@ -55,7 +59,7 @@ export function moveAll(zonefindings, from_history = false) {
 
 export function moveAllUndo(moved) {
   moved.forEach(id => {
-    moveUndo(id)
+    moveUndo(id, true)
   })
 }
 
@@ -142,6 +146,7 @@ export function mergeUndo(id: string, itemA: Object, itemB: Object) {
   itemA.id = itemA.status == "moved" && !itemA.id.startsWith(PREFIX_MOVED) ? PREFIX_MOVED + itemA.id : itemA.id;
   itemB.status == "moved" ? move(itemB.id) : false;
   mergeelement.id = itemA.id;
+  mergeelement.dataset.status = itemA.status;
   
   replaceItem(id, itemA);
 

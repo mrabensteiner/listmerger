@@ -215,7 +215,7 @@ const severity_template = `
 `
 
 const item_template = `
-<summary {{#mergedinto}}title="Merged into {{title}}"{{/mergedinto}}>
+<summary {{#mergedinto}}title="Merged into '{{title}}'"{{/mergedinto}}>
   <span class="summary-move move" title="Move Element"></span>
   <span class="summary-triangle" title="Open Element"></span>
   <span class="title" data-edit="title" contenteditable='plaintext-only'>{{title}}</span>
@@ -291,7 +291,7 @@ const item_template = `
 <label>Merged from</label>
 {{#mergedfrom}}
   <span class="enum">
-    <a href="#{{id}}">{{parent}}: {{title}}</a>
+    <a href="#{{id}}">{{#parent}}{{.}}: {{/parent}}{{title}}</a>
     <img href="#" class="detach" data-from="{{id}}" data-to="{{parent_id}}" src="icons/detach.svg"
       title="Detach '{{title}}' from this merged item" alt="Detach"/>
   </span>
@@ -303,7 +303,7 @@ const item_template = `
 `;
 
 const dialog_template = `
-<h3>{{parent}}: {{title}}</h3>
+<h3>{{#parent}}{{.}}: {{/parent}}{{title}}</h3>
 
 {{#author.length}}
   <div>
@@ -433,7 +433,6 @@ function image_edit(editContainer) {
   editContainer.addEventListener("dragstart", (e) => {
     if (e.target.closest(".imageedit-container")) {
       draggedImage = e.target.closest(".imageedit-container");
-      e.target.classList.add("dragging");
 
       // Prevent calling event.preventDefault() in the library's event.ts
       e.dataTransfer.setData("inner", "true");
@@ -470,7 +469,6 @@ function image_edit(editContainer) {
     const image = e.target.closest(".imageedit-container");
 
     if (bar && image) {
-      image.classList.remove("dragging");
       editContainer.insertBefore(image, bar);
       bar.remove();
 
