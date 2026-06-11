@@ -1,6 +1,6 @@
 import { getItem, mergeDetach, setItem, updateMerged, updateMergedInto } from './globalvars';
 import * as transfer from './transfer'
-import { arrange, CssNames, updateAllIndicators, updateItem } from './uihelper';
+import { arrange, setHash, updateItem } from './uihelper';
 
 export enum Tasks {
     Edit,
@@ -110,7 +110,7 @@ export function undo() {
   if (document.getElementById(last.id1) && document.getElementById(last.id1).parentElement.closest("details")) {
     document.getElementById(last.id1).parentElement.closest("details").open = true;
   }
-  window.history.replaceState(null, "", '#' + last.id1);
+  setHash(last.id1);
   document.getElementById(last.id1)?.scrollIntoView({ 
     behavior: 'smooth', 
     block: 'nearest' 
@@ -147,7 +147,7 @@ export function redo() {
   if (document.getElementById(last.id1) && document.getElementById(last.id1).parentElement.closest("details")) {
     document.getElementById(last.id1).parentElement.closest("details").open = true;
   }
-  window.history.replaceState(null, "", '#' + last.id1);
+  setHash(last.id1);
   document.getElementById(last.id1)?.scrollIntoView({ 
     behavior: 'smooth', 
     block: 'nearest' 

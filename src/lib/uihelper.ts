@@ -300,3 +300,25 @@ function updateOriginIndicators() {
     option_indicator_element.innerHTML = option_text;
   });
 }
+
+export function hashUpdate(open = false) {
+  const id = location.hash.substring(1);
+  const element = document.getElementById(id);
+
+  if (element) {
+    if (element instanceof HTMLDetailsElement && open) {
+      element.open = true;
+    }
+
+    const tab = element.closest("[name='tabs']") as HTMLDetailsElement;
+    if (tab) {
+      const tab_select = document.getElementById(CssNames.TAB_SELECTOR) as HTMLSelectElement
+      tab_select.value = tab.dataset.order as string;
+    }
+  }
+}
+
+export function setHash(id: string) {
+  window.history.replaceState(null, "", '#' + id);
+  hashUpdate();
+}

@@ -435,6 +435,10 @@ button:disabled::before {
   opacity: 0;
 }
 
+.zone:not(#mlist) .element .origin {
+  display: none;
+}
+
 
 .indicator {
   background-color: darkgray;

@@ -1,4 +1,4 @@
-import { arrange, CssNames, getNextDropSibling, getPositionInList, prepareEditModal, prepareModal, toggleDrop, updateAllIndicators, updateItem } from "./uihelper";
+import { arrange, CssNames, getNextDropSibling, getPositionInList, hashUpdate, prepareEditModal, prepareModal, setHash, toggleDrop, updateAllIndicators, updateItem } from "./uihelper";
 import * as transfer from './transfer';
 import * as history from './history';
 import { getItem, mergelistId, PREFIX_MERGED, PREFIX_MOVED, preventDetailsOpening, setItem } from "./globalvars";
@@ -138,13 +138,13 @@ function initDragDrop() {
 });
 
   listmerger_element.addEventListener("click", itemToHash);
-  window.addEventListener('hashchange', updateHash);
+  window.addEventListener('hashchange', () => hashUpdate());
 
   document.addEventListener("keydown", (e) => {
     const ctrl = e.ctrlKey;
     const key = e.key;
 
-    if(["INPUT", "TEXTAREA"].includes((e.target as HTMLElement).nodeName)) {
+    if(["INPUT", "TEXTAREA", "SPAN"].includes((e.target as HTMLElement).nodeName)) {
       return;
     }
 
@@ -167,43 +167,25 @@ function initDragDrop() {
         (document.getElementById("detailsselector") as HTMLSelectElement).value = order;
       }
     } else if(key == "m") {
-      const target = (e.target as HTMLElement).closest(".element:not(.added, .merged)");
+      const target = (e.target as HTMLElement).closest(".element:not([data-status='moved'], [data-status='merged'])");
 
       if (target == undefined || target.id.startsWith(PREFIX_MERGED) || target.id.startsWith(PREFIX_MOVED)) {
         return;
       }
       
       transfer.move(target.id);
-      history.log(history.Tasks.Move, dropOrigin);
+      history.log(history.Tasks.Move, target.id);
     }
   });
 
-  updateHash();
-}
-
-function updateHash() {
-  const id = location.hash.substring(1);
-  const element = document.getElementById(id);
-
-  if(element instanceof HTMLDetailsElement) {
-    element.open = true;
-
-    const tab = element.closest("[name='tabs']") as HTMLDetailsElement;
-
-    if (tab == undefined) {
-      return;
-    }
-
-    const tab_select = document.getElementById(CssNames.TAB_SELECTOR) as HTMLSelectElement
-    tab_select.value = tab.dataset.order;
-  }
+  hashUpdate();
 }
 
 function itemToHash(e: MouseEvent) {
   const element = (e.target as HTMLElement).closest("details");
 
-  if(element != undefined) {
-    window.history.replaceState(null, null, '#' + element.id);
+  if (element) {
+    setHash(element.id);
   }
 }
 

@@ -278,6 +278,14 @@ const item_template = `
 </div>
 {{/description}}
 
+{{#parent}}
+<div class="origin">
+<hr/>
+<label>Origin List</label>
+<a href="#{{id}}">{{.}}</a>
+</div>
+{{/parent}}
+
 {{#mergedinto}}
 <hr/>
 <label>Merged into</label>
