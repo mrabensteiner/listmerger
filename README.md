@@ -8,6 +8,8 @@ Graz University of Technology
 
 Live Demo: https://mrabensteiner.github.io/listmerger
 
+![Screenshot of the Example](screenshot.png)
+
 ## About
 ListMerger is a JavaScript library for list merging. A use case for this
 is a heuristic evaluation, where the findings of multiple evaluators are

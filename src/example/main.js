@@ -216,7 +216,8 @@ const severity_template = `
 
 const item_template = `
 <summary {{#mergedinto}}title="Merged into '{{title}}'"{{/mergedinto}}>
-  <span class="summary-move move" title="Move Element"></span>
+  <span class="summary-move move" title="Move to mergelist"></span>
+  <span class="summary-moveback move" title="Move back to {{parent}}"></span>
   <span class="summary-triangle" title="Open Element"></span>
   <span class="title" data-edit="title" contenteditable='plaintext-only'>{{title}}</span>
 {{#titleimg}}<img class='thumbnail' src='{{src}}'/>{{/titleimg}}

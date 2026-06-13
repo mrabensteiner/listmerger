@@ -189,7 +189,6 @@ export function detach(from_id: string, to_id: string) {
 
 function setStatus(id: string, status = "") {
   id = id.startsWith(PREFIX_MOVED) ? id.slice(PREFIX_MOVED.length) : id;
-  id = id.startsWith(PREFIX_MOVED) ? id.slice(PREFIX_MOVED.length) : id;
 
   const element = document.getElementById(id) as HTMLElement;
   element.dataset.status = status;
