@@ -1,7 +1,7 @@
 import { arrange, CssNames, getNextDropSibling, getPositionInList, hashUpdate, prepareEditModal, prepareModal, setHash, toggleDrop, updateAllIndicators, updateItem } from "./uihelper";
 import * as transfer from './transfer';
 import * as history from './history';
-import { getItem, mergelistId, PREFIX_MERGED, PREFIX_MOVED, preventDetailsOpening, setItem } from "./globalvars";
+import { getItem, ListItem, mergelistId, PREFIX_MERGED, PREFIX_MOVED, preventDetailsOpening, setItem, Status } from "./globalvars";
 
 export enum Action {
   None,
@@ -14,11 +14,11 @@ let dropTarget = "";
 
 let dragAction = Action.None;
 let dragPosition = -1;
-let mergeListElement;
+let mergeListElement: HTMLElement;
 let dialog: HTMLDialogElement;
 
 export function init() {
-  mergeListElement = document.querySelector("#mlist");
+  mergeListElement = document.querySelector("#mlist") as HTMLElement;
   initDialog();
   initDragDrop();
   initMoveAll();
@@ -26,12 +26,12 @@ export function init() {
 
 function initDialog() {
   dialog = document.createElement("dialog");
-  document.getElementById(mergelistId).append(dialog);
+  document.getElementById(mergelistId)?.append(dialog);
 }
 
 function initDragDrop() {
-  const listmerger_element = document.getElementById(mergelistId);
-  const mergelist_element = listmerger_element.querySelector(".mergelist");
+  const listmerger_element = document.getElementById(mergelistId) as HTMLElement;
+  const mergelist_element = listmerger_element.querySelector(".mergelist") as HTMLElement;
 
   listmerger_element.addEventListener("dragstart", dragStart);
   listmerger_element.addEventListener("dragend", dragEnd);
@@ -56,7 +56,7 @@ function initDragDrop() {
       const element = target.closest(".element");
 
       target.addEventListener("blur", (e) => {
-        let key =  target.dataset.edit;
+        let key =  target.dataset.edit as string;
         let value: any = target.innerText;
           
         if (target.tagName == "SELECT") {
@@ -101,7 +101,7 @@ function initDragDrop() {
 
       if (!element || element.open == true) {
         target.contentEditable = contentEditable;
-        target.closest("summary").draggable = false; 
+        (target.closest("summary") as HTMLElement).draggable = false; 
       } else {
         target.addEventListener("mouseup", () => {
             target.contentEditable = contentEditable;
@@ -120,14 +120,14 @@ function initDragDrop() {
       }
     } else if (target.classList.contains("detach")) {
       detach(e);
-    } else if (target.classList.contains("move") && target.closest("#mlist") && target.closest("details").dataset.status != "mergeitem") {
+    } else if (target.classList.contains("move") && target.closest("#mlist") && target.closest("details")?.dataset.status != "mergeitem") {
       const element = target.closest(".element") as HTMLElement;
       const origin = element.dataset.origin as string;
-      const position = Array.prototype.slice.call(element.parentElement.children).indexOf(element);
+      const position = Array.prototype.slice.call(element.parentElement?.children).indexOf(element);
       transfer.moveUndo(origin);
       history.log(history.Tasks.UnMove, origin, "", position.toString());
-    } else if (target.classList.contains("move") && !(target.closest("#mlist")) && !(target.closest("details").dataset.status == "moved" || target.closest("details").dataset.status == "merged")) {
-      const id = target.closest(".element")?.id;
+    } else if (target.classList.contains("move") && !(target.closest("#mlist")) && !(target.closest("details")?.dataset.status == Status.Moved || target.closest("details")?.dataset.status == Status.Merged)) {
+      const id = target.closest(".element")?.id as string;
       const newid = transfer.move(id);
       history.log(history.Tasks.Move, id);
       document.getElementById(newid)?.scrollIntoView({ 
@@ -197,7 +197,7 @@ export function elementDialog(e: Event) {
     return;
   }
 
-  const element_id = element.id.startsWith(PREFIX_MOVED) ? element.getAttribute("data-origin") : element.id;
+  const element_id = (element.id.startsWith(PREFIX_MOVED) ? element.getAttribute("data-origin") : element.id) as string;
 
   const item_modal = document.createElement("dialog");
   item_modal.innerHTML = prepareModal(element_id);
@@ -227,10 +227,10 @@ export function mergeInputClick(e: Event) {
   const attribute = element.getAttribute("data-attribute");
   const value = element.getAttribute("data-value");
   
-  const input_element = (element.parentElement.querySelector(`[name="${attribute}"]`) as HTMLInputElement);
+  const input_element = (element.parentElement?.querySelector(`[name="${attribute}"]`) as HTMLInputElement);
 
   if(element.dataset.singlevalue == "1") {
-    input_element.value = value;
+    input_element.value = value as string;
   } else if (element.dataset.direction == "left" && input_element.value != value) {
     input_element.value = value + " " + input_element.value;
   } else if (element.dataset.direction == "right") {
@@ -290,7 +290,7 @@ export function mergeDialog(id1: string, id2: string) {
   mergecontainer.append(merge_child2);
   dialog.replaceChildren(mergecontainer);
 
-  merge_center.querySelectorAll("input, textarea, select").forEach((element: HTMLInputElement) => {
+  (merge_center.querySelectorAll("input, textarea, select") as NodeListOf<HTMLInputElement>).forEach((element) => {
     const button1 = document.createElement("button");
     button1.innerHTML = ">>";
     button1.setAttribute("data-attribute", element.name);
@@ -299,7 +299,7 @@ export function mergeDialog(id1: string, id2: string) {
     if(item1[element.name] == undefined) {
       button1.disabled = true;
     }
-    element.parentElement.insertBefore(button1, element);
+    element.parentElement?.insertBefore(button1, element);
     button1.addEventListener("click", mergeInputClick);
 
 
@@ -311,7 +311,7 @@ export function mergeDialog(id1: string, id2: string) {
     if(item2[element.name] == undefined) {
       button2.disabled = true;
     }
-    element.parentElement.append(button2);
+    element.parentElement?.append(button2);
     button2.addEventListener("click", mergeInputClick);
 
     if(element.tagName == "SELECT") {
@@ -350,11 +350,11 @@ export function dragStart(e: DragEvent) {
   }
 
   if (!element.classList.contains(CssNames.ITEM_DRAGHANDLE)) {
-    element = element.closest(".element");
+    element = element.closest(".element") as HTMLElement;
   }
 
   if ((element.nodeName != "DETAILS" && !element.classList.contains(CssNames.ITEM_DRAGHANDLE))
-    || ["moved", "merged"].includes(element.dataset.status as string) && element.closest(".tabbar")) {
+    || [Status.Moved, Status.Merged].includes(element.dataset.status as Status) && element.closest(".tabbar")) {
     
     if (!(e.dataTransfer?.getData("inner"))) {
       e.preventDefault();
@@ -363,19 +363,19 @@ export function dragStart(e: DragEvent) {
     return;  
   }
 
-  dropOrigin = element.closest(".element").id;
+  dropOrigin = element.closest(".element")?.id as string;
 
   if (element.classList.contains(CssNames.ITEM_DRAGHANDLE)) {
-    mergeListElement = document.querySelector("#mlist");
+    mergeListElement = document.querySelector("#mlist") as HTMLElement;
     dragAction = Action.Arrange;
-    dropOrigin = element.closest(".element").id;
+    dropOrigin = element.closest(".element")?.id as string;
 
     dragPosition = getPositionInList(dropOrigin);
 
-    element.closest(".element").classList.add(CssNames.ITEM_DRAGGING);
+    element.closest(".element")?.classList.add(CssNames.ITEM_DRAGGING);
   } else {
     dragAction = Action.Move;
-    document.getElementById(dropOrigin).classList.add(CssNames.ITEM_DRAGGED);
+    document.getElementById(dropOrigin)?.classList.add(CssNames.ITEM_DRAGGED);
   }
 }
 
@@ -386,12 +386,12 @@ export function dragEnd(e: Event) {
   document.querySelectorAll(`.${CssNames.HOVER_DRAG}`).forEach((e) => {
     e.classList.remove(CssNames.HOVER_DRAG);
   })
-  document.getElementById(dropOrigin).classList.remove(CssNames.ITEM_DRAGGING);
+  document.getElementById(dropOrigin)?.classList.remove(CssNames.ITEM_DRAGGING);
     //dropOrigin = (e.target as Element).closest(".element").id;
     if(dropOrigin == "") {
       return;
     }
-    document.getElementById(dropOrigin).classList.remove(CssNames.ITEM_DRAGGED);
+    document.getElementById(dropOrigin)?.classList.remove(CssNames.ITEM_DRAGGED);
     dragAction = Action.None;
 }
 
@@ -427,7 +427,7 @@ export function dragOver(e: DragEvent) {
   }
 
   // https://www.codingnepalweb.com/drag-and-drop-sortable-list-html-javascript/
-  const draggingItem = document.querySelector(`.${CssNames.ITEM_DRAGGING}`);
+  const draggingItem = document.querySelector(`.${CssNames.ITEM_DRAGGING}`) as HTMLElement;
   let nextSibling = getNextDropSibling(e);
 
   mergeListElement.insertBefore(draggingItem, nextSibling);
@@ -451,7 +451,7 @@ export function drop(e: DragEvent) {
   let target = (e.target as HTMLElement);
 
   if(!target.classList.contains("zone")) {
-    target = target.closest(".element");
+    target = target.closest(".element") as HTMLElement;
   }
   if(target == undefined) {
     return
@@ -477,7 +477,7 @@ export function drop(e: DragEvent) {
     // other target
     return;
   }
-  else if (droporigin_element.parentElement.id == target.id) {
+  else if (droporigin_element?.parentElement?.id == target.id) {
     // is already there, move it to the new position
 
     let dragPosition = getPositionInList(dropOrigin);
@@ -485,7 +485,7 @@ export function drop(e: DragEvent) {
 
     let dropPosition = nextSibling != undefined
       ? getPositionInList(nextSibling.id)
-      : mergeListElement.length - 1;
+      : mergeListElement.children.length - 1;
 
     if (dragPosition != dropPosition) {
       arrange(dropOrigin, dropPosition);
@@ -495,7 +495,7 @@ export function drop(e: DragEvent) {
     dragAction = Action.None;
     return;
   }
-  else if (["moved", "merged"].includes(droporigin_element.dataset.status as string) && droporigin_element?.closest(".tabbar")) {
+  else if ([Status.Moved, Status.Merged].includes(droporigin_element?.dataset.status as Status) && droporigin_element?.closest(".tabbar")) {
     return;
   }
 
@@ -504,7 +504,7 @@ export function drop(e: DragEvent) {
   const nextSibling = getNextDropSibling(e);
   let dropPosition = nextSibling != undefined
       ? getPositionInList(nextSibling.id)
-      : mergeListElement.length - 1;
+      : mergeListElement.children.length - 1;
   
   transfer.move(dropOrigin, dropPosition);
   history.log(history.Tasks.Move, dropOrigin, "", dropPosition.toString());
@@ -512,10 +512,10 @@ export function drop(e: DragEvent) {
 
 export function saveEditDialog(id: string) {
   const item = getItem(id);
-  let new_item = {};
+  let new_item: ListItem = {};
   Object.assign(new_item, item);
 
-  dialog.querySelectorAll("input, textarea, select").forEach((element: HTMLInputElement) => {
+  (dialog.querySelectorAll("input, textarea, select") as NodeListOf<HTMLInputElement>).forEach(element => {
     const key = element.name;
     const value = element.value;
 
@@ -533,16 +533,16 @@ export function saveEditDialog(id: string) {
 export function merge(event: Event) {
   event.preventDefault();
 
-  let target = document.getElementById(dropTarget);
-  let targetid = target.id;
+  let target = document.getElementById(dropTarget) as HTMLElement;
+  let targetid = target?.id;
 
   let dropOriginelement = document.getElementById(dropOrigin);
   // let newtitle_element = (dialog.querySelector("input[name='newtitle']") as HTMLInputElement)
   // target.innerText = newtitle_element.value;
 
-  let new_item = {};
+  let new_item: ListItem = {};
 
-  dialog.querySelectorAll("input, textarea, select").forEach((element: HTMLElement) => {
+  (dialog.querySelectorAll("input, textarea, select") as NodeListOf<HTMLInputElement>).forEach(element => {
     let key = (element as HTMLInputElement).name;
     let value: string|string[] = (element as HTMLInputElement).value;
     
@@ -566,7 +566,7 @@ export function merge(event: Event) {
   keys1.forEach(key => {
     if (!Array.isArray(new_item[key])) {
       if (Array.isArray(item1[key])) {
-        new_item[key] = [].concat(item1[key]);
+        new_item[key] = [].concat(item1[key] as any);
 
         if(Array.isArray(item2[key])) {
           item2[key].forEach(value => {
@@ -576,7 +576,7 @@ export function merge(event: Event) {
           });
         }
       } else if(Array.isArray(item2[key])) {
-        new_item[key] = [].concat(item2[key]);
+        new_item[key] = [].concat(item2[key] as any);
       } else if(new_item[key] == "") {
         new_item[key] = item1[key];
       }
@@ -622,7 +622,7 @@ function moveAll(e: Event) {
 
   let moved = transfer.moveAll(zonefindings);
   if(moved.length) {
-    history.log(history.Tasks.MoveAll, (e.target as Element).nextElementSibling.id, "", "", moved);
+    history.log(history.Tasks.MoveAll, (e.target as Element).nextElementSibling?.id, "", "", moved);
   }
 }
 
@@ -642,7 +642,7 @@ export function edit(id: string, key: string, value: any) {
     return false;
   }
 
-  let new_item = {};
+  let new_item: ListItem = {};
   Object.assign(new_item, item);
   new_item[key] = value;
 

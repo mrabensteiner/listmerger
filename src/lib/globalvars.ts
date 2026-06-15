@@ -1,27 +1,48 @@
-export let mergelistId;
+export let mergelistId: string;
 
 export const PREFIX_MOVED = "moved-";
 export const PREFIX_MERGED = "merged-";
+
+export enum Status {
+  Moved = "moved",
+  Merged = "merged",
+  MergeItem = "mergeitem"
+}
 
 export let ITEM_TEMPLATE = "";
 export let DIALOG_TEMPLATE = "";
 export let EDIT_TEMPLATE = "";
 
-export let items = {};
+export type ListItem = Record<string, any>;
+export type List = Array<ListItem>;
+export type Lists = {
+  "merged": List,
+  "originlists": Array<{
+    "id": string,
+    "name": string,
+    "items": List
+  }>,
+  "version"?: string,
+};
+
+export let items: Lists = {
+  "merged": [],
+  "originlists": []
+};
 export let preventDetailsOpening = true;
 
 export function setMergelistId(id: string) {
-    mergelistId = id;
+  mergelistId = id;
 }
 
-export function setItems(set_items: Object) {
-    items = set_items;
+export function setItems(set_items: Lists) {
+  items = set_items;
 }
 
-export function setItem(id: string, item: Object) {
+export function setItem(id: string, item: ListItem) {
   id = id.startsWith(PREFIX_MOVED) ? id.slice(PREFIX_MOVED.length) : id;
 
-  items["merged"].forEach(element => {
+  items["merged"].forEach((element: ListItem) => {
     if(element.id == id) {
       Object.assign(element, item)
     }
@@ -41,20 +62,20 @@ export function setTemplates(item_template: string, dialog_template: string, mer
     EDIT_TEMPLATE = merge_template;
 }
 
-export function getItem(id: string, full = false): Object {
+export function getItem(id: string, full = false): ListItem {
   id = id.startsWith(PREFIX_MOVED) ? id.slice(PREFIX_MOVED.length) : id;
 
-  let item = {};
-  items["merged"].forEach(element => {
+  let item: ListItem = {};
+  items["merged"].forEach((element: ListItem) => {
     if(element.id == id) {
       item = structuredClone(element);
 
       if(full) {
         const merged_ids = element["mergedfrom"];
-        const merged_full = [];
+        const merged_full: Array<ListItem> = [];
 
         if (merged_ids) {
-          merged_ids.forEach(id => {
+          merged_ids.forEach((id: string) => {
             id = id.startsWith(PREFIX_MOVED) ? id.slice(PREFIX_MOVED.length) : id;
             const item = getItem(id);
             item["parent_id"] = element.id;
@@ -67,7 +88,7 @@ export function getItem(id: string, full = false): Object {
     }
   });
   items["originlists"].forEach(list => {
-    list["items"].forEach(element => {
+    list["items"].forEach((element: ListItem) => {
       if(element.id == id) {
         item = structuredClone(element);
         item["parent"] = list["name"];
@@ -81,7 +102,7 @@ export function getItem(id: string, full = false): Object {
   });
 
   if (item["images"] != undefined) {
-    item["titleimg"] = item["images"].find((obj: Object) => obj["active"] != false);
+    item["titleimg"] = item["images"].find((image: ListItem) => image["active"] != false);
   }
 
   return item;
@@ -101,7 +122,7 @@ export function addItemFromList(id: string, position = -1, new_id = id) {
 }
 
 export function removeItem(id: string) {
-  items["merged"].forEach(element => {
+  items["merged"].forEach((element: ListItem) => {
     if(element.id == id) {
       const i = items["merged"].indexOf(element);
       items["merged"].splice(i, 1);
@@ -110,7 +131,7 @@ export function removeItem(id: string) {
 }
 
 export function replaceItem(id: string, new_item: Object) {
-  items["merged"].forEach(element => {
+  items["merged"].forEach((element: ListItem) => {
     if(element.id == id) {
       const i = items["merged"].indexOf(element);
       items["merged"][i] = new_item;
@@ -140,7 +161,7 @@ export function addMergeItem(item: Object, position = -1) {
 }
 
 export function updateMerged(item_id: string, mergedfrom: string[]) {
- items["merged"].forEach(element => {
+ items["merged"].forEach((element: ListItem) => {
     if(element.id == item_id) {
       element["mergedfrom"] = mergedfrom
     }
@@ -165,12 +186,12 @@ export function updateMergedInto(item_id: string, mergedinto_id: string = item_i
 }
 
 export function mergeAttach(from_id: string, to_id: string) {
-  items["merged"].forEach(element => {
+  items["merged"].forEach((element: ListItem) => {
     if(element.id == to_id) {
       const tmp = element["mergedfrom"] != undefined ? element["mergedfrom"] : [from_id];
       element["mergedfrom"] = [];
 
-      tmp.forEach(mergedfrom => {
+      tmp.forEach((mergedfrom: string) => {
         if (mergedfrom != from_id) {
           element["mergedfrom"].push(mergedfrom);
         }

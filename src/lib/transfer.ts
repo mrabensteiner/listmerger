@@ -1,19 +1,19 @@
 import { arrange, createDragHandle, CssNames, generateItem, updateAllIndicators, updateItem } from "./uihelper"
-import { addItemFromList, addMergeItem, getItem, itemUpdateStatus, mergeDetach, mergelistId, PREFIX_MERGED, PREFIX_MOVED, removeItem, replaceItem, setItem, updateMerged, updateMergedInto } from "./globalvars"
+import { addItemFromList, addMergeItem, getItem, itemUpdateStatus, ListItem, mergeDetach, mergelistId, PREFIX_MERGED, PREFIX_MOVED, removeItem, replaceItem, setItem, Status, updateMerged, updateMergedInto } from "./globalvars"
 
 export function move(id: string, position = -1) {
-  setStatus(id, "moved");
+  setStatus(id, Status.Moved);
 
   let element = document.getElementById(id)
-  let target = document.getElementById(mergelistId).querySelector(`.${CssNames.MERGED_ZONE}`);
-  let clone = (element.cloneNode(true) as HTMLElement);
+  let target = document.getElementById(mergelistId)?.querySelector(`.${CssNames.MERGED_ZONE}`);
+  let clone = (element?.cloneNode(true) as HTMLElement);
   
   clone.id = PREFIX_MOVED + clone.id;
   clone.setAttribute("data-origin", id);
   clone.classList.remove(CssNames.ITEM_DRAGGED);
   clone.children[0].append(createDragHandle());
 
-  target.append(clone);
+  target?.append(clone);
 
   if (position >= 0) {
     arrange(clone.id, position);
@@ -28,7 +28,7 @@ export function move(id: string, position = -1) {
 export function moveUndo(id: string) {
   setStatus(id, "");
   let clone = document.getElementById(PREFIX_MOVED + id);
-  clone.remove();
+  clone?.remove();
   removeItem(PREFIX_MOVED + id);
   updateAllIndicators();
 }
@@ -36,7 +36,7 @@ export function moveUndo(id: string) {
 export function moveAll(zonefindings: NodeListOf<Element>) {
   let moved: Array<string> = [];
   (zonefindings as NodeListOf<HTMLElement>).forEach(element => {
-    if (!["moved", "merged"].includes(element.dataset.status as string)) {
+    if (![Status.Moved, Status.Merged].includes(element.dataset.status as Status)) {
       move(element.id, -1);
       moved.push(element.id);
     }
@@ -50,21 +50,21 @@ export function moveAllUndo(moved: Array<any>) {
   })
 }
 
-export function saveEditDialog(id) {
+export function saveEditDialog(id: string) {
   updateItem(id, false);
   const element = document.getElementById(id);
-  element.children[0].append(createDragHandle());
+  element?.children[0].append(createDragHandle());
 }
 
-export function merge(id1, id2, oldmergeid = "", item = {}) {
+export function merge(id1: string, id2: string, oldmergeid = "", item: ListItem = {}) {
   let target = document.getElementById(id1) as HTMLDetailsElement;
   
   let item1 = getItem(id1);
   let item2 = getItem(id2);
-  const remove_id2 = item2["status"] == "moved" || item2["status"] == "mergeitem";
+  const remove_id2 = item2["status"] == Status.Moved || item2["status"] == Status.MergeItem;
 
-  setStatus(id1, "merged");;
-  setStatus(id2, "merged");
+  setStatus(id1, Status.Merged);;
+  setStatus(id2, Status.Merged);
 
   // TODO better way to create new id
   let newid = PREFIX_MERGED + id1 + "+" + id2;
@@ -80,7 +80,7 @@ export function merge(id1, id2, oldmergeid = "", item = {}) {
   replaceItem(id1, item);
 
 
-  item["mergedfrom"].forEach(item_id => {
+  item["mergedfrom"].forEach((item_id: string) => {
     updateMergedInto(item_id, newid);
     updateItem(item_id);
   });
@@ -92,7 +92,7 @@ export function merge(id1, id2, oldmergeid = "", item = {}) {
   target.open = true;
 
   if (remove_id2) {
-    document.getElementById(id2).remove()
+    document.getElementById(id2)?.remove()
     removeItem(id2);
   }
 
@@ -100,16 +100,15 @@ export function merge(id1, id2, oldmergeid = "", item = {}) {
   return newid;
 }
 
-export function mergeUndo(id: string, itemA: Object, itemB: Object) {
-  let mergeelement = document.getElementById(id);
+export function mergeUndo(id: string, itemA: ListItem, itemB: ListItem) {
+  let mergeelement = document.getElementById(id) as HTMLElement;
 
   if (itemB["status"] == "mergeitem") {
     addMergeItem(itemB);
     generateItem("mlist", itemB);
   }
 
-  itemA.id = itemA.status == "moved" && !itemA.id.startsWith(PREFIX_MOVED) ? PREFIX_MOVED + itemA.id : itemA.id;
-  itemB.status == "moved" ? move(itemB.id) : false;
+  itemA.id = itemA.status == Status.Moved && !itemA.id.startsWith(PREFIX_MOVED) ? PREFIX_MOVED + itemA.id : itemA.id;
   mergeelement.id = itemA.id;
   mergeelement.dataset.status = itemA.status;
   
@@ -123,14 +122,14 @@ export function mergeUndo(id: string, itemA: Object, itemB: Object) {
   updateItem(itemB.id);
   
   if (itemA["mergedfrom"] != undefined) {
-    itemA["mergedfrom"].forEach(id => {
+    itemA["mergedfrom"].forEach((id: string) => {
       updateMergedInto(id, itemA.id);
       updateItem(id);
     });
   }
 
   if (itemB["mergedfrom"] != undefined) {
-    itemB["mergedfrom"].forEach(id => {
+    itemB["mergedfrom"].forEach((id: string) => {
       updateMergedInto(id, itemB.id);
       updateItem(id);
     });
@@ -139,7 +138,7 @@ export function mergeUndo(id: string, itemA: Object, itemB: Object) {
 
 export function attach(from_id: string, to_id: string, order: Array<string>) {
   updateMerged(to_id, order);
-  setStatus(from_id, "merged");
+  setStatus(from_id, Status.MergeItem);
   updateItem(from_id);
   updateItem(to_id);
 }

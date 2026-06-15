@@ -1,5 +1,5 @@
 import mustache from 'mustache';
-import { DIALOG_TEMPLATE, getItem, ITEM_TEMPLATE, EDIT_TEMPLATE, PREFIX_MERGED, PREFIX_MOVED } from './globalvars';
+import { DIALOG_TEMPLATE, getItem, ITEM_TEMPLATE, EDIT_TEMPLATE, PREFIX_MERGED, PREFIX_MOVED, List, Lists, ListItem } from './globalvars';
 import { editDialog } from './events';
 
 export const CssNames = {
@@ -18,15 +18,15 @@ export const CssNames = {
 const dragIconPath = "icons/dragicon.svg";
 
 export function init_responsive_tablist(id: string) {
-  const details = document.querySelectorAll(".tabbar > details");
-  const detailsselect: Node = document.querySelector("#detailsselector");
+  const details = document.querySelectorAll<HTMLDetailsElement>(".tabbar > details");
+  const detailsselect = document.querySelector("#detailsselector") as HTMLSelectElement;
 
   detailsselect.addEventListener("change", selectTab)
 
   details.forEach((detail: HTMLDetailsElement) => {
     detail.addEventListener("toggle", (event) => {
       if (detail.open) {
-        detailsselect.nodeValue = detail.dataset.order;
+        detailsselect.nodeValue = detail.dataset.order as string;
       }
     })
   });
@@ -44,13 +44,13 @@ export function init_responsive_tablist(id: string) {
         element.target.classList.add("compact");
       }
     });
-  }).observe(document.querySelector(id));
+  }).observe(document.querySelector(id) as HTMLElement);
 
   document.querySelectorAll(".tablist .zone").forEach(zone => {
     new ResizeObserver(zones => {
       zones.forEach(element => {
-        const target = element.target;
-        const tabbar = target.closest(".tabbar");
+        const target = element.target as HTMLElement;
+        const tabbar = target.closest(".tabbar") as HTMLDivElement;
         target.style.height = "100vh"
         target.style.height = tabbar.getBoundingClientRect().height + tabbar.offsetTop - target.offsetTop - 62  + "px"
       });
@@ -68,20 +68,20 @@ export function createDragHandle() {
 }
 
 function selectTab(e: Event) {
-  let value = (e.target as HTMLInputElement).value
+  let value = Number((e.target as HTMLInputElement).value);
   let details = document.querySelectorAll(".tabbar > details")[value];
   details.setAttribute("open", "1");
 }
 
-export function toggleDrop(e, dropOrigin) {
+export function toggleDrop(e: DragEvent, dropOrigin: string) {
   document.querySelector(".drag")?.classList.remove("drag");
 
   if (e.target == undefined) return;
 
-  let target = e.target.closest(".element");
+  let target = (e.target as HTMLElement).closest(".element");
 
   if(target == undefined) {
-    target = e.target.closest(".zone")
+    target = (e.target as HTMLElement).closest(".zone")
   }
   if(target == undefined || target.querySelector(`#${dropOrigin}`)) {
     return;
@@ -96,39 +96,39 @@ export function toggleDrop(e, dropOrigin) {
     classlist.add(CssNames.HOVER_DRAG);
   } 
   if (target.id == dropOrigin) {
-    e.dataTransfer.dropEffect = "none";
-  } else if (e.target.closest(".element")) {
-    e.dataTransfer.dropEffect = "copy";
+    e.dataTransfer!.dropEffect = "none";
+  } else if ((e.target as HTMLElement).closest(".element")) {
+    e.dataTransfer!.dropEffect = "copy";
   } else {
-    e.dataTransfer.dropEffect = "move";
+    e.dataTransfer!.dropEffect = "move";
   }
 }
 
 export function getOwnPosition(id: string): number {
-  const element = document.getElementById(id);
-  const siblings = element.parentElement.children;
+  const element = document.getElementById(id) as HTMLElement;
+  const siblings = element.parentElement?.children as HTMLCollection;
   return [...siblings].indexOf(element);
 }
 
 export function getPositionInList(id: string): number {
-  const element = document.getElementById(id);
-  const siblings = element.closest(".zone").querySelectorAll(".element");
+  const element = document.getElementById(id) as HTMLElement;
+  const siblings = element.closest(".zone")?.querySelectorAll(".element") as NodeListOf<HTMLElement>;
   return [...siblings].indexOf(element);
 }
 
 export function getNextDropSibling(e: DragEvent): HTMLElement {
   let siblings = [...document.querySelectorAll(`#mlist .element:not(.${CssNames.ITEM_DRAGGING}`)];
-  let nextSibling = siblings.find((sibling: HTMLDivElement) => {
+  let nextSibling = siblings.find(sibling => {
     const rect = sibling.getBoundingClientRect();
     return e.clientY <= rect.top + rect.height / 2;
   });
-  return nextSibling;
+  return nextSibling as HTMLElement;
 }
 
-export function loadItems(items: Object) {
-  const tabbar = document.querySelector(".tabbar");
-  const mlist = document.getElementById("mlist");
-  const select = document.getElementById("detailsselector");
+export function loadItems(items: Lists) {
+  const tabbar = document.querySelector(".tabbar") as HTMLElement;
+  const mlist = document.getElementById("mlist") as HTMLElement;
+  const select = document.getElementById("detailsselector") as HTMLElement;
   tabbar.innerHTML = "";
   mlist.innerHTML = "";
   select.innerHTML = "";
@@ -183,8 +183,8 @@ export function loadItems(items: Object) {
   tabbar.children[0].setAttribute("open", "1");
 }
 
-export function generateItem(parent_id: string, item: Object): HTMLElement {
-  const parent_element = document.getElementById(parent_id);
+export function generateItem(parent_id: string, item: ListItem): HTMLElement {
+  const parent_element = document.getElementById(parent_id) as HTMLElement;
   const element = document.createElement("details");
   
   element.id = item["id"];
@@ -216,7 +216,7 @@ export function updateItem(id: string, slice = true) {
     id = id.startsWith(PREFIX_MOVED) ? id.slice(PREFIX_MOVED.length) : id;
   }
 
-  const element = document.getElementById(id);
+  const element = document.getElementById(id) as HTMLElement;
   const moved_element = document.getElementById(PREFIX_MOVED + id);
 
   const item = getItem(id, true);
@@ -233,7 +233,7 @@ export function updateItem(id: string, slice = true) {
 
   if(moved_element != undefined) {
     moved_element.innerHTML = output;
-    moved_element.querySelector("summary").append(createDragHandle());
+    moved_element.querySelector("summary")?.append(createDragHandle());
   }
 }
 
@@ -252,9 +252,9 @@ export function prepareEditModal(action: string, item_id = "") {
   return container;
 }
 
-export function arrange(id, position) {
-  const element = document.getElementById(id);
-  const parent = element.parentElement;
+export function arrange(id: string, position: number) {
+  const element = document.getElementById(id) as HTMLElement;
+  const parent = element.parentElement as HTMLElement;
   const children = [...parent.children];
 
   if(position == children.length - 1) {
@@ -272,21 +272,21 @@ export function updateAllIndicators() {
 }
 
 function updateMergeIndicator() {
-  const list_container = document.querySelector(".mergelist");
-  const count = list_container.querySelector(".zone").children.length;
-  const indicator_element = list_container.querySelector(".indicator");
+  const list_container = document.querySelector(".mergelist") as HTMLElement;
+  const count = list_container.querySelector(".zone")?.children.length as number;
+  const indicator_element = list_container.querySelector(".indicator") as HTMLElement;
   indicator_element.innerHTML = count.toString();
 }
 
 function updateOriginIndicators() {
-  document.querySelectorAll(".tabbar > details").forEach((element) => {
-    const count_total = element.querySelector(".zone").children.length;
+  document.querySelectorAll<HTMLDetailsElement>(".tabbar > details").forEach((element) => {
+    const count_total = element.querySelector(".zone")?.children.length;
     const count_added = element.querySelectorAll(".zone [data-status='moved']").length;
     const count_merged = element.querySelectorAll(".zone [data-status='merged']").length;
 
     const moveall_element = element.querySelector(".moveall") as HTMLButtonElement;
-    const indicator_element = element.querySelector(".indicator");
-    const option_indicator_element = document.querySelector(`#detailsselector option[value='${element.attributes["data-order"].value}']`);
+    const indicator_element = element.querySelector(".indicator") as HTMLElement;
+    const option_indicator_element = document.querySelector(`#detailsselector option[value='${element.dataset.order}']`) as HTMLElement;
 
     moveall_element.disabled = count_added + count_merged == count_total; 
 

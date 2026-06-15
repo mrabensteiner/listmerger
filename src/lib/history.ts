@@ -1,4 +1,4 @@
-import { getItem, mergeDetach, setItem, updateMerged, updateMergedInto } from './globalvars';
+import { getItem, ListItem, mergeDetach, setItem, updateMerged, updateMergedInto } from './globalvars';
 import * as transfer from './transfer'
 import { arrange, setHash, updateItem } from './uihelper';
 
@@ -11,6 +11,18 @@ export enum Tasks {
     Arrange,
     Detach
 }
+
+export type HistoryItem = {
+  action: Tasks,
+  id1: string,
+  id2: string,
+  id3: string,
+  array: Array<any>,
+  title: string,
+  item: ListItem,
+  item2: ListItem
+};
+
 
 export function init() {
   updateButtons();
@@ -26,26 +38,11 @@ export function init() {
   })
 }
 
-let mergelist = {};
-
-let history = [];
-let future = [];
-
+let history: Array<HistoryItem> = [];
+let future: Array<HistoryItem> = [];
 
 export function resetFuture() {
   future = [];
-}
-
-export function getMergeItem(id: string) {
-  return mergelist[id];
-}
-
-export function addMergeItem(id:string, item: any) {
-  mergelist[id] = item;
-}
-
-export function deleteMergeItem(id:string) {
-  delete mergelist[id];
 }
 
 export function updateButtons() {
@@ -108,8 +105,8 @@ export function undo() {
     transfer.attach(last.id1, last.id2, last.array);
   }
 
-  if (document.getElementById(last.id1) && document.getElementById(last.id1).parentElement.closest("details")) {
-    document.getElementById(last.id1).parentElement.closest("details").open = true;
+  if (document.getElementById(last.id1) && document.getElementById(last.id1)?.parentElement?.closest("details")) {
+    document.getElementById(last.id1)!.parentElement!.closest("details")!.open = true;
   }
   setHash(last.id1);
   document.getElementById(last.id1)?.scrollIntoView({ 
@@ -145,8 +142,8 @@ export function redo() {
     transfer.detach(last.id1, last.id2);
   }
 
-  if (document.getElementById(last.id1) && document.getElementById(last.id1).parentElement.closest("details")) {
-    document.getElementById(last.id1).parentElement.closest("details").open = true;
+  if (document.getElementById(last.id1) && document.getElementById(last.id1)!.parentElement!.closest("details")) {
+    document.getElementById(last.id1)!.parentElement!.closest("details")!.open = true;
   }
   setHash(last.id1);
   document.getElementById(last.id1)?.scrollIntoView({ 
