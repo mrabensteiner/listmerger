@@ -3,13 +3,12 @@
     "module": "esnext",
     "esModuleInterop": true,
     "target": "es2022",
-    "sourceMap": true,
+    "rootDir": "src",
     "outDir": "dist",
     "pretty": true,
-    "downlevelIteration": true,
     "declaration": true,
     "declarationDir": "types",
-    "moduleResolution": "node"
+    "moduleResolution": "bundler"
   },
   "include": [
     "src/lib/*"
