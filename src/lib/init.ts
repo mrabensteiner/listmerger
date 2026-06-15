@@ -20,4 +20,4 @@ export function getAllItems() {
   return items;
 }
 
-export { edit } from './transfer'
+export { edit } from './events'

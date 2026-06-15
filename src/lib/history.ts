@@ -70,6 +70,7 @@ export function updateButtons() {
 }
 
 export function log(task: Tasks, id1 = "", id2 = "", id3 = "", array: any[] =[], title = "", item = {}, item2 = {}) {
+  resetFuture();
   history.push({
     action: task,
     id1: id1,
@@ -94,9 +95,9 @@ export function undo() {
     updateItem(last.id1);
     last.item = tmp;
   } else if (last.action == Tasks.Move) {
-    transfer.moveUndo(last.id1, true)
+    transfer.moveUndo(last.id1)
   } else if (last.action == Tasks.UnMove) {
-    transfer.move(last.id1, +last.id3, true)
+    transfer.move(last.id1, +last.id3)
   } else if (last.action == Tasks.MoveAll) {
     transfer.moveAllUndo(last.array)
   } else if (last.action == Tasks.Merge) {
@@ -130,14 +131,14 @@ export function redo() {
     updateItem(last.id1);
     last.item = tmp;
   } else if (last.action == Tasks.Move) {
-    transfer.move(last.id1, +last.id3-1, true)
+    transfer.move(last.id1, +last.id3-1)
   } else if (last.action == Tasks.UnMove) {
-    transfer.moveUndo(last.id1, true)
+    transfer.moveUndo(last.id1)
   } else if (last.action == Tasks.MoveAll) {
-    let zonefindings = document.getElementById(last.id1)?.querySelectorAll("[data-role='finding']");
-    transfer.moveAll(zonefindings, true);
+    let zonefindings = document.getElementById(last.id1)?.querySelectorAll("[data-role='finding']") as NodeListOf<Element>;
+    transfer.moveAll(zonefindings);
   } else if (last.action == Tasks.Merge) {
-    transfer.merge(last.id1, last.id2, last.title, true, last.id3, last.item.merged);
+    transfer.merge(last.id1, last.id2, last.id3, last.item.merged);
   } else if (last.action == Tasks.Arrange) {
     arrange(last.id1, +last.id3);
   } else if (last.action == Tasks.Detach) {

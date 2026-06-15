@@ -1,12 +1,7 @@
 import { arrange, createDragHandle, CssNames, generateItem, updateAllIndicators, updateItem } from "./uihelper"
-import * as history from "./history"
 import { addItemFromList, addMergeItem, getItem, itemUpdateStatus, mergeDetach, mergelistId, PREFIX_MERGED, PREFIX_MOVED, removeItem, replaceItem, setItem, updateMerged, updateMergedInto } from "./globalvars"
 
-export function move(id: string, position = -1, from_history = false) {
-  if (!from_history) {
-    history.resetFuture();
-  }
-
+export function move(id: string, position = -1) {
   setStatus(id, "moved");
 
   let element = document.getElementById(id)
@@ -30,11 +25,7 @@ export function move(id: string, position = -1, from_history = false) {
   return clone.id;
 }
 
-export function moveUndo(id: string, from_history = false) {
-  if (!from_history) {
-    history.resetFuture();
-  }
-
+export function moveUndo(id: string) {
   setStatus(id, "");
   let clone = document.getElementById(PREFIX_MOVED + id);
   clone.remove();
@@ -42,43 +33,21 @@ export function moveUndo(id: string, from_history = false) {
   updateAllIndicators();
 }
 
-export function moveAll(zonefindings, from_history = false) {
-  if (!from_history) {
-    history.resetFuture();
-  }
-
-  let moved = [];
-  zonefindings.forEach(element => {
-    if (!["moved", "merged"].includes(element.dataset.status)) {
-      move(element.id, -1, from_history);
+export function moveAll(zonefindings: NodeListOf<Element>) {
+  let moved: Array<string> = [];
+  (zonefindings as NodeListOf<HTMLElement>).forEach(element => {
+    if (!["moved", "merged"].includes(element.dataset.status as string)) {
+      move(element.id, -1);
       moved.push(element.id);
     }
   });
   return moved;
 }
 
-export function moveAllUndo(moved) {
+export function moveAllUndo(moved: Array<any>) {
   moved.forEach(id => {
-    moveUndo(id, true)
+    moveUndo(id)
   })
-}
-
-export function edit(id: string, key: string, value: any) {
-  const item = getItem(id);
-
-  if (JSON.stringify(item[key]) == JSON.stringify(value)) {
-    return false;
-  }
-
-  let new_item = {};
-  Object.assign(new_item, item);
-  new_item[key] = value;
-
-  setItem(id, new_item);
-  history.log(history.Tasks.Edit, id, "", "", [], "", item);
-  updateItem(id);
-
-  return true;
 }
 
 export function saveEditDialog(id) {
@@ -87,11 +56,7 @@ export function saveEditDialog(id) {
   element.children[0].append(createDragHandle());
 }
 
-export function merge(id1, id2, title, from_history = false, oldmergeid = "", item = {}) {
-  if (!from_history) {
-    history.resetFuture();
-  }
-
+export function merge(id1, id2, oldmergeid = "", item = {}) {
   let target = document.getElementById(id1) as HTMLDetailsElement;
   
   let item1 = getItem(id1);

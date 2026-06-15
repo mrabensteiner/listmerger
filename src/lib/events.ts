@@ -77,7 +77,7 @@ function initDragDrop() {
         }
     
         const id = element.id;
-        const updated = transfer.edit(id, key, value);
+        const updated = edit(id, key, value);
 
         if (!updated && target.tagName == "SELECT") {
           updateItem(id);
@@ -589,7 +589,7 @@ export function merge(event: Event) {
 
   (dropOriginelement as HTMLDetailsElement).open = false;
 
-  let mergeid: string = transfer.merge(target.id, dropOrigin, new_item["title"], false, "", new_item)
+  let mergeid: string = transfer.merge(target.id, dropOrigin, "", new_item)
   new_item["id"] = mergeid;
   history.log(history.Tasks.Merge, targetid, dropOrigin, mergeid, [], new_item["title"], {
     A: item1,
@@ -633,4 +633,22 @@ function detach(e: MouseEvent) {
 
   let previouslist = transfer.detach(from, to);
   history.log(history.Tasks.Detach, from, to, "", previouslist);
+}
+
+export function edit(id: string, key: string, value: any) {
+  const item = getItem(id);
+
+  if (JSON.stringify(item[key]) == JSON.stringify(value)) {
+    return false;
+  }
+
+  let new_item = {};
+  Object.assign(new_item, item);
+  new_item[key] = value;
+
+  setItem(id, new_item);
+  history.log(history.Tasks.Edit, id, "", "", [], "", item);
+  updateItem(id);
+
+  return true;
 }
