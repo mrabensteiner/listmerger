@@ -1,4 +1,4 @@
-import { arrange, CssNames, getNextDropSibling, getPositionInList, hashUpdate, prepareEditModal, prepareModal, setHash, toggleDrop, updateAllIndicators, updateItem } from "./uihelper";
+import { arrange, SELECTOR, getNextDropSibling, getPositionInList, hashUpdate, prepareEditModal, prepareModal, setHash, toggleDrop, updateAllIndicators, updateItem } from "./uihelper";
 import * as transfer from './transfer';
 import * as history from './history';
 import { getItem, ListItem, mergelistId, PREFIX_MERGED, PREFIX_MOVED, preventDetailsOpening, setItem, Status } from "./globalvars";
@@ -18,7 +18,7 @@ let mergeListElement: HTMLElement;
 let dialog: HTMLDialogElement;
 
 export function init() {
-  mergeListElement = document.querySelector("#mlist") as HTMLElement;
+  mergeListElement = document.getElementById(SELECTOR.MERGE_LIST) as HTMLElement;
   initDialog();
   initDragDrop();
   initMoveAll();
@@ -31,7 +31,7 @@ function initDialog() {
 
 function initDragDrop() {
   const listmerger_element = document.getElementById(mergelistId) as HTMLElement;
-  const mergelist_element = listmerger_element.querySelector(".mergelist") as HTMLElement;
+  const mergelist_element = listmerger_element.querySelector(`.${SELECTOR.MERGED_ZONE}`) as HTMLElement;
 
   listmerger_element.addEventListener("dragstart", dragStart);
   listmerger_element.addEventListener("dragend", dragEnd);
@@ -53,7 +53,7 @@ function initDragDrop() {
     if (target.contentEditable && !target.dataset.listening) {
       target.dataset.listening = "1";
 
-      const element = target.closest(".element");
+      const element = target.closest(`.${SELECTOR.ITEM}`);
 
       target.addEventListener("blur", (e) => {
         let key =  target.dataset.edit as string;
@@ -97,7 +97,7 @@ function initDragDrop() {
     } else if (target.isContentEditable && target.closest("summary")) {
       contentEditable = target.contentEditable;
       target.contentEditable = "false";
-      const element = target.closest(".element") as HTMLDetailsElement;
+      const element = target.closest(`.${SELECTOR.ITEM}`) as HTMLDetailsElement;
 
       if (!element || element.open == true) {
         target.contentEditable = contentEditable;
@@ -118,16 +118,16 @@ function initDragDrop() {
       if(!preventDetailsOpening && (target.closest("details") as HTMLDetailsElement).open == false) {
         (target.closest("details") as HTMLDetailsElement).open = true;
       }
-    } else if (target.classList.contains("detach")) {
+    } else if (target.classList.contains(SELECTOR.LINK_DETACH)) {
       detach(e);
-    } else if (target.classList.contains("move") && target.closest("#mlist") && target.closest("details")?.dataset.status != "mergeitem") {
-      const element = target.closest(".element") as HTMLElement;
+    } else if (target.classList.contains(SELECTOR.MOVE_BUTTON) && target.closest(`#${SELECTOR.MERGE_LIST}`) && target.closest("details")?.dataset.status != Status.MergeItem) {
+      const element = target.closest(`.${SELECTOR.ITEM}`) as HTMLElement;
       const origin = element.dataset.origin as string;
       const position = Array.prototype.slice.call(element.parentElement?.children).indexOf(element);
       transfer.moveUndo(origin);
       history.log(history.Tasks.UnMove, origin, "", position.toString());
-    } else if (target.classList.contains("move") && !(target.closest("#mlist")) && !(target.closest("details")?.dataset.status == Status.Moved || target.closest("details")?.dataset.status == Status.Merged)) {
-      const id = target.closest(".element")?.id as string;
+    } else if (target.classList.contains(SELECTOR.MOVE_BUTTON) && !(target.closest(`#${SELECTOR.MERGE_LIST}`)) && !(target.closest("details")?.dataset.status == Status.Moved || target.closest("details")?.dataset.status == Status.Merged)) {
+      const id = target.closest(`.${SELECTOR.ITEM}`)?.id as string;
       const newid = transfer.move(id);
       history.log(history.Tasks.Move, id);
       document.getElementById(newid)?.scrollIntoView({ 
@@ -155,19 +155,19 @@ function initDragDrop() {
         history.redo();
       }
     } else if (key === "c") {
-      document.querySelectorAll("details.element").forEach(element => {
+      document.querySelectorAll(`.${SELECTOR.ITEM}`).forEach(element => {
         (element as HTMLDetailsElement).open = false;
       });
     } else if (key in ["1", "2", "3", "4", "5", "6", "7", "8", "9"]) {
       const order = ""+(parseInt(key)-1);
-      const tab = document.querySelector(`.tabbar > details[data-order='${order}']`);
+      const tab = document.querySelector(`.${SELECTOR.TAB_BAR} > details[data-order='${order}']`);
 
       if (tab != undefined) {
         (tab as HTMLDetailsElement).open = true;
-        (document.getElementById("detailsselector") as HTMLSelectElement).value = order;
+        (document.getElementById(SELECTOR.TAB_SELECTOR) as HTMLSelectElement).value = order;
       }
     } else if(key == "m") {
-      const target = (e.target as HTMLElement).closest(".element:not([data-status='moved'], [data-status='merged'])");
+      const target = (e.target as HTMLElement).closest(`.${SELECTOR.ITEM}:not([data-status='moved'], [data-status='merged'])`);
 
       if (target == undefined || target.id.startsWith(PREFIX_MERGED) || target.id.startsWith(PREFIX_MOVED)) {
         return;
@@ -191,7 +191,7 @@ function itemToHash(e: MouseEvent) {
 
 
 export function elementDialog(e: Event) {
-  const element = (e.target as HTMLElement).closest(".element");
+  const element = (e.target as HTMLElement).closest(`.${SELECTOR.ITEM}`);
   
   if(element == null) {
     return;
@@ -240,7 +240,7 @@ export function mergeInputClick(e: Event) {
 
 export function editDialog(id: string) {
   const mergecontainer = document.createElement("div");
-  mergecontainer.classList.add("mergecontainer");
+  mergecontainer.classList.add(SELECTOR.DIALOG_MERGE_CONTAINER);
   mergecontainer.style.display = "flex"
 
   const merge_center = prepareEditModal("Edit", id);
@@ -252,12 +252,12 @@ export function editDialog(id: string) {
   button_container.classList.add("buttons");
 
   const close_button = document.createElement("button");
-  close_button.classList.add("close");
+  close_button.classList.add(SELECTOR.BUTTON_CLOSE);
   close_button.classList.add("icontext");
   close_button.innerText = "Cancel";
 
   const save_button = document.createElement("button");
-  save_button.classList.add("save");
+  save_button.classList.add(SELECTOR.BUTTON_SAVE);
   save_button.innerText = "Save";
   save_button.autofocus = true;
 
@@ -276,7 +276,7 @@ export function mergeDialog(id1: string, id2: string) {
   let item2 = getItem(id2);
 
   const mergecontainer = document.createElement("div");
-  mergecontainer.classList.add("mergecontainer");
+  mergecontainer.classList.add(SELECTOR.DIALOG_MERGE_CONTAINER);
   mergecontainer.style.display = "flex"
 
   const merge_child1 = document.createElement("div");
@@ -324,12 +324,12 @@ export function mergeDialog(id1: string, id2: string) {
   button_container.classList.add("buttons");
 
   const close_button = document.createElement("button");
-  close_button.classList.add("close");
+  close_button.classList.add(SELECTOR.BUTTON_CLOSE);
   close_button.classList.add("icontext");
   close_button.innerText = "Cancel";
 
   const merge_button = document.createElement("button");
-  merge_button.classList.add("merge");
+  merge_button.classList.add(SELECTOR.BUTTON_MERGE);
   merge_button.innerText = "Merge";
   merge_button.autofocus = true;
 
@@ -349,12 +349,12 @@ export function dragStart(e: DragEvent) {
     return;
   }
 
-  if (!element.classList.contains(CssNames.ITEM_DRAGHANDLE)) {
-    element = element.closest(".element") as HTMLElement;
+  if (!element.classList.contains(SELECTOR.ITEM_DRAGHANDLE)) {
+    element = element.closest(`.${SELECTOR.ITEM}`) as HTMLElement;
   }
 
-  if ((element.nodeName != "DETAILS" && !element.classList.contains(CssNames.ITEM_DRAGHANDLE))
-    || [Status.Moved, Status.Merged].includes(element.dataset.status as Status) && element.closest(".tabbar")) {
+  if ((element.nodeName != "DETAILS" && !element.classList.contains(SELECTOR.ITEM_DRAGHANDLE))
+    || [Status.Moved, Status.Merged].includes(element.dataset.status as Status) && element.closest(`.${SELECTOR.TAB_BAR}`)) {
     
     if (!(e.dataTransfer?.getData("inner"))) {
       e.preventDefault();
@@ -363,35 +363,34 @@ export function dragStart(e: DragEvent) {
     return;  
   }
 
-  dropOrigin = element.closest(".element")?.id as string;
+  dropOrigin = element.closest(`.${SELECTOR.ITEM}`)?.id as string;
 
-  if (element.classList.contains(CssNames.ITEM_DRAGHANDLE)) {
-    mergeListElement = document.querySelector("#mlist") as HTMLElement;
+  if (element.classList.contains(SELECTOR.ITEM_DRAGHANDLE)) {
+    mergeListElement = document.getElementById(SELECTOR.MERGE_LIST) as HTMLElement;
     dragAction = Action.Arrange;
-    dropOrigin = element.closest(".element")?.id as string;
+    dropOrigin = element.closest(`.${SELECTOR.ITEM}`)?.id as string;
 
     dragPosition = getPositionInList(dropOrigin);
 
-    element.closest(".element")?.classList.add(CssNames.ITEM_DRAGGING);
+    element.closest(`.${SELECTOR.ITEM}`)?.classList.add(SELECTOR.ITEM_DRAGGING);
   } else {
     dragAction = Action.Move;
-    document.getElementById(dropOrigin)?.classList.add(CssNames.ITEM_DRAGGED);
+    document.getElementById(dropOrigin)?.classList.add(SELECTOR.ITEM_DRAGGED);
   }
 }
 
 export function dragEnd(e: Event) {
-  document.querySelector(".arrangebar")?.remove();
-  document.querySelector(".drag")?.classList.remove("drag");
+  document.querySelector(`.${SELECTOR.ARRANGEBAR}`)?.remove();
+  document.querySelector(`.${SELECTOR.HOVER_DRAG}`)?.classList.remove(SELECTOR.HOVER_DRAG);
 
-  document.querySelectorAll(`.${CssNames.HOVER_DRAG}`).forEach((e) => {
-    e.classList.remove(CssNames.HOVER_DRAG);
+  document.querySelectorAll(`.${SELECTOR.HOVER_DRAG}`).forEach((e) => {
+    e.classList.remove(SELECTOR.HOVER_DRAG);
   })
-  document.getElementById(dropOrigin)?.classList.remove(CssNames.ITEM_DRAGGING);
-    //dropOrigin = (e.target as Element).closest(".element").id;
+  document.getElementById(dropOrigin)?.classList.remove(SELECTOR.ITEM_DRAGGING);
     if(dropOrigin == "") {
       return;
     }
-    document.getElementById(dropOrigin)?.classList.remove(CssNames.ITEM_DRAGGED);
+    document.getElementById(dropOrigin)?.classList.remove(SELECTOR.ITEM_DRAGGED);
     dragAction = Action.None;
 }
 
@@ -403,16 +402,16 @@ export function dragOver(e: DragEvent) {
   e.preventDefault();
 
   if(dragAction == Action.Move) {
-    const zone = (e.target as HTMLElement).closest(".zone");
+    const zone = (e.target as HTMLElement).closest(`.${SELECTOR.MERGED_ZONE}`);
     let nextSibling = getNextDropSibling(e);
     toggleDrop(e, dropOrigin) 
 
     if (zone && zone.children.length > 0) {
-      let bar = document.querySelector(".arrangebar");
+      let bar = document.querySelector(`.${SELECTOR.ARRANGEBAR}`);
 
       if (bar == undefined) {
         bar = document.createElement("hr");
-        bar.classList.add("arrangebar");
+        bar.classList.add(SELECTOR.ARRANGEBAR);
       } else if (bar.nextElementSibling == nextSibling) {
         return;
       }
@@ -427,7 +426,7 @@ export function dragOver(e: DragEvent) {
   }
 
   // https://www.codingnepalweb.com/drag-and-drop-sortable-list-html-javascript/
-  const draggingItem = document.querySelector(`.${CssNames.ITEM_DRAGGING}`) as HTMLElement;
+  const draggingItem = document.querySelector(`.${SELECTOR.ITEM_DRAGGING}`) as HTMLElement;
   let nextSibling = getNextDropSibling(e);
 
   mergeListElement.insertBefore(draggingItem, nextSibling);
@@ -450,8 +449,8 @@ export function drop(e: DragEvent) {
   let droporigin_element = document.getElementById(dropOrigin);
   let target = (e.target as HTMLElement);
 
-  if(!target.classList.contains("zone")) {
-    target = target.closest(".element") as HTMLElement;
+  if(!target.classList.contains(SELECTOR.MERGED_ZONE)) {
+    target = target.closest(`.${SELECTOR.ITEM}`) as HTMLElement;
   }
   if(target == undefined) {
     return
@@ -473,7 +472,7 @@ export function drop(e: DragEvent) {
 
     return;
   }
-  else if (target.getAttribute("data-role") != "zone" && target.id != "mlist") {
+  else if (target.getAttribute("data-role") != "zone" && target.id != SELECTOR.MERGE_LIST) {
     // other target
     return;
   }
@@ -495,7 +494,7 @@ export function drop(e: DragEvent) {
     dragAction = Action.None;
     return;
   }
-  else if ([Status.Moved, Status.Merged].includes(droporigin_element?.dataset.status as Status) && droporigin_element?.closest(".tabbar")) {
+  else if ([Status.Moved, Status.Merged].includes(droporigin_element?.dataset.status as Status) && droporigin_element?.closest(`.${SELECTOR.TAB_BAR}`)) {
     return;
   }
 
@@ -607,7 +606,7 @@ function dialogClose(e: Event) {
 }
 
 function initMoveAll() {
-  const moveallbuttons = document.querySelectorAll(".moveall");
+  const moveallbuttons = document.querySelectorAll(`.${SELECTOR.MOVE_ALL_BUTTON}`);
 
   moveallbuttons.forEach(button => {
     button.addEventListener("click", moveAll);

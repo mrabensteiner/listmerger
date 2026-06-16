@@ -1,16 +1,16 @@
-import { arrange, createDragHandle, CssNames, generateItem, updateAllIndicators, updateItem } from "./uihelper"
+import { arrange, createDragHandle, SELECTOR, generateItem, updateAllIndicators, updateItem } from "./uihelper"
 import { addItemFromList, addMergeItem, getItem, itemUpdateStatus, ListItem, mergeDetach, mergelistId, PREFIX_MERGED, PREFIX_MOVED, removeItem, replaceItem, setItem, Status, updateMerged, updateMergedInto } from "./globalvars"
 
 export function move(id: string, position = -1) {
   setStatus(id, Status.Moved);
 
   let element = document.getElementById(id)
-  let target = document.getElementById(mergelistId)?.querySelector(`.${CssNames.MERGED_ZONE}`);
+  let target = document.getElementById(mergelistId)?.querySelector(`.${SELECTOR.MERGED_ZONE}`);
   let clone = (element?.cloneNode(true) as HTMLElement);
   
   clone.id = PREFIX_MOVED + clone.id;
   clone.setAttribute("data-origin", id);
-  clone.classList.remove(CssNames.ITEM_DRAGGED);
+  clone.classList.remove(SELECTOR.ITEM_DRAGGED);
   clone.children[0].append(createDragHandle());
 
   target?.append(clone);
@@ -105,7 +105,7 @@ export function mergeUndo(id: string, itemA: ListItem, itemB: ListItem) {
 
   if (itemB["status"] == "mergeitem") {
     addMergeItem(itemB);
-    generateItem("mlist", itemB);
+    generateItem(SELECTOR.MERGE_LIST, itemB);
   }
 
   itemA.id = itemA.status == Status.Moved && !itemA.id.startsWith(PREFIX_MOVED) ? PREFIX_MOVED + itemA.id : itemA.id;

@@ -1,6 +1,6 @@
 import { getItem, ListItem, mergeDetach, setItem, updateMerged, updateMergedInto } from './globalvars';
 import * as transfer from './transfer'
-import { arrange, setHash, updateItem } from './uihelper';
+import { arrange, SELECTOR, setHash, updateItem } from './uihelper';
 
 export enum Tasks {
     Edit,
@@ -27,12 +27,12 @@ export type HistoryItem = {
 export function init() {
   updateButtons();
 
-  document.getElementById("undo")?.addEventListener("click", (e) => {
+  document.getElementById(SELECTOR.HISTORY_UNDO)?.addEventListener("click", (e) => {
     e.preventDefault();
     undo();
   })
 
-  document.getElementById("redo")?.addEventListener("click", (e) => {
+  document.getElementById(SELECTOR.HISTORY_REDO)?.addEventListener("click", (e) => {
     e.preventDefault();
     redo();
   })
@@ -46,8 +46,8 @@ export function resetFuture() {
 }
 
 export function updateButtons() {
-  let undo_button = document.getElementById("undo") as HTMLButtonElement;
-  let redo_button = document.getElementById("redo") as HTMLButtonElement;
+  let undo_button = document.getElementById(SELECTOR.HISTORY_UNDO) as HTMLButtonElement;
+  let redo_button = document.getElementById(SELECTOR.HISTORY_REDO) as HTMLButtonElement;
 
   undo_button.disabled = history.length == 0;
   redo_button.disabled = future.length == 0;
