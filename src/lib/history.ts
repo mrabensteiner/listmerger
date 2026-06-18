@@ -23,6 +23,8 @@ export type HistoryItem = {
   item2: ListItem
 };
 
+export type HistoryCallback = (is_new: boolean) => void;
+let history_callback_function: HistoryCallback = () => {};
 
 export function init() {
   updateButtons();
@@ -66,6 +68,10 @@ export function updateButtons() {
   }
 }
 
+export function setHistoryCallback(callback: () => void) {
+  history_callback_function = callback;
+}
+
 export function log(task: Tasks, id1 = "", id2 = "", id3 = "", array: any[] =[], title = "", item = {}, item2 = {}) {
   resetFuture();
   history.push({
@@ -79,6 +85,7 @@ export function log(task: Tasks, id1 = "", id2 = "", id3 = "", array: any[] =[],
     item2: item2
   })
 
+  history_callback_function(true);
   updateButtons();
 }
 
@@ -115,6 +122,7 @@ export function undo() {
   });
   future.push(last);
 
+  history_callback_function(false);
   updateButtons();
 }
 
@@ -152,6 +160,7 @@ export function redo() {
   });
   history.push(last);
 
+  history_callback_function(false);
   updateButtons();
 }
 

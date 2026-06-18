@@ -428,6 +428,14 @@ function save_json() {
   a.click();
 }
 
+function history_callback(is_new) {
+  if (is_new) {
+    console.log("changes deteced");
+  } else {
+    console.log("undo/redo deteced");
+  }
+}
+
 function image_edit(editContainer) {
   let active = editContainer.dataset.active == "true";
   editContainer.dataset.active = !active;
@@ -649,7 +657,7 @@ document.getElementById("open").addEventListener("click", open);
 document.getElementById("save-console").addEventListener("click", save_console);
 document.getElementById("save-json").addEventListener("click", save_json);
 
-listmerger.init("listmerger", "undo", "redo", items, item_template, dialog_template, merge_template);
+listmerger.init("listmerger", "undo", "redo", items, item_template, dialog_template, merge_template, history_callback);
 
 // Image thumbnail previews
 document.addEventListener("click", (e) => {

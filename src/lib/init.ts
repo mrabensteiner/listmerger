@@ -3,13 +3,14 @@ import * as events from './events';
 import * as uihelper from './uihelper';
 import * as g from './globalvars';
 
-export function init(id: string, id_undo: string, id_redo: string, items: g.Lists, item_template: string, dialog_template: string, merge_template: string) {
+export function init(id: string, id_undo: string, id_redo: string, items: g.Lists, item_template: string, dialog_template: string, merge_template: string, history_callback: () => void) {
   g.setItems(items); 
   g.setTemplates(item_template, dialog_template, merge_template); 
   uihelper.loadItems(items);
   g.setMergelistId(id);
   events.init();
   uihelper.init_responsive_tablist(".tablist");
+  history.setHistoryCallback(history_callback);
   history.init();
   uihelper.updateAllIndicators();
 }
