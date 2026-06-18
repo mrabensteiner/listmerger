@@ -5,12 +5,12 @@ export function move(id: string, position = -1) {
   setStatus(id, g.Status.Moved);
 
   let element = document.getElementById(id)
-  let target = document.getElementById(g.SELECTOR.CONTAINER)?.querySelector(`.${g.SELECTOR.MERGED_ZONE}`);
+  let target = document.getElementById(g.SELECTOR.CONTAINER)?.querySelector(`.${g.SELECTOR.LIST}`);
   let clone = (element?.cloneNode(true) as HTMLElement);
   
   clone.id = g.SELECTOR.PREFIX_MOVED + clone.id;
   clone.setAttribute("data-origin", id);
-  clone.classList.remove(g.SELECTOR.ITEM_DRAGGED);
+  clone.classList.remove(g.SELECTOR.ITEM_DRAG_ACTIVE);
   clone.children[0].append(ui.createDragHandle());
 
   target?.append(clone);
@@ -33,9 +33,9 @@ export function moveUndo(id: string) {
   ui.updateAllIndicators();
 }
 
-export function moveAll(zonefindings: NodeListOf<Element>) {
+export function moveAll(zone_elements: NodeListOf<Element>) {
   let moved: Array<string> = [];
-  (zonefindings as NodeListOf<HTMLElement>).forEach(element => {
+  (zone_elements as NodeListOf<HTMLElement>).forEach(element => {
     if (![g.Status.Moved, g.Status.Merged].includes(element.dataset.status as g.Status)) {
       move(element.id, -1);
       moved.push(element.id);
@@ -105,7 +105,7 @@ export function mergeUndo(id: string, itemA: g.ListItem, itemB: g.ListItem) {
 
   if (itemB["status"] == "mergeitem") {
     g.addMergeItem(itemB);
-    ui.generateItem(g.SELECTOR.MERGE_LIST, itemB);
+    ui.generateItem(g.SELECTOR.MERGELIST, itemB);
   }
 
   itemA.id = itemA.status == g.Status.Moved && !itemA.id.startsWith(g.SELECTOR.PREFIX_MOVED) ? g.SELECTOR.PREFIX_MOVED + itemA.id : itemA.id;

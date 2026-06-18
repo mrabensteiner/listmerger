@@ -45,7 +45,7 @@
   flex-direction: column;
 }
 
-.zone {
+.list {
   background-color: lightgray;
   display: flex;
   flex-direction: column;
@@ -53,22 +53,18 @@
   overflow: auto;
 }
 
-.zone .element > summary {
+.list .item > summary {
   display: flex;
   justify-content: space-between;
   flex-direction: row;
   align-items: center;
 }
 
-.zone .element > summary, .zone .element {
+.list .item > summary, .list .item {
   background: #eee;
 }
 
-.zone > div.dragg {
-  box-shadow: 0 0 10px rgb(36, 166, 210);
-}
-
-.zone.drag {
+.list.drop {
   box-shadow: 0 0 10px #0f08;
 }
 
@@ -87,7 +83,7 @@
   display: none;
 }
 
-.tablist.compact {
+.tab-container.compact {
   > select {
     display: block;
   }

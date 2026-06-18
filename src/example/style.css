@@ -68,7 +68,7 @@ html, body {
   flex-direction: column;
 }
 
-.zone {
+.list {
   border: 1px solid grey;
   background-color: #4442;
   padding: 1rem;
@@ -81,7 +81,7 @@ html, body {
   overflow: auto;
 }
 
-.zone .element > summary {
+.list .item > summary {
   padding: 1rem;
   cursor: grab;
   display: flex;
@@ -90,18 +90,18 @@ html, body {
   align-items: center;
 }
 
-.zone .element.added > summary,
-.zone .element.merged > summary {
+.list .item[data-status="moved"] > summary,
+.list .item[data-status="merged"] > summary {
   cursor: pointer;
 }
 
-.zone .element > summary, .zone .element {
+.list .item > summary, .list .item {
   background: rgb(245, 245, 255);
   border: 1px solid transparent;
   border-radius: 5px;
   box-shadow: 0 0 5px darkgray;
 }
-.zone .element > section {
+.list .item > section {
   padding: 1rem;
 }
 
@@ -185,11 +185,7 @@ img.detach {
   width: 1rem;
 }
 
-.zone > div.dragg {
-  box-shadow: 0 0 10px rgb(36, 166, 210) !important;
-}
-
-.zone.drag {
+.list.drop {
   box-shadow: 0 0 10px #1a5fb4;
 }
 
@@ -199,8 +195,8 @@ img.detach {
   height: 1.25rem;
 }
 
-[data-role='finding'].drag,
-[data-role='finding']:has(.draghandle.drag) {
+[data-role='item'].drop,
+[data-role='item']:has(.draghandle.drop) {
   box-shadow: 0 0 10px #1a5fb4;
 }
 
@@ -228,7 +224,7 @@ dialog {
   padding-left: 1rem;
 }
 
-.tablist.compact {
+.tab-container.compact {
   > #detailsselector {
     display: block;
   }
@@ -328,8 +324,8 @@ button:disabled::before {
   filter: opacity(.5);
 }
 
-.zone:not(#mlist) .element[data-status="moved"], 
-.zone:not(#mlist) .element[data-status="merged"] {
+.list:not(#mergelist) .item[data-status="moved"], 
+.list:not(#mergelist) .item[data-status="merged"] {
   color: #999;
   cursor: inherit;
   opacity: .7;
@@ -339,15 +335,15 @@ button:disabled::before {
   }
 }
 
-.zone:not(#mlist) .element[data-status="moved"], 
-.zone:not(#mlist) .element[data-status="merged"],
-.zone#mlist .element[data-status="mergeitem"] {
+.list:not(#mergelist) .item[data-status="moved"], 
+.list:not(#mergelist) .item[data-status="merged"],
+.list#mergelist .item[data-status="mergeitem"] {
     .summary-move, .summary-moveback {
       visibility: hidden  ;
   }
 }
 
-.zone:not(#mlist) .element[data-status="moved"] summary span.title::after {
+.list:not(#mergelist) .item[data-status="moved"] summary span.title::after {
   content: url(icons/check.svg);
   height: 1rem;
   width: 1rem;
@@ -355,7 +351,7 @@ button:disabled::before {
   display: inline-block;
 }
 
-.zone:not(#mlist) .element[data-status="merged"] summary span.title::after {
+.list:not(#mergelist) .item[data-status="merged"] summary span.title::after {
   content: url(icons/merge.svg);
   height: 1rem;
   width: 1rem;
@@ -363,13 +359,13 @@ button:disabled::before {
   display: inline-block;
 }
 
-.zone#mlist .element summary .summary-move,
-.zone:not(#mlist) .element summary .summary-moveback {
+.list#mergelist .item summary .summary-move,
+.list:not(#mergelist) .item summary .summary-moveback {
   display: none;
 }
 
-.zone .element summary .summary-move,
-.zone .element summary .summary-moveback {
+.list .item summary .summary-move,
+.list .item summary .summary-moveback {
   padding: 0 1rem;
   align-self: stretch;
   cursor: pointer;
@@ -384,7 +380,7 @@ button:disabled::before {
   }
 }
 
-.zone#mlist .element summary .summary-moveback {
+.list#mergelist .item summary .summary-moveback {
   box-shadow: inset -2.75rem 0 #1a5fb433;
   margin: -1rem -1rem -1rem 1rem;
   border-radius: 0 5px 5px 0;
@@ -403,7 +399,7 @@ button:disabled::before {
   }
 }
 
-.zone:not(#mlist) .element summary .summary-move {
+.list:not(#mergelist) .item summary .summary-move {
   box-shadow: inset 2.75rem 0 #1a5fb433;
   margin: -1rem 1rem -1rem -1rem;
   border-radius: 5px 0 0 5px;
@@ -417,7 +413,7 @@ button:disabled::before {
   }
 }
 
-.element summary span.summary-triangle {
+.item summary span.summary-triangle {
   cursor: pointer;
   padding: 1rem .5rem;
   margin: -1rem -.5rem;
@@ -432,20 +428,20 @@ button:disabled::before {
   }
 }
 
-.element[open] summary span.summary-triangle::before {
+.item[open] summary span.summary-triangle::before {
   transform: rotate(90deg);
 }
 
-.element summary span.title {
+.item summary span.title {
   margin-left: 1rem;
   flex: 1;
 }
-.element img[src=""] {
+.item img[src=""] {
   height: 0;
   opacity: 0;
 }
 
-.zone:not(#mlist) .element .origin {
+.list:not(#mergelist) .item .origin {
   display: none;
 }
 
@@ -464,16 +460,16 @@ button:disabled::before {
 }
 
 
-.mergecontainer {
+.mergedialogcontainer {
   display: flex;
   gap: 1rem;
 }
 
-.mergecontainer > div {
+.mergedialogcontainer > div {
   flex: 1;
 }
 
-.mergecontainer > div:nth-child(2) {
+.mergedialogcontainer > div:nth-child(2) {
   flex: 2;
   padding: 0 1rem;
   border-left: 1px solid darkgray;
@@ -587,6 +583,6 @@ label.editable.editing::after {
   color: #df8a22;
 }
 
-details.element[open] [contenteditable] {
+details.item[open] [contenteditable] {
   cursor: text;
 }

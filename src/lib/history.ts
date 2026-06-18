@@ -28,12 +28,12 @@ let history_callback_function: HistoryCallback = () => {};
 export function init() {
   updateButtons();
 
-  document.getElementById(g.SELECTOR.HISTORY_UNDO)?.addEventListener("click", (e) => {
+  document.getElementById(g.SELECTOR.BUTTON_UNDO)?.addEventListener("click", (e) => {
     e.preventDefault();
     undo();
   })
 
-  document.getElementById(g.SELECTOR.HISTORY_REDO)?.addEventListener("click", (e) => {
+  document.getElementById(g.SELECTOR.BUTTON_REDO)?.addEventListener("click", (e) => {
     e.preventDefault();
     redo();
   })
@@ -47,8 +47,8 @@ export function resetFuture() {
 }
 
 export function updateButtons() {
-  let undo_button = document.getElementById(g.SELECTOR.HISTORY_UNDO) as HTMLButtonElement;
-  let redo_button = document.getElementById(g.SELECTOR.HISTORY_REDO) as HTMLButtonElement;
+  let undo_button = document.getElementById(g.SELECTOR.BUTTON_UNDO) as HTMLButtonElement;
+  let redo_button = document.getElementById(g.SELECTOR.BUTTON_REDO) as HTMLButtonElement;
 
   undo_button.disabled = history.length == 0;
   redo_button.disabled = future.length == 0;
@@ -138,8 +138,8 @@ export function redo() {
   } else if (last.action == Tasks.UnMove) {
     transfer.moveUndo(last.id1)
   } else if (last.action == Tasks.MoveAll) {
-    let zonefindings = document.getElementById(last.id1)?.querySelectorAll("[data-role='finding']") as NodeListOf<Element>;
-    transfer.moveAll(zonefindings);
+    let zone_elements = document.getElementById(last.id1)?.querySelectorAll(`[data-role='${g.SELECTOR.ITEM}']`) as NodeListOf<Element>;
+    transfer.moveAll(zone_elements);
   } else if (last.action == Tasks.Merge) {
     transfer.merge(last.id1, last.id2, last.id3, last.item.merged);
   } else if (last.action == Tasks.Arrange) {

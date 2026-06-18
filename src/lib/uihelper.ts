@@ -28,9 +28,9 @@ export function initResponsiveTabs() {
         element.target.classList.add(g.SELECTOR.TAB_COMPACT);
       }
     });
-  }).observe(document.querySelector(`.${g.SELECTOR.TAB_LIST}`) as HTMLElement);
+  }).observe(document.querySelector(`.${g.SELECTOR.TAB_CONTAINER}`) as HTMLElement);
 
-  document.querySelectorAll(`.${g.SELECTOR.TAB_LIST} .${g.SELECTOR.MERGED_ZONE}`).forEach(zone => {
+  document.querySelectorAll(`.${g.SELECTOR.TAB_CONTAINER} .${g.SELECTOR.LIST}`).forEach(zone => {
     new ResizeObserver(zones => {
       zones.forEach(element => {
         const target = element.target as HTMLElement;
@@ -43,12 +43,9 @@ export function initResponsiveTabs() {
 }
 
 export function createDragHandle() {
-  let draghandle = document.createElement("img");
-  draghandle.classList.add(g.SELECTOR.ITEM_DRAGHANDLE);
-  draghandle.draggable = true;
-  draghandle.src = g.ICONS.DRAG;
-  //return draghandle;
-  return "";
+  let draghandle: HTMLElement = document.createElement("div");
+  draghandle.innerHTML = g.DRAGHANDLE_TEMPLATE;
+  return draghandle.firstChild ? draghandle.firstChild : "";
 }
 
 function selectTab(e: Event) {
@@ -58,14 +55,14 @@ function selectTab(e: Event) {
 }
 
 export function toggleDrop(e: DragEvent, dropOrigin: string) {
-  document.querySelector(`.${g.SELECTOR.HOVER_DRAG}`)?.classList.remove(`${g.SELECTOR.HOVER_DRAG}`);
+  document.querySelector(`.${g.SELECTOR.HOVER_DROP}`)?.classList.remove(`${g.SELECTOR.HOVER_DROP}`);
 
   if (e.target == undefined) return;
 
   let target = (e.target as HTMLElement).closest(`.${g.SELECTOR.ITEM}`);
 
   if(target == undefined) {
-    target = (e.target as HTMLElement).closest(`.${g.SELECTOR.MERGED_ZONE}`)
+    target = (e.target as HTMLElement).closest(`.${g.SELECTOR.LIST}`)
   }
   if(target == undefined || target.querySelector(`#${dropOrigin}`)) {
     return;
@@ -73,11 +70,11 @@ export function toggleDrop(e: DragEvent, dropOrigin: string) {
 
   let classlist = target.classList;
 
-  if (classlist.contains(g.SELECTOR.HOVER_DRAG)) {
-    classlist.remove(g.SELECTOR.HOVER_DRAG);
+  if (classlist.contains(g.SELECTOR.HOVER_DROP)) {
+    classlist.remove(g.SELECTOR.HOVER_DROP);
   }
-  if ((classlist.contains(g.SELECTOR.MERGED_ZONE) || classlist.contains(g.SELECTOR.ITEM)) && target.id != dropOrigin) {
-    classlist.add(g.SELECTOR.HOVER_DRAG);
+  if ((classlist.contains(g.SELECTOR.LIST) || classlist.contains(g.SELECTOR.ITEM)) && target.id != dropOrigin) {
+    classlist.add(g.SELECTOR.HOVER_DROP);
   } 
   if (target.id == dropOrigin) {
     e.dataTransfer!.dropEffect = "none";
@@ -96,12 +93,12 @@ export function getOwnPosition(id: string): number {
 
 export function getPositionInList(id: string): number {
   const element = document.getElementById(id) as HTMLElement;
-  const siblings = element.closest(`.${g.SELECTOR.MERGED_ZONE}`)?.querySelectorAll(`.${g.SELECTOR.ITEM}`) as NodeListOf<HTMLElement>;
+  const siblings = element.closest(`.${g.SELECTOR.LIST}`)?.querySelectorAll(`.${g.SELECTOR.ITEM}`) as NodeListOf<HTMLElement>;
   return [...siblings].indexOf(element);
 }
 
 export function getNextDropSibling(e: DragEvent): HTMLElement {
-  let siblings = [...document.querySelectorAll(`#${g.SELECTOR.MERGE_LIST} .${g.SELECTOR.ITEM}:not(.${g.SELECTOR.ITEM_DRAGGING}`)];
+  let siblings = [...document.querySelectorAll(`#${g.SELECTOR.MERGELIST} .${g.SELECTOR.ITEM}:not(.${g.SELECTOR.ITEM_DRAGHANDLE_ACTIVE}`)];
   let nextSibling = siblings.find(sibling => {
     const rect = sibling.getBoundingClientRect();
     return e.clientY <= rect.top + rect.height / 2;
@@ -111,14 +108,14 @@ export function getNextDropSibling(e: DragEvent): HTMLElement {
 
 export function loadItems(items: g.Lists) {
   const tabbar = document.querySelector(`.${g.SELECTOR.TAB_BAR}`) as HTMLElement;
-  const mergelist = document.getElementById(g.SELECTOR.MERGE_LIST) as HTMLElement;
+  const mergelist = document.getElementById(g.SELECTOR.MERGELIST) as HTMLElement;
   const select = document.getElementById(g.SELECTOR.TAB_SELECTOR) as HTMLElement;
   tabbar.innerHTML = "";
   mergelist.innerHTML = "";
   select.innerHTML = "";
 
   items["merged"].forEach(item => {
-    generateItem(g.SELECTOR.MERGE_LIST, g.getItem(item.id, true));
+    generateItem(g.SELECTOR.MERGELIST, g.getItem(item.id, true));
   });
 
   items["originlists"].forEach(list => {
@@ -130,7 +127,7 @@ export function loadItems(items: g.Lists) {
     const mergeallbutton_element = document.createElement("button");
     const list_element = document.createElement("div");
 
-    details_element.name = "tabs";
+    details_element.name = g.SELECTOR.TAB_NAME;
     details_element.id = list["id"];
     details_element.setAttribute("data-order", ""+tabbar.children.length);
 
@@ -139,11 +136,11 @@ export function loadItems(items: g.Lists) {
     summary_element.append(indicator_element);
 
     mergeallbutton_element.classList.add("moveall");
-    mergeallbutton_element.innerHTML = "Move Remaining";
+    mergeallbutton_element.innerHTML = g.SELECTOR.TEXT_BUTTON_MOVEALL;
 
     const list_id = list["id"] + "-list";
     list_element.id = list_id;
-    list_element.classList.add(g.SELECTOR.MERGED_ZONE);
+    list_element.classList.add(g.SELECTOR.LIST);
 
     section_element.append(mergeallbutton_element);
     section_element.append(list_element);
@@ -179,7 +176,7 @@ export function generateItem(parent_id: string, item: g.ListItem): HTMLElement {
   
   var output = mustache.render(g.ITEM_TEMPLATE, item);
   element.innerHTML = output;
-  element.setAttribute("data-role", "finding");
+  element.setAttribute("data-role", g.SELECTOR.ITEM);
 
   const summary = element.querySelector("summary");
 
@@ -256,19 +253,19 @@ export function updateAllIndicators() {
 }
 
 function updateMergeIndicator() {
-  const list_container = document.querySelector(`.${g.SELECTOR.MERGE_LIST_CONTAINER}`) as HTMLElement;
-  const count = list_container.querySelector(`.${g.SELECTOR.MERGED_ZONE}`)?.children.length as number;
+  const list_container = document.querySelector(`.${g.SELECTOR.MERGELIST_CONTAINER}`) as HTMLElement;
+  const count = list_container.querySelector(`.${g.SELECTOR.LIST}`)?.children.length as number;
   const indicator_element = list_container.querySelector(".indicator") as HTMLElement;
   indicator_element.innerHTML = count.toString();
 }
 
 function updateOriginIndicators() {
   document.querySelectorAll<HTMLDetailsElement>(`.${g.SELECTOR.TAB_BAR} > details`).forEach((element) => {
-    const count_total = element.querySelector(`.${g.SELECTOR.MERGED_ZONE}`)?.children.length;
-    const count_added = element.querySelectorAll(`.${g.SELECTOR.MERGED_ZONE} [data-status='moved']`).length;
-    const count_merged = element.querySelectorAll(`.${g.SELECTOR.MERGED_ZONE} [data-status='merged']`).length;
+    const count_total = element.querySelector(`.${g.SELECTOR.LIST}`)?.children.length;
+    const count_added = element.querySelectorAll(`.${g.SELECTOR.LIST} [data-status='moved']`).length;
+    const count_merged = element.querySelectorAll(`.${g.SELECTOR.LIST} [data-status='merged']`).length;
 
-    const moveall_element = element.querySelector(`.${g.SELECTOR.MOVE_ALL_BUTTON}`) as HTMLButtonElement;
+    const moveall_element = element.querySelector(`.${g.SELECTOR.BUTTON_MOVEALL}`) as HTMLButtonElement;
     const indicator_element = element.querySelector(".indicator") as HTMLElement;
     const option_indicator_element = document.querySelector(`#${g.SELECTOR.TAB_SELECTOR} option[value='${element.dataset.order}']`) as HTMLElement;
 

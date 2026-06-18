@@ -7,41 +7,47 @@ export enum Status {
 export let ITEM_TEMPLATE = "";
 export let DIALOG_TEMPLATE = "";
 export let EDIT_TEMPLATE = "";
+export let DRAGHANDLE_TEMPLATE = "";
 
 export const SELECTOR: Record<string, string> = {
   PREFIX_MOVED: "moved-",
   PREFIX_MERGED: "merged-",
+
   CONTAINER: "listmerger",
-  ITEM: "element",
-  ITEM_ADDED: "added",
-  ITEM_MERGED: "merged",
-  ITEM_DRAGHANDLE: "draghandle",
-  ITEM_DRAGGING: "dragging",
-  ITEM_DRAGGED: "dragg",
+  MERGELIST_CONTAINER: "mergelist-container",
+  MERGELIST: "mergelist",
+  LIST: "list",
+
+  ITEM: "item",
+  ITEM_DRAGHANDLE_ACTIVE: "draghandle-active",
+  ITEM_DRAG_ACTIVE: "drag-active",
+
+  TAB_CONTAINER: "tab-container",
   TAB_BAR: "tabbar",
-  TAB_LIST: "tablist",
+  TAB_NAME: "tabs",
   TAB_COMPACT: "compact",
   TAB_SELECTOR: "detailsselector",
-  DIALOG_MERGE_CONTAINER: "mergecontainer",
-  MERGE_LIST_CONTAINER: "mergelist",
-  MERGE_LIST: "mlist",
-  MERGED_ZONE: "zone",
+  
   HOVER_DROP: "drop",
-  HOVER_DRAG: "drag",
-  LINK_DETACH: "detach",
+  ARRANGEBAR: "arrangebar",
+
+  BUTTON_MOVE: "move",
+  BUTTON_MOVEALL: "moveall",
   BUTTON_SAVE: "save",
   BUTTON_CLOSE: "close",
   BUTTON_MERGE: "merge",
-  MOVE_BUTTON: "move",
-  MOVE_ALL_BUTTON: "moveall",
-  ARRANGEBAR: "arrangebar",
-  HISTORY_UNDO: "undo",
-  HISTORY_REDO: "redo"
-} as const;
+  BUTTON_DETACH: "detach",
+  BUTTON_DRAGHANDLE: "draghandle",
 
-export const ICONS = {
-  DRAG: "icons/dragicon.svg",
-}
+  BUTTON_UNDO: "undo",
+  BUTTON_REDO: "redo",
+
+  DIALOG_MERGE_CONTAINER: "mergedialogcontainer",
+
+  TEXT_BUTTON_MOVEALL: "Move Remaining",
+  TEXT_BUTTON_MERGE: "Merge",
+  TEXT_BUTTON_CANCEL: "Cancel",
+} as const;
 
 export type Dictionary = Record<string, any>;
 export type ListItem = Dictionary;
@@ -93,6 +99,7 @@ export function setTemplates(templates: Record<string, any>) {
     ITEM_TEMPLATE = templates["item"] ? templates["item"] : "<summary>{{title}}</summary>";
     DIALOG_TEMPLATE = templates["dialog"] ? templates["dialog"] : "";
     EDIT_TEMPLATE = templates["merge"] ? templates["merge"] : "";
+    DRAGHANDLE_TEMPLATE = templates["draghandle"] ? templates["draghandle"] : "";
 }
 
 export function getItem(id: string, full = false): ListItem {
