@@ -284,18 +284,19 @@ function updateOriginIndicators() {
 
 export function hashUpdate(open = false) {
   const id = location.hash.substring(1);
+  if (!id) return;
+
   const element = document.getElementById(id);
+  if (!element) return;
 
-  if (element) {
-    if (element instanceof HTMLDetailsElement && open) {
-      element.open = true;
-    }
+  if (element instanceof HTMLDetailsElement && open) {
+    element.open = true;
+  }
 
-    const tab = element.closest("[name='tabs']") as HTMLDetailsElement;
-    if (tab) {
-      const tab_select = document.getElementById(g.SELECTOR.TAB_SELECTOR) as HTMLSelectElement
-      tab_select.value = tab.dataset.order as string;
-    }
+  const tab = element.closest("[name='tabs']") as HTMLDetailsElement;
+  if (tab) {
+    const tab_select = document.getElementById(g.SELECTOR.TAB_SELECTOR) as HTMLSelectElement
+    tab_select.value = tab.dataset.order as string;
   }
 }
 

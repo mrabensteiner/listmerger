@@ -28,7 +28,7 @@ function copyExampleFolder() {
 }
 
 function copyLibFileToExample() {
-    return src('./dist/library/esm/listmerger.js').pipe(dest('./dist/example/lib/'));
+    return src('./dist/library/esm/*').pipe(dest('./dist/example/lib/'));
 }
 
 task('deploy', function () {
