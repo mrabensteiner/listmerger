@@ -140,4 +140,10 @@ function save_json() {
 document.getElementById("save-console").addEventListener("click", save_console);
 document.getElementById("save-json").addEventListener("click", save_json);
 
-listmerger.init("listmerger", "undo", "redo", items, item_template, dialog_template, merge_template);
+const templates = {
+  "item": item_template,
+  "dialog": dialog_template,
+  "merge": merge_template
+}
+
+listmerger.init(items, templates);

@@ -1,7 +1,7 @@
-import { arrange, SELECTOR, getNextDropSibling, getPositionInList, hashUpdate, prepareEditModal, prepareModal, setHash, toggleDrop, updateAllIndicators, updateItem } from "./uihelper";
-import * as transfer from './transfer';
+import * as g from "./globalvars";
 import * as history from './history';
-import { getItem, ListItem, mergelistId, PREFIX_MERGED, PREFIX_MOVED, preventDetailsOpening, setItem, Status } from "./globalvars";
+import * as transfer from './transfer';
+import * as ui from "./uihelper";
 
 export enum Action {
   None,
@@ -18,27 +18,26 @@ let mergeListElement: HTMLElement;
 let dialog: HTMLDialogElement;
 
 export function init() {
-  mergeListElement = document.getElementById(SELECTOR.MERGE_LIST) as HTMLElement;
+  mergeListElement = document.getElementById(g.SELECTOR.MERGE_LIST) as HTMLElement;
   initDialog();
   initDragDrop();
   initMoveAll();
+  initGeneralEvents();
 }
 
 function initDialog() {
   dialog = document.createElement("dialog");
-  document.getElementById(mergelistId)?.append(dialog);
+  document.getElementById(g.SELECTOR.CONTAINER)?.append(dialog);
 }
 
 function initDragDrop() {
-  const listmerger_element = document.getElementById(mergelistId) as HTMLElement;
-  const mergelist_element = listmerger_element.querySelector(`.${SELECTOR.MERGED_ZONE}`) as HTMLElement;
+  const listmerger_element = document.getElementById(g.SELECTOR.CONTAINER) as HTMLElement;
+  const mergelist_element = listmerger_element.querySelector(`.${g.SELECTOR.MERGED_ZONE}`) as HTMLElement;
 
   listmerger_element.addEventListener("dragstart", dragStart);
   listmerger_element.addEventListener("dragend", dragEnd);
   mergelist_element.addEventListener("dragover", dragOver);
   mergelist_element.addEventListener("drop", drop);
-
-  
 
   listmerger_element.addEventListener("drop", (e) => {
     // prevent dropping into a text field
@@ -46,161 +45,169 @@ function initDragDrop() {
       e.preventDefault();
     }
   });
+}
 
-  listmerger_element.addEventListener("input", (e) => {
-    const target = e.target as HTMLElement;
-          
-    if (target.contentEditable && !target.dataset.listening) {
-      target.dataset.listening = "1";
+function initGeneralEvents() {
+  const listmerger_element = document.getElementById(g.SELECTOR.CONTAINER) as HTMLElement;
 
-      const element = target.closest(`.${SELECTOR.ITEM}`);
+  listmerger_element.addEventListener("input", inputHandler);
+  listmerger_element.addEventListener("mousedown", mousedownHandler);
 
-      target.addEventListener("blur", (e) => {
-        let key =  target.dataset.edit as string;
-        let value: any = target.innerText;
-          
-        if (target.tagName == "SELECT") {
-          const select = target as HTMLSelectElement;
-          const options = select.selectedOptions;
+  listmerger_element.addEventListener("click", clickHandler);
+  listmerger_element.addEventListener("click", itemToHash);
 
-          key = select.name;
-          value = options.length == 1 ? options[0].value : Array.from(options).map(option => option.value);
+  window.addEventListener('hashchange', () => ui.hashUpdate());
 
-          if (element && !value.length) {
-            updateItem(element.id);
-            return;
-          }
-        }
+  document.addEventListener("keydown", keystrokeHandler);
 
-        if (!element) {
+  ui.hashUpdate();
+}
+
+function inputHandler(e: InputEvent) {
+  const target = e.target as HTMLElement;
+
+  if (target.contentEditable && !target.dataset.listening) {
+    target.dataset.listening = "1";
+
+    const element = target.closest(`.${g.SELECTOR.ITEM}`);
+
+    target.addEventListener("blur", (e) => {
+      let key = target.dataset.edit as string;
+      let value: any = target.innerText;
+
+      if (target.tagName == "SELECT") {
+        const select = target as HTMLSelectElement;
+        const options = select.selectedOptions;
+
+        key = select.name;
+        value = options.length == 1 ? options[0].value : Array.from(options).map(option => option.value);
+
+        if (element && !value.length) {
+          ui.updateItem(element.id);
           return;
         }
-    
-        const id = element.id;
-        const updated = edit(id, key, value);
+      }
 
-        if (!updated && target.tagName == "SELECT") {
-          updateItem(id);
-        }
-      }, { once: true });
-    }
-  });
+      if (!element) {
+        return;
+      }
 
+      const id = element.id;
+      const updated = edit(id, key, value);
+
+      if (!updated && target.tagName == "SELECT") {
+        ui.updateItem(id);
+      }
+    }, { once: true });
+  }
+}
+
+function mousedownHandler(e: MouseEvent) {
+  const target = e.target as HTMLElement;
   let contentEditable = "";
 
-  listmerger_element.addEventListener("mousedown", (e) => {
-    const target = e.target as HTMLElement;
-    contentEditable = "";
+  if (target.tagName == "SUMMARY") {
+    target.draggable = true;
+  } else if (target.isContentEditable && target.closest("summary")) {
+    contentEditable = target.contentEditable;
+    target.contentEditable = "false";
+    const element = target.closest(`.${g.SELECTOR.ITEM}`) as HTMLDetailsElement;
 
-    if (target.tagName == "SUMMARY") {
-      target.draggable = true;
-    } else if (target.isContentEditable && target.closest("summary")) {
-      contentEditable = target.contentEditable;
-      target.contentEditable = "false";
-      const element = target.closest(`.${SELECTOR.ITEM}`) as HTMLDetailsElement;
-
-      if (!element || element.open == true) {
+    if (!element || element.open == true) {
+      target.contentEditable = contentEditable;
+      (target.closest("summary") as HTMLElement).draggable = false;
+    } else {
+      target.addEventListener("mouseup", () => {
         target.contentEditable = contentEditable;
-        (target.closest("summary") as HTMLElement).draggable = false; 
-      } else {
-        target.addEventListener("mouseup", () => {
-            target.contentEditable = contentEditable;
-        });
-      }
-    }
-  });
-
-
-  listmerger_element.addEventListener("click", (e) => {
-    const target = e.target as HTMLElement;
-    if (target.isContentEditable && target.closest("summary")) {
-      e.preventDefault();
-      if(!preventDetailsOpening && (target.closest("details") as HTMLDetailsElement).open == false) {
-        (target.closest("details") as HTMLDetailsElement).open = true;
-      }
-    } else if (target.classList.contains(SELECTOR.LINK_DETACH)) {
-      detach(e);
-    } else if (target.classList.contains(SELECTOR.MOVE_BUTTON) && target.closest(`#${SELECTOR.MERGE_LIST}`) && target.closest("details")?.dataset.status != Status.MergeItem) {
-      const element = target.closest(`.${SELECTOR.ITEM}`) as HTMLElement;
-      const origin = element.dataset.origin as string;
-      const position = Array.prototype.slice.call(element.parentElement?.children).indexOf(element);
-      transfer.moveUndo(origin);
-      history.log(history.Tasks.UnMove, origin, "", position.toString());
-    } else if (target.classList.contains(SELECTOR.MOVE_BUTTON) && !(target.closest(`#${SELECTOR.MERGE_LIST}`)) && !(target.closest("details")?.dataset.status == Status.Moved || target.closest("details")?.dataset.status == Status.Merged)) {
-      const id = target.closest(`.${SELECTOR.ITEM}`)?.id as string;
-      const newid = transfer.move(id);
-      history.log(history.Tasks.Move, id);
-      document.getElementById(newid)?.scrollIntoView({ 
-        behavior: 'smooth', 
-        block: 'nearest' 
       });
     }
-});
+  }
+}
 
-  listmerger_element.addEventListener("click", itemToHash);
-  window.addEventListener('hashchange', () => hashUpdate());
+function clickHandler(e: MouseEvent) {
+  const target = e.target as HTMLElement;
+  if (target.isContentEditable && target.closest("summary")) {
+    e.preventDefault();
+    if(!g.preventDetailsOpening && (target.closest("details") as HTMLDetailsElement).open == false) {
+      (target.closest("details") as HTMLDetailsElement).open = true;
+    }
+  } else if (target.classList.contains(g.SELECTOR.LINK_DETACH)) {
+    detach(e);
+  } else if (target.classList.contains(g.SELECTOR.MOVE_BUTTON) && target.closest(`#${g.SELECTOR.MERGE_LIST}`) && target.closest("details")?.dataset.status != g.Status.MergeItem) {
+    const element = target.closest(`.${g.SELECTOR.ITEM}`) as HTMLElement;
+    const origin = element.dataset.origin as string;
+    const position = Array.prototype.slice.call(element.parentElement?.children).indexOf(element);
+    transfer.moveUndo(origin);
+    history.log(history.Tasks.UnMove, origin, position.toString());
+  } else if (target.classList.contains(g.SELECTOR.MOVE_BUTTON) && !(target.closest(`#${g.SELECTOR.MERGE_LIST}`)) && !(target.closest("details")?.dataset.status == g.Status.Moved || target.closest("details")?.dataset.status == g.Status.Merged)) {
+    const id = target.closest(`.${g.SELECTOR.ITEM}`)?.id as string;
+    const newid = transfer.move(id);
+    history.log(history.Tasks.Move, id);
+    document.getElementById(newid)?.scrollIntoView({ 
+      behavior: 'smooth', 
+      block: 'nearest' 
+    });
+  }
+}
 
-  document.addEventListener("keydown", (e) => {
-    const ctrl = e.ctrlKey;
-    const key = e.key;
+function keystrokeHandler(e: KeyboardEvent) {
+  const ctrl = e.ctrlKey;
+  const key = e.key;
 
-    if(["INPUT", "TEXTAREA", "SPAN"].includes((e.target as HTMLElement).nodeName)) {
+  if (["INPUT", "TEXTAREA", "SPAN"].includes((e.target as HTMLElement).nodeName)) {
+    return;
+  }
+
+  if (ctrl) {
+    if (key === "z") {
+      history.undo();
+    } else if (key === "y") {
+      history.redo();
+    }
+  } else if (key === "c") {
+    document.querySelectorAll(`.${g.SELECTOR.ITEM}`).forEach(element => {
+      (element as HTMLDetailsElement).open = false;
+    });
+  } else if (key in ["1", "2", "3", "4", "5", "6", "7", "8", "9"]) {
+    const order = "" + (parseInt(key) - 1);
+    const tab = document.querySelector(`.${g.SELECTOR.TAB_BAR} > details[data-order='${order}']`);
+
+    if (tab != undefined) {
+      (tab as HTMLDetailsElement).open = true;
+      (document.getElementById(g.SELECTOR.TAB_SELECTOR) as HTMLSelectElement).value = order;
+    }
+  } else if (key == "m") {
+    const target = (e.target as HTMLElement).closest(`.${g.SELECTOR.ITEM}:not([data-status='moved'], [data-status='merged'])`);
+
+    if (target == undefined || target.id.startsWith(g.SELECTOR.PREFIX_MERGED) || target.id.startsWith(g.SELECTOR.PREFIX_MOVED)) {
       return;
     }
 
-    if (ctrl) {
-      if (key === "z") {
-        history.undo();
-      } else if (key === "y") {
-        history.redo();
-      }
-    } else if (key === "c") {
-      document.querySelectorAll(`.${SELECTOR.ITEM}`).forEach(element => {
-        (element as HTMLDetailsElement).open = false;
-      });
-    } else if (key in ["1", "2", "3", "4", "5", "6", "7", "8", "9"]) {
-      const order = ""+(parseInt(key)-1);
-      const tab = document.querySelector(`.${SELECTOR.TAB_BAR} > details[data-order='${order}']`);
-
-      if (tab != undefined) {
-        (tab as HTMLDetailsElement).open = true;
-        (document.getElementById(SELECTOR.TAB_SELECTOR) as HTMLSelectElement).value = order;
-      }
-    } else if(key == "m") {
-      const target = (e.target as HTMLElement).closest(`.${SELECTOR.ITEM}:not([data-status='moved'], [data-status='merged'])`);
-
-      if (target == undefined || target.id.startsWith(PREFIX_MERGED) || target.id.startsWith(PREFIX_MOVED)) {
-        return;
-      }
-      
-      transfer.move(target.id);
-      history.log(history.Tasks.Move, target.id);
-    }
-  });
-
-  hashUpdate();
+    transfer.move(target.id);
+    history.log(history.Tasks.Move, target.id);
+  }
 }
 
 function itemToHash(e: MouseEvent) {
   const element = (e.target as HTMLElement).closest("details");
 
   if (element) {
-    setHash(element.id);
+    ui.setHash(element.id);
   }
 }
 
 
 export function elementDialog(e: Event) {
-  const element = (e.target as HTMLElement).closest(`.${SELECTOR.ITEM}`);
+  const element = (e.target as HTMLElement).closest(`.${g.SELECTOR.ITEM}`);
   
   if(element == null) {
     return;
   }
 
-  const element_id = (element.id.startsWith(PREFIX_MOVED) ? element.getAttribute("data-origin") : element.id) as string;
+  const element_id = (element.id.startsWith(g.SELECTOR.PREFIX_MOVED) ? element.getAttribute("data-origin") : element.id) as string;
 
   const item_modal = document.createElement("dialog");
-  item_modal.innerHTML = prepareModal(element_id);
+  item_modal.innerHTML = ui.prepareModal(element_id);
   
   const close_button = document.createElement("button");
   close_button.classList.add("close");
@@ -240,10 +247,10 @@ export function mergeInputClick(e: Event) {
 
 export function editDialog(id: string) {
   const mergecontainer = document.createElement("div");
-  mergecontainer.classList.add(SELECTOR.DIALOG_MERGE_CONTAINER);
+  mergecontainer.classList.add(g.SELECTOR.DIALOG_MERGE_CONTAINER);
   mergecontainer.style.display = "flex"
 
-  const merge_center = prepareEditModal("Edit", id);
+  const merge_center = ui.prepareEditModal("Edit", id);
 
   mergecontainer.append(merge_center);
   dialog.replaceChildren(mergecontainer);
@@ -252,12 +259,12 @@ export function editDialog(id: string) {
   button_container.classList.add("buttons");
 
   const close_button = document.createElement("button");
-  close_button.classList.add(SELECTOR.BUTTON_CLOSE);
+  close_button.classList.add(g.SELECTOR.BUTTON_CLOSE);
   close_button.classList.add("icontext");
   close_button.innerText = "Cancel";
 
   const save_button = document.createElement("button");
-  save_button.classList.add(SELECTOR.BUTTON_SAVE);
+  save_button.classList.add(g.SELECTOR.BUTTON_SAVE);
   save_button.innerText = "Save";
   save_button.autofocus = true;
 
@@ -272,18 +279,18 @@ export function editDialog(id: string) {
 }
 
 export function mergeDialog(id1: string, id2: string) {
-  let item1 = getItem(id1);
-  let item2 = getItem(id2);
+  let item1 = g.getItem(id1);
+  let item2 = g.getItem(id2);
 
   const mergecontainer = document.createElement("div");
-  mergecontainer.classList.add(SELECTOR.DIALOG_MERGE_CONTAINER);
+  mergecontainer.classList.add(g.SELECTOR.DIALOG_MERGE_CONTAINER);
   mergecontainer.style.display = "flex"
 
   const merge_child1 = document.createElement("div");
-  merge_child1.innerHTML = prepareModal(id1);
-  const merge_center = prepareEditModal("Merge", id1);
+  merge_child1.innerHTML = ui.prepareModal(id1);
+  const merge_center = ui.prepareEditModal("Merge", id1);
   const merge_child2 = document.createElement("div");
-  merge_child2.innerHTML = prepareModal(id2);
+  merge_child2.innerHTML = ui.prepareModal(id2);
 
   mergecontainer.append(merge_child1);
   mergecontainer.append(merge_center);
@@ -324,12 +331,12 @@ export function mergeDialog(id1: string, id2: string) {
   button_container.classList.add("buttons");
 
   const close_button = document.createElement("button");
-  close_button.classList.add(SELECTOR.BUTTON_CLOSE);
+  close_button.classList.add(g.SELECTOR.BUTTON_CLOSE);
   close_button.classList.add("icontext");
   close_button.innerText = "Cancel";
 
   const merge_button = document.createElement("button");
-  merge_button.classList.add(SELECTOR.BUTTON_MERGE);
+  merge_button.classList.add(g.SELECTOR.BUTTON_MERGE);
   merge_button.innerText = "Merge";
   merge_button.autofocus = true;
 
@@ -349,12 +356,12 @@ export function dragStart(e: DragEvent) {
     return;
   }
 
-  if (!element.classList.contains(SELECTOR.ITEM_DRAGHANDLE)) {
-    element = element.closest(`.${SELECTOR.ITEM}`) as HTMLElement;
+  if (!element.classList.contains(g.SELECTOR.ITEM_DRAGHANDLE)) {
+    element = element.closest(`.${g.SELECTOR.ITEM}`) as HTMLElement;
   }
 
-  if ((element.nodeName != "DETAILS" && !element.classList.contains(SELECTOR.ITEM_DRAGHANDLE))
-    || [Status.Moved, Status.Merged].includes(element.dataset.status as Status) && element.closest(`.${SELECTOR.TAB_BAR}`)) {
+  if ((element.nodeName != "DETAILS" && !element.classList.contains(g.SELECTOR.ITEM_DRAGHANDLE))
+    || [g.Status.Moved, g.Status.Merged].includes(element.dataset.status as g.Status) && element.closest(`.${g.SELECTOR.TAB_BAR}`)) {
     
     if (!(e.dataTransfer?.getData("inner"))) {
       e.preventDefault();
@@ -363,34 +370,33 @@ export function dragStart(e: DragEvent) {
     return;  
   }
 
-  dropOrigin = element.closest(`.${SELECTOR.ITEM}`)?.id as string;
+  dropOrigin = element.closest(`.${g.SELECTOR.ITEM}`)?.id as string;
 
-  if (element.classList.contains(SELECTOR.ITEM_DRAGHANDLE)) {
-    mergeListElement = document.getElementById(SELECTOR.MERGE_LIST) as HTMLElement;
+  if (element.classList.contains(g.SELECTOR.ITEM_DRAGHANDLE)) {
     dragAction = Action.Arrange;
-    dropOrigin = element.closest(`.${SELECTOR.ITEM}`)?.id as string;
+    dropOrigin = element.closest(`.${g.SELECTOR.ITEM}`)?.id as string;
 
-    dragPosition = getPositionInList(dropOrigin);
+    dragPosition = ui.getPositionInList(dropOrigin);
 
-    element.closest(`.${SELECTOR.ITEM}`)?.classList.add(SELECTOR.ITEM_DRAGGING);
+    element.closest(`.${g.SELECTOR.ITEM}`)?.classList.add(g.SELECTOR.ITEM_DRAGGING);
   } else {
     dragAction = Action.Move;
-    document.getElementById(dropOrigin)?.classList.add(SELECTOR.ITEM_DRAGGED);
+    document.getElementById(dropOrigin)?.classList.add(g.SELECTOR.ITEM_DRAGGED);
   }
 }
 
 export function dragEnd(e: Event) {
-  document.querySelector(`.${SELECTOR.ARRANGEBAR}`)?.remove();
-  document.querySelector(`.${SELECTOR.HOVER_DRAG}`)?.classList.remove(SELECTOR.HOVER_DRAG);
+  document.querySelector(`.${g.SELECTOR.ARRANGEBAR}`)?.remove();
+  document.querySelector(`.${g.SELECTOR.HOVER_DRAG}`)?.classList.remove(g.SELECTOR.HOVER_DRAG);
 
-  document.querySelectorAll(`.${SELECTOR.HOVER_DRAG}`).forEach((e) => {
-    e.classList.remove(SELECTOR.HOVER_DRAG);
+  document.querySelectorAll(`.${g.SELECTOR.HOVER_DRAG}`).forEach((e) => {
+    e.classList.remove(g.SELECTOR.HOVER_DRAG);
   })
-  document.getElementById(dropOrigin)?.classList.remove(SELECTOR.ITEM_DRAGGING);
+  document.getElementById(dropOrigin)?.classList.remove(g.SELECTOR.ITEM_DRAGGING);
     if(dropOrigin == "") {
       return;
     }
-    document.getElementById(dropOrigin)?.classList.remove(SELECTOR.ITEM_DRAGGED);
+    document.getElementById(dropOrigin)?.classList.remove(g.SELECTOR.ITEM_DRAGGED);
     dragAction = Action.None;
 }
 
@@ -402,16 +408,16 @@ export function dragOver(e: DragEvent) {
   e.preventDefault();
 
   if(dragAction == Action.Move) {
-    const zone = (e.target as HTMLElement).closest(`.${SELECTOR.MERGED_ZONE}`);
-    let nextSibling = getNextDropSibling(e);
-    toggleDrop(e, dropOrigin) 
+    const zone = (e.target as HTMLElement).closest(`.${g.SELECTOR.MERGED_ZONE}`);
+    let nextSibling = ui.getNextDropSibling(e);
+    ui.toggleDrop(e, dropOrigin) 
 
     if (zone && zone.children.length > 0) {
-      let bar = document.querySelector(`.${SELECTOR.ARRANGEBAR}`);
+      let bar = document.querySelector(`.${g.SELECTOR.ARRANGEBAR}`);
 
       if (bar == undefined) {
         bar = document.createElement("hr");
-        bar.classList.add(SELECTOR.ARRANGEBAR);
+        bar.classList.add(g.SELECTOR.ARRANGEBAR);
       } else if (bar.nextElementSibling == nextSibling) {
         return;
       }
@@ -426,15 +432,15 @@ export function dragOver(e: DragEvent) {
   }
 
   // https://www.codingnepalweb.com/drag-and-drop-sortable-list-html-javascript/
-  const draggingItem = document.querySelector(`.${SELECTOR.ITEM_DRAGGING}`) as HTMLElement;
-  let nextSibling = getNextDropSibling(e);
+  const draggingItem = document.querySelector(`.${g.SELECTOR.ITEM_DRAGGING}`) as HTMLElement;
+  let nextSibling = ui.getNextDropSibling(e);
 
   mergeListElement.insertBefore(draggingItem, nextSibling);
 }
 
 export function drop(e: DragEvent) {
   if(dragAction == Action.Arrange) {
-    let dropPosition = getPositionInList(dropOrigin);
+    let dropPosition = ui.getPositionInList(dropOrigin);
 
     if (dragPosition != dropPosition) {
       history.log(history.Tasks.Arrange, dropOrigin, dragPosition.toString(), dropPosition.toString());
@@ -444,13 +450,13 @@ export function drop(e: DragEvent) {
   }
   dragAction = Action.None;
 
-  toggleDrop(e, dropOrigin);
+  ui.toggleDrop(e, dropOrigin);
 
   let droporigin_element = document.getElementById(dropOrigin);
   let target = (e.target as HTMLElement);
 
-  if(!target.classList.contains(SELECTOR.MERGED_ZONE)) {
-    target = target.closest(`.${SELECTOR.ITEM}`) as HTMLElement;
+  if(!target.classList.contains(g.SELECTOR.MERGED_ZONE)) {
+    target = target.closest(`.${g.SELECTOR.ITEM}`) as HTMLElement;
   }
   if(target == undefined) {
     return
@@ -472,46 +478,46 @@ export function drop(e: DragEvent) {
 
     return;
   }
-  else if (target.getAttribute("data-role") != "zone" && target.id != SELECTOR.MERGE_LIST) {
+  else if (target.getAttribute("data-role") != "zone" && target.id != g.SELECTOR.MERGE_LIST) {
     // other target
     return;
   }
   else if (droporigin_element?.parentElement?.id == target.id) {
     // is already there, move it to the new position
 
-    let dragPosition = getPositionInList(dropOrigin);
-    let nextSibling = getNextDropSibling(e);
+    let dragPosition = ui.getPositionInList(dropOrigin);
+    let nextSibling = ui.getNextDropSibling(e);
 
     let dropPosition = nextSibling != undefined
-      ? getPositionInList(nextSibling.id)
+      ? ui.getPositionInList(nextSibling.id)
       : mergeListElement.children.length - 1;
 
     if (dragPosition != dropPosition) {
-      arrange(dropOrigin, dropPosition);
+      ui.arrange(dropOrigin, dropPosition);
       history.log(history.Tasks.Arrange, dropOrigin, dragPosition.toString(), dropPosition.toString());
     }
 
     dragAction = Action.None;
     return;
   }
-  else if ([Status.Moved, Status.Merged].includes(droporigin_element?.dataset.status as Status) && droporigin_element?.closest(`.${SELECTOR.TAB_BAR}`)) {
+  else if ([g.Status.Moved, g.Status.Merged].includes(droporigin_element?.dataset.status as g.Status) && droporigin_element?.closest(`.${g.SELECTOR.TAB_BAR}`)) {
     return;
   }
 
   (droporigin_element as HTMLDetailsElement).open = false;
 
-  const nextSibling = getNextDropSibling(e);
+  const nextSibling = ui.getNextDropSibling(e);
   let dropPosition = nextSibling != undefined
-      ? getPositionInList(nextSibling.id)
+      ? ui.getPositionInList(nextSibling.id)
       : mergeListElement.children.length - 1;
   
   transfer.move(dropOrigin, dropPosition);
-  history.log(history.Tasks.Move, dropOrigin, "", dropPosition.toString());
+  history.log(history.Tasks.Move, dropOrigin, dropPosition.toString());
 }
 
 export function saveEditDialog(id: string) {
-  const item = getItem(id);
-  let new_item: ListItem = {};
+  const item = g.getItem(id);
+  let new_item: g.ListItem = {};
   Object.assign(new_item, item);
 
   (dialog.querySelectorAll("input, textarea, select") as NodeListOf<HTMLInputElement>).forEach(element => {
@@ -521,10 +527,10 @@ export function saveEditDialog(id: string) {
     new_item[key] = value;
   });
 
-  setItem(id, new_item);
+  g.setItem(id, new_item);
 
   transfer.saveEditDialog(id);
-  history.log(history.Tasks.Edit, id, "", "", [], "", item);
+  history.log(history.Tasks.Edit, id, "", "", [], item);
 
   dialog.close();
 }
@@ -539,7 +545,7 @@ export function merge(event: Event) {
   // let newtitle_element = (dialog.querySelector("input[name='newtitle']") as HTMLInputElement)
   // target.innerText = newtitle_element.value;
 
-  let new_item: ListItem = {};
+  let new_item: g.ListItem = {};
 
   (dialog.querySelectorAll("input, textarea, select") as NodeListOf<HTMLInputElement>).forEach(element => {
     let key = (element as HTMLInputElement).name;
@@ -556,8 +562,8 @@ export function merge(event: Event) {
     new_item[key] = value;
   });
 
-  let item1 = getItem(target.id);
-  let item2 = getItem(dropOrigin);
+  let item1 = g.getItem(target.id);
+  let item2 = g.getItem(dropOrigin);
 
   const keys1 = Object.keys(item1);
   const keys2 = Object.keys(item2);
@@ -590,7 +596,7 @@ export function merge(event: Event) {
 
   let mergeid: string = transfer.merge(target.id, dropOrigin, "", new_item)
   new_item["id"] = mergeid;
-  history.log(history.Tasks.Merge, targetid, dropOrigin, mergeid, [], new_item["title"], {
+  history.log(history.Tasks.Merge, targetid, dropOrigin, mergeid, [], {
     A: item1,
     B: item2,
     merged: new_item
@@ -606,7 +612,7 @@ function dialogClose(e: Event) {
 }
 
 function initMoveAll() {
-  const moveallbuttons = document.querySelectorAll(`.${SELECTOR.MOVE_ALL_BUTTON}`);
+  const moveallbuttons = document.querySelectorAll(`.${g.SELECTOR.MOVE_ALL_BUTTON}`);
 
   moveallbuttons.forEach(button => {
     button.addEventListener("click", moveAll);
@@ -621,7 +627,7 @@ function moveAll(e: Event) {
 
   let moved = transfer.moveAll(zonefindings);
   if(moved.length) {
-    history.log(history.Tasks.MoveAll, (e.target as Element).nextElementSibling?.id, "", "", moved);
+    history.log(history.Tasks.MoveAll, (e.target as Element).nextElementSibling?.id);
   }
 }
 
@@ -635,19 +641,19 @@ function detach(e: MouseEvent) {
 }
 
 export function edit(id: string, key: string, value: any) {
-  const item = getItem(id);
+  const item = g.getItem(id);
 
   if (JSON.stringify(item[key]) == JSON.stringify(value)) {
     return false;
   }
 
-  let new_item: ListItem = {};
+  let new_item: g.ListItem = {};
   Object.assign(new_item, item);
   new_item[key] = value;
 
-  setItem(id, new_item);
-  history.log(history.Tasks.Edit, id, "", "", [], "", item);
-  updateItem(id);
+  g.setItem(id, new_item);
+  history.log(history.Tasks.Edit, id, "", "", [], item);
+  ui.updateItem(id);
 
   return true;
 }

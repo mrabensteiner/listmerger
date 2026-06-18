@@ -1,18 +1,20 @@
-import * as history from './history';
-import * as events from './events';
-import * as uihelper from './uihelper';
 import * as g from './globalvars';
+import * as events from './events';
+import * as history from './history';
+import * as ui from './uihelper';
 
-export function init(id: string, id_undo: string, id_redo: string, items: g.Lists, item_template: string, dialog_template: string, merge_template: string, history_callback: () => void) {
+export function init(items: g.Lists, templates: g.Dictionary = {}, selectors: g.Dictionary = {}, history_callback = () => {}) {
+  g.setSelectors(selectors); 
   g.setItems(items); 
-  g.setTemplates(item_template, dialog_template, merge_template); 
-  uihelper.loadItems(items);
-  g.setMergelistId(id);
+  g.setTemplates(templates); 
+
+  ui.loadItems(items);
+  ui.initResponsiveTabs();
+  ui.updateAllIndicators();
   events.init();
-  uihelper.init_responsive_tablist(".tablist");
+
   history.setHistoryCallback(history_callback);
   history.init();
-  uihelper.updateAllIndicators();
 }
 
 export function getAllItems() {
@@ -20,5 +22,3 @@ export function getAllItems() {
   items["version"] = "ListMerger JSON Version 0.1";
   return items;
 }
-
-export { edit } from './events'

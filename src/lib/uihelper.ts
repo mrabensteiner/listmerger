@@ -1,53 +1,14 @@
 import mustache from 'mustache';
-import { DIALOG_TEMPLATE, getItem, ITEM_TEMPLATE, EDIT_TEMPLATE, PREFIX_MERGED, PREFIX_MOVED, List, Lists, ListItem } from './globalvars';
-import { editDialog } from './events';
+import * as g from './globalvars';
 
-export const SELECTOR: Record<string, string> = {
-  ITEM: "element",
-  ITEM_ADDED: "added",
-  ITEM_MERGED: "merged",
-  ITEM_DRAGHANDLE: "draghandle",
-  ITEM_DRAGGING: "dragging",
-  ITEM_DRAGGED: "dragg",
-  TAB_BAR: "tabbar",
-  TAB_LIST: "tablist",
-  TAB_COMPACT: "compact",
-  TAB_SELECTOR: "detailsselector",
-  DIALOG_MERGE_CONTAINER: "mergecontainer",
-  MERGE_LIST_CONTAINER: "mergelist",
-  MERGE_LIST: "mlist",
-  MERGED_ZONE: "zone",
-  HOVER_DROP: "drop",
-  HOVER_DRAG: "drag",
-  LINK_DETACH: "detach",
-  BUTTON_SAVE: "save",
-  BUTTON_CLOSE: "close",
-  BUTTON_MERGE: "merge",
-  MOVE_BUTTON: "move",
-  MOVE_ALL_BUTTON: "moveall",
-  ARRANGEBAR: "arrangebar",
-  HISTORY_UNDO: "undo",
-  HISTORY_REDO: "redo"
-} as const;
-
-export const ICONS = {
-  DRAG: "icons/dragicon.svg",
-}
-
-export function init_variables(variables: Record<string, string>) {
-  for (const [key, value] of Object.entries(variables)) {
-    SELECTOR[key] = value;
-  }
-}
-
-export function init_responsive_tablist(id: string) {
-  const details = document.querySelectorAll<HTMLDetailsElement>(`.${SELECTOR.TAB_BAR} > details`);
-  const detailsselect = document.getElementById(SELECTOR.TAB_SELECTOR) as HTMLSelectElement;
+export function initResponsiveTabs() {
+  const details = document.querySelectorAll<HTMLDetailsElement>(`.${g.SELECTOR.TAB_BAR} > details`);
+  const detailsselect = document.getElementById(g.SELECTOR.TAB_SELECTOR) as HTMLSelectElement;
 
   detailsselect.addEventListener("change", selectTab)
 
   details.forEach((detail: HTMLDetailsElement) => {
-    detail.addEventListener("toggle", (event) => {
+    detail.addEventListener("toggle", () => {
       if (detail.open) {
         detailsselect.nodeValue = detail.dataset.order as string;
       }
@@ -56,24 +17,24 @@ export function init_responsive_tablist(id: string) {
 
   new ResizeObserver(entries => {
     entries.forEach(element => {
-      const summaries = element.target.querySelectorAll(`.${SELECTOR.TAB_BAR} > details > summary`) as NodeListOf<HTMLElement>;
+      const summaries = element.target.querySelectorAll(`.${g.SELECTOR.TAB_BAR} > details > summary`) as NodeListOf<HTMLElement>;
       const offset1 = summaries[0].offsetTop;
       const offset2 = summaries[summaries.length - 1].offsetTop;
 
 
       if (offset1 == offset2) {
-        element.target.classList.remove(SELECTOR.TAB_COMPACT);
+        element.target.classList.remove(g.SELECTOR.TAB_COMPACT);
       } else {
-        element.target.classList.add(SELECTOR.TAB_COMPACT);
+        element.target.classList.add(g.SELECTOR.TAB_COMPACT);
       }
     });
-  }).observe(document.querySelector(id) as HTMLElement);
+  }).observe(document.querySelector(`.${g.SELECTOR.TAB_LIST}`) as HTMLElement);
 
-  document.querySelectorAll(`.${SELECTOR.TAB_LIST} .${SELECTOR.MERGED_ZONE}`).forEach(zone => {
+  document.querySelectorAll(`.${g.SELECTOR.TAB_LIST} .${g.SELECTOR.MERGED_ZONE}`).forEach(zone => {
     new ResizeObserver(zones => {
       zones.forEach(element => {
         const target = element.target as HTMLElement;
-        const tabbar = target.closest(`.${SELECTOR.TAB_BAR}`) as HTMLDivElement;
+        const tabbar = target.closest(`.${g.SELECTOR.TAB_BAR}`) as HTMLDivElement;
         target.style.height = "100vh"
         target.style.height = tabbar.getBoundingClientRect().height + tabbar.offsetTop - target.offsetTop - 62  + "px"
       });
@@ -83,28 +44,28 @@ export function init_responsive_tablist(id: string) {
 
 export function createDragHandle() {
   let draghandle = document.createElement("img");
-  draghandle.classList.add(SELECTOR.ITEM_DRAGHANDLE);
+  draghandle.classList.add(g.SELECTOR.ITEM_DRAGHANDLE);
   draghandle.draggable = true;
-  draghandle.src = ICONS.DRAG;
+  draghandle.src = g.ICONS.DRAG;
   //return draghandle;
   return "";
 }
 
 function selectTab(e: Event) {
   let value = Number((e.target as HTMLInputElement).value);
-  let details = document.querySelectorAll(`.${SELECTOR.TAB_BAR} > details`)[value];
+  let details = document.querySelectorAll(`.${g.SELECTOR.TAB_BAR} > details`)[value];
   details.setAttribute("open", "1");
 }
 
 export function toggleDrop(e: DragEvent, dropOrigin: string) {
-  document.querySelector(`.${SELECTOR.HOVER_DRAG}`)?.classList.remove(`${SELECTOR.HOVER_DRAG}`);
+  document.querySelector(`.${g.SELECTOR.HOVER_DRAG}`)?.classList.remove(`${g.SELECTOR.HOVER_DRAG}`);
 
   if (e.target == undefined) return;
 
-  let target = (e.target as HTMLElement).closest(`.${SELECTOR.ITEM}`);
+  let target = (e.target as HTMLElement).closest(`.${g.SELECTOR.ITEM}`);
 
   if(target == undefined) {
-    target = (e.target as HTMLElement).closest(`.${SELECTOR.MERGED_ZONE}`)
+    target = (e.target as HTMLElement).closest(`.${g.SELECTOR.MERGED_ZONE}`)
   }
   if(target == undefined || target.querySelector(`#${dropOrigin}`)) {
     return;
@@ -112,15 +73,15 @@ export function toggleDrop(e: DragEvent, dropOrigin: string) {
 
   let classlist = target.classList;
 
-  if (classlist.contains(SELECTOR.HOVER_DRAG)) {
-    classlist.remove(SELECTOR.HOVER_DRAG);
+  if (classlist.contains(g.SELECTOR.HOVER_DRAG)) {
+    classlist.remove(g.SELECTOR.HOVER_DRAG);
   }
-  if ((classlist.contains(SELECTOR.MERGED_ZONE) || classlist.contains(SELECTOR.ITEM)) && target.id != dropOrigin) {
-    classlist.add(SELECTOR.HOVER_DRAG);
+  if ((classlist.contains(g.SELECTOR.MERGED_ZONE) || classlist.contains(g.SELECTOR.ITEM)) && target.id != dropOrigin) {
+    classlist.add(g.SELECTOR.HOVER_DRAG);
   } 
   if (target.id == dropOrigin) {
     e.dataTransfer!.dropEffect = "none";
-  } else if ((e.target as HTMLElement).closest(`.${SELECTOR.ITEM}`)) {
+  } else if ((e.target as HTMLElement).closest(`.${g.SELECTOR.ITEM}`)) {
     e.dataTransfer!.dropEffect = "copy";
   } else {
     e.dataTransfer!.dropEffect = "move";
@@ -135,12 +96,12 @@ export function getOwnPosition(id: string): number {
 
 export function getPositionInList(id: string): number {
   const element = document.getElementById(id) as HTMLElement;
-  const siblings = element.closest(`.${SELECTOR.MERGED_ZONE}`)?.querySelectorAll(`.${SELECTOR.ITEM}`) as NodeListOf<HTMLElement>;
+  const siblings = element.closest(`.${g.SELECTOR.MERGED_ZONE}`)?.querySelectorAll(`.${g.SELECTOR.ITEM}`) as NodeListOf<HTMLElement>;
   return [...siblings].indexOf(element);
 }
 
 export function getNextDropSibling(e: DragEvent): HTMLElement {
-  let siblings = [...document.querySelectorAll(`#${SELECTOR.MERGE_LIST} .${SELECTOR.ITEM}:not(.${SELECTOR.ITEM_DRAGGING}`)];
+  let siblings = [...document.querySelectorAll(`#${g.SELECTOR.MERGE_LIST} .${g.SELECTOR.ITEM}:not(.${g.SELECTOR.ITEM_DRAGGING}`)];
   let nextSibling = siblings.find(sibling => {
     const rect = sibling.getBoundingClientRect();
     return e.clientY <= rect.top + rect.height / 2;
@@ -148,16 +109,16 @@ export function getNextDropSibling(e: DragEvent): HTMLElement {
   return nextSibling as HTMLElement;
 }
 
-export function loadItems(items: Lists) {
-  const tabbar = document.querySelector(`.${SELECTOR.TAB_BAR}`) as HTMLElement;
-  const mergelist = document.getElementById(SELECTOR.MERGE_LIST) as HTMLElement;
-  const select = document.getElementById(SELECTOR.TAB_SELECTOR) as HTMLElement;
+export function loadItems(items: g.Lists) {
+  const tabbar = document.querySelector(`.${g.SELECTOR.TAB_BAR}`) as HTMLElement;
+  const mergelist = document.getElementById(g.SELECTOR.MERGE_LIST) as HTMLElement;
+  const select = document.getElementById(g.SELECTOR.TAB_SELECTOR) as HTMLElement;
   tabbar.innerHTML = "";
   mergelist.innerHTML = "";
   select.innerHTML = "";
 
   items["merged"].forEach(item => {
-    generateItem(SELECTOR.MERGE_LIST, getItem(item.id, true));
+    generateItem(g.SELECTOR.MERGE_LIST, g.getItem(item.id, true));
   });
 
   items["originlists"].forEach(list => {
@@ -182,7 +143,7 @@ export function loadItems(items: Lists) {
 
     const list_id = list["id"] + "-list";
     list_element.id = list_id;
-    list_element.classList.add(SELECTOR.MERGED_ZONE);
+    list_element.classList.add(g.SELECTOR.MERGED_ZONE);
 
     section_element.append(mergeallbutton_element);
     section_element.append(list_element);
@@ -198,7 +159,7 @@ export function loadItems(items: Lists) {
 
     list["items"].forEach(item => {
       if ((item["mergedinto"] != undefined && item["mergedinto"].length > 0) || item["images"]) {
-        item = getItem(item.id, true);
+        item = g.getItem(item.id, true);
       }
       generateItem(list_id, item);
     });
@@ -206,17 +167,17 @@ export function loadItems(items: Lists) {
   tabbar.children[0].setAttribute("open", "1");
 }
 
-export function generateItem(parent_id: string, item: ListItem): HTMLElement {
+export function generateItem(parent_id: string, item: g.ListItem): HTMLElement {
   const parent_element = document.getElementById(parent_id) as HTMLElement;
   const element = document.createElement("details");
   
   element.id = item["id"];
   element.innerHTML = item["title"];
   element.draggable = true;
-  element.classList.add(SELECTOR.ITEM);
+  element.classList.add(g.SELECTOR.ITEM);
   element.dataset.status = item["status"];
   
-  var output = mustache.render(ITEM_TEMPLATE, item);
+  var output = mustache.render(g.ITEM_TEMPLATE, item);
   element.innerHTML = output;
   element.setAttribute("data-role", "finding");
 
@@ -236,14 +197,14 @@ export function generateItem(parent_id: string, item: ListItem): HTMLElement {
 
 export function updateItem(id: string, slice = true) {
   if(slice) {
-    id = id.startsWith(PREFIX_MOVED) ? id.slice(PREFIX_MOVED.length) : id;
+    id = id.startsWith(g.SELECTOR.PREFIX_MOVED) ? id.slice(g.SELECTOR.PREFIX_MOVED.length) : id;
   }
 
   const element = document.getElementById(id) as HTMLElement;
-  const moved_element = document.getElementById(PREFIX_MOVED + id);
+  const moved_element = document.getElementById(g.SELECTOR.PREFIX_MOVED + id);
 
-  const item = getItem(id, true);
-  const output = mustache.render(ITEM_TEMPLATE, item);
+  const item = g.getItem(id, true);
+  const output = mustache.render(g.ITEM_TEMPLATE, item);
   element.innerHTML = output;
   element.dataset.status = item["status"];
 
@@ -261,14 +222,14 @@ export function updateItem(id: string, slice = true) {
 }
 
 export function prepareModal(item_id: string): string {
-  return mustache.render(DIALOG_TEMPLATE, getItem(item_id, true));
+  return mustache.render(g.DIALOG_TEMPLATE, g.getItem(item_id, true));
 }
 
 export function prepareEditModal(action: string, item_id = "") {
-  const item = item_id == "" ? {} : getItem(item_id);
+  const item = item_id == "" ? {} : g.getItem(item_id);
   item["action"] = action;
   let container = document.createElement("div");
-  container.innerHTML = mustache.render(EDIT_TEMPLATE, item);
+  container.innerHTML = mustache.render(g.EDIT_TEMPLATE, item);
   container.querySelectorAll("select").forEach(select => {
     select.value = item[select.name];
   });
@@ -295,21 +256,21 @@ export function updateAllIndicators() {
 }
 
 function updateMergeIndicator() {
-  const list_container = document.querySelector(`.${SELECTOR.MERGE_LIST_CONTAINER}`) as HTMLElement;
-  const count = list_container.querySelector(`.${SELECTOR.MERGED_ZONE}`)?.children.length as number;
+  const list_container = document.querySelector(`.${g.SELECTOR.MERGE_LIST_CONTAINER}`) as HTMLElement;
+  const count = list_container.querySelector(`.${g.SELECTOR.MERGED_ZONE}`)?.children.length as number;
   const indicator_element = list_container.querySelector(".indicator") as HTMLElement;
   indicator_element.innerHTML = count.toString();
 }
 
 function updateOriginIndicators() {
-  document.querySelectorAll<HTMLDetailsElement>(`.${SELECTOR.TAB_BAR} > details`).forEach((element) => {
-    const count_total = element.querySelector(`.${SELECTOR.MERGED_ZONE}`)?.children.length;
-    const count_added = element.querySelectorAll(`.${SELECTOR.MERGED_ZONE} [data-status='moved']`).length;
-    const count_merged = element.querySelectorAll(`.${SELECTOR.MERGED_ZONE} [data-status='merged']`).length;
+  document.querySelectorAll<HTMLDetailsElement>(`.${g.SELECTOR.TAB_BAR} > details`).forEach((element) => {
+    const count_total = element.querySelector(`.${g.SELECTOR.MERGED_ZONE}`)?.children.length;
+    const count_added = element.querySelectorAll(`.${g.SELECTOR.MERGED_ZONE} [data-status='moved']`).length;
+    const count_merged = element.querySelectorAll(`.${g.SELECTOR.MERGED_ZONE} [data-status='merged']`).length;
 
-    const moveall_element = element.querySelector(`.${SELECTOR.MOVE_ALL_BUTTON}`) as HTMLButtonElement;
+    const moveall_element = element.querySelector(`.${g.SELECTOR.MOVE_ALL_BUTTON}`) as HTMLButtonElement;
     const indicator_element = element.querySelector(".indicator") as HTMLElement;
-    const option_indicator_element = document.querySelector(`#${SELECTOR.TAB_SELECTOR} option[value='${element.dataset.order}']`) as HTMLElement;
+    const option_indicator_element = document.querySelector(`#${g.SELECTOR.TAB_SELECTOR} option[value='${element.dataset.order}']`) as HTMLElement;
 
     moveall_element.disabled = count_added + count_merged == count_total; 
 
@@ -335,7 +296,7 @@ export function hashUpdate(open = false) {
 
     const tab = element.closest("[name='tabs']") as HTMLDetailsElement;
     if (tab) {
-      const tab_select = document.getElementById(SELECTOR.TAB_SELECTOR) as HTMLSelectElement
+      const tab_select = document.getElementById(g.SELECTOR.TAB_SELECTOR) as HTMLSelectElement
       tab_select.value = tab.dataset.order as string;
     }
   }

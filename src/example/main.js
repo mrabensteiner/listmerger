@@ -657,7 +657,13 @@ document.getElementById("open").addEventListener("click", open);
 document.getElementById("save-console").addEventListener("click", save_console);
 document.getElementById("save-json").addEventListener("click", save_json);
 
-listmerger.init("listmerger", "undo", "redo", items, item_template, dialog_template, merge_template, history_callback);
+const selectors = {"id": "listmerger"};
+const templates = {
+  "item": item_template,
+  "dialog": dialog_template,
+  "merge": merge_template
+}
+listmerger.init(items, templates, selectors, history_callback);
 
 // Image thumbnail previews
 document.addEventListener("click", (e) => {

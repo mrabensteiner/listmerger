@@ -11,30 +11,32 @@
 </head>
 
 <body>
-
+<div id="page">
   <h1>ListMerger Demo - Simple Example</h1>
   <p><a href="./">Extended Example</a></p>
   
-  <button id="undo" disabled>Undo</button>
-  <button id="redo" disabled>Redo</button>
-  <button class="save" id="save-console">Save to Console</button>
-  <button class="save" id="save-json">Save to JSON</button>
+  <div>
+    <button id="undo" disabled>Undo</button>
+    <button id="redo" disabled>Redo</button>
+    <button class="open" id="open">Open JSON</button>
+    <button class="save" id="save-json">Save to JSON</button>
+    <button class="save" id="save-console">Save to Console</button>
+  </div>
   
   <div class="container" id="listmerger">
     
     <div class="mergelist">
       <p>Merged List <span class="indicator">0</span></p>
-      <div class="zone" data-role="zone" id="mlist">
-      </div>
+      <div class="zone" data-role="zone" id="mlist"></div>
     </div>
     <div class="tablist">
       <select id="detailsselector"></select>
-      <div class="tabbar">
-      </div>
+      <div class="tabbar"></div>
     </div>
   </div>
+</div>
 
-  <script type="module" src="./lib/listmerger.js"></script>
-  <script type="module" src="./simple.js"></script>
+<script type="module" src="./lib/listmerger.js"></script>
+<script type="module" src="./simple.js"></script>
 </body>
 </html>

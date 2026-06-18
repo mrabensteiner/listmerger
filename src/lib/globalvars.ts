@@ -1,8 +1,3 @@
-export let mergelistId: string;
-
-export const PREFIX_MOVED = "moved-";
-export const PREFIX_MERGED = "merged-";
-
 export enum Status {
   Moved = "moved",
   Merged = "merged",
@@ -13,7 +8,43 @@ export let ITEM_TEMPLATE = "";
 export let DIALOG_TEMPLATE = "";
 export let EDIT_TEMPLATE = "";
 
-export type ListItem = Record<string, any>;
+export const SELECTOR: Record<string, string> = {
+  PREFIX_MOVED: "moved-",
+  PREFIX_MERGED: "merged-",
+  CONTAINER: "listmerger",
+  ITEM: "element",
+  ITEM_ADDED: "added",
+  ITEM_MERGED: "merged",
+  ITEM_DRAGHANDLE: "draghandle",
+  ITEM_DRAGGING: "dragging",
+  ITEM_DRAGGED: "dragg",
+  TAB_BAR: "tabbar",
+  TAB_LIST: "tablist",
+  TAB_COMPACT: "compact",
+  TAB_SELECTOR: "detailsselector",
+  DIALOG_MERGE_CONTAINER: "mergecontainer",
+  MERGE_LIST_CONTAINER: "mergelist",
+  MERGE_LIST: "mlist",
+  MERGED_ZONE: "zone",
+  HOVER_DROP: "drop",
+  HOVER_DRAG: "drag",
+  LINK_DETACH: "detach",
+  BUTTON_SAVE: "save",
+  BUTTON_CLOSE: "close",
+  BUTTON_MERGE: "merge",
+  MOVE_BUTTON: "move",
+  MOVE_ALL_BUTTON: "moveall",
+  ARRANGEBAR: "arrangebar",
+  HISTORY_UNDO: "undo",
+  HISTORY_REDO: "redo"
+} as const;
+
+export const ICONS = {
+  DRAG: "icons/dragicon.svg",
+}
+
+export type Dictionary = Record<string, any>;
+export type ListItem = Dictionary;
 export type List = Array<ListItem>;
 export type Lists = {
   "merged": List,
@@ -31,8 +62,10 @@ export let items: Lists = {
 };
 export let preventDetailsOpening = true;
 
-export function setMergelistId(id: string) {
-  mergelistId = id;
+export function setSelectors(selectors: Dictionary) {
+  for (const [key, value] of Object.entries(selectors)) {
+    SELECTOR[key] = value;
+  }
 }
 
 export function setItems(set_items: Lists) {
@@ -40,10 +73,10 @@ export function setItems(set_items: Lists) {
 }
 
 export function setItem(id: string, item: ListItem) {
-  id = id.startsWith(PREFIX_MOVED) ? id.slice(PREFIX_MOVED.length) : id;
+  id = id.startsWith(SELECTOR.PREFIX_MOVED) ? id.slice(SELECTOR.PREFIX_MOVED.length) : id;
 
   items["merged"].forEach((element: ListItem) => {
-    if(element.id == id) {
+    if(element.id == id || element.id == SELECTOR.PREFIX_MOVED + id) {
       Object.assign(element, item)
     }
   });
@@ -56,14 +89,14 @@ export function setItem(id: string, item: ListItem) {
   });
 }
 
-export function setTemplates(item_template: string, dialog_template: string, merge_template: string) {
-    ITEM_TEMPLATE = item_template;
-    DIALOG_TEMPLATE = dialog_template;
-    EDIT_TEMPLATE = merge_template;
+export function setTemplates(templates: Record<string, any>) {
+    ITEM_TEMPLATE = templates["item"] ? templates["item"] : "<summary>{{title}}</summary>";
+    DIALOG_TEMPLATE = templates["dialog"] ? templates["dialog"] : "";
+    EDIT_TEMPLATE = templates["merge"] ? templates["merge"] : "";
 }
 
 export function getItem(id: string, full = false): ListItem {
-  id = id.startsWith(PREFIX_MOVED) ? id.slice(PREFIX_MOVED.length) : id;
+  id = id.startsWith(SELECTOR.PREFIX_MOVED) ? id.slice(SELECTOR.PREFIX_MOVED.length) : id;
 
   let item: ListItem = {};
   items["merged"].forEach((element: ListItem) => {
@@ -76,7 +109,7 @@ export function getItem(id: string, full = false): ListItem {
 
         if (merged_ids) {
           merged_ids.forEach((id: string) => {
-            id = id.startsWith(PREFIX_MOVED) ? id.slice(PREFIX_MOVED.length) : id;
+            id = id.startsWith(SELECTOR.PREFIX_MOVED) ? id.slice(SELECTOR.PREFIX_MOVED.length) : id;
             const item = getItem(id);
             item["parent_id"] = element.id;
             merged_full.push(item)
@@ -174,7 +207,7 @@ export function updateMergedInto(item_id: string, mergedinto_id: string = item_i
     mergedinto_id = "";
   }
 
-  item_id = item_id.startsWith(PREFIX_MOVED) ? item_id.slice(PREFIX_MOVED.length) : item_id;
+  item_id = item_id.startsWith(SELECTOR.PREFIX_MOVED) ? item_id.slice(SELECTOR.PREFIX_MOVED.length) : item_id;
   
   items["originlists"].forEach(list => {
     list["items"].forEach(element => {
@@ -201,7 +234,7 @@ export function mergeAttach(from_id: string, to_id: string) {
 }
 
 export function mergeDetach(from_id: string, to_id: string) {
-  from_id = from_id.startsWith(PREFIX_MOVED) ? from_id.slice(PREFIX_MOVED.length) : from_id;
+  from_id = from_id.startsWith(SELECTOR.PREFIX_MOVED) ? from_id.slice(SELECTOR.PREFIX_MOVED.length) : from_id;
   let previouslist: string[] = [];
   
   items["originlists"].forEach(list => {

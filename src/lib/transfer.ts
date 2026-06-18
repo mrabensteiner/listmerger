@@ -1,42 +1,42 @@
-import { arrange, createDragHandle, SELECTOR, generateItem, updateAllIndicators, updateItem } from "./uihelper"
-import { addItemFromList, addMergeItem, getItem, itemUpdateStatus, ListItem, mergeDetach, mergelistId, PREFIX_MERGED, PREFIX_MOVED, removeItem, replaceItem, setItem, Status, updateMerged, updateMergedInto } from "./globalvars"
+import * as g from './globalvars';
+import * as ui from "./uihelper"
 
 export function move(id: string, position = -1) {
-  setStatus(id, Status.Moved);
+  setStatus(id, g.Status.Moved);
 
   let element = document.getElementById(id)
-  let target = document.getElementById(mergelistId)?.querySelector(`.${SELECTOR.MERGED_ZONE}`);
+  let target = document.getElementById(g.SELECTOR.CONTAINER)?.querySelector(`.${g.SELECTOR.MERGED_ZONE}`);
   let clone = (element?.cloneNode(true) as HTMLElement);
   
-  clone.id = PREFIX_MOVED + clone.id;
+  clone.id = g.SELECTOR.PREFIX_MOVED + clone.id;
   clone.setAttribute("data-origin", id);
-  clone.classList.remove(SELECTOR.ITEM_DRAGGED);
-  clone.children[0].append(createDragHandle());
+  clone.classList.remove(g.SELECTOR.ITEM_DRAGGED);
+  clone.children[0].append(ui.createDragHandle());
 
   target?.append(clone);
 
   if (position >= 0) {
-    arrange(clone.id, position);
+    ui.arrange(clone.id, position);
   }
 
-  addItemFromList(id, position, clone.id);  
-  updateAllIndicators();
+  g.addItemFromList(id, position, clone.id);  
+  ui.updateAllIndicators();
 
   return clone.id;
 }
 
 export function moveUndo(id: string) {
   setStatus(id, "");
-  let clone = document.getElementById(PREFIX_MOVED + id);
+  let clone = document.getElementById(g.SELECTOR.PREFIX_MOVED + id);
   clone?.remove();
-  removeItem(PREFIX_MOVED + id);
-  updateAllIndicators();
+  g.removeItem(g.SELECTOR.PREFIX_MOVED + id);
+  ui.updateAllIndicators();
 }
 
 export function moveAll(zonefindings: NodeListOf<Element>) {
   let moved: Array<string> = [];
   (zonefindings as NodeListOf<HTMLElement>).forEach(element => {
-    if (![Status.Moved, Status.Merged].includes(element.dataset.status as Status)) {
+    if (![g.Status.Moved, g.Status.Merged].includes(element.dataset.status as g.Status)) {
       move(element.id, -1);
       moved.push(element.id);
     }
@@ -51,23 +51,23 @@ export function moveAllUndo(moved: Array<any>) {
 }
 
 export function saveEditDialog(id: string) {
-  updateItem(id, false);
+  ui.updateItem(id, false);
   const element = document.getElementById(id);
-  element?.children[0].append(createDragHandle());
+  element?.children[0].append(ui.createDragHandle());
 }
 
-export function merge(id1: string, id2: string, oldmergeid = "", item: ListItem = {}) {
+export function merge(id1: string, id2: string, oldmergeid = "", item: g.ListItem = {}) {
   let target = document.getElementById(id1) as HTMLDetailsElement;
   
-  let item1 = getItem(id1);
-  let item2 = getItem(id2);
-  const remove_id2 = item2["status"] == Status.Moved || item2["status"] == Status.MergeItem;
+  let item1 = g.getItem(id1);
+  let item2 = g.getItem(id2);
+  const remove_id2 = item2["status"] == g.Status.Moved || item2["status"] == g.Status.MergeItem;
 
-  setStatus(id1, Status.Merged);;
-  setStatus(id2, Status.Merged);
+  setStatus(id1, g.Status.Merged);;
+  setStatus(id2, g.Status.Merged);
 
   // TODO better way to create new id
-  let newid = PREFIX_MERGED + id1 + "+" + id2;
+  let newid = g.SELECTOR.PREFIX_MERGED + id1 + "+" + id2;
   if (oldmergeid != "") {
     newid = oldmergeid;
   }
@@ -77,85 +77,85 @@ export function merge(id1: string, id2: string, oldmergeid = "", item: ListItem 
   item["id"] = newid;
   item["mergedfrom"] = mergedfrom1.concat(mergedfrom2);
   item["status"] = "mergeitem";
-  replaceItem(id1, item);
+  g.replaceItem(id1, item);
 
 
   item["mergedfrom"].forEach((item_id: string) => {
-    updateMergedInto(item_id, newid);
-    updateItem(item_id);
+    g.updateMergedInto(item_id, newid);
+    ui.updateItem(item_id);
   });
 
   target.id = newid;
-  updateItem(newid, false);
-  target.children[0].append(createDragHandle());
+  ui.updateItem(newid, false);
+  target.children[0].append(ui.createDragHandle());
   target.removeAttribute("data-origin");
   target.open = true;
 
   if (remove_id2) {
     document.getElementById(id2)?.remove()
-    removeItem(id2);
+    g.removeItem(id2);
   }
 
-  updateAllIndicators();
+  ui.updateAllIndicators();
   return newid;
 }
 
-export function mergeUndo(id: string, itemA: ListItem, itemB: ListItem) {
+export function mergeUndo(id: string, itemA: g.ListItem, itemB: g.ListItem) {
   let mergeelement = document.getElementById(id) as HTMLElement;
 
   if (itemB["status"] == "mergeitem") {
-    addMergeItem(itemB);
-    generateItem(SELECTOR.MERGE_LIST, itemB);
+    g.addMergeItem(itemB);
+    ui.generateItem(g.SELECTOR.MERGE_LIST, itemB);
   }
 
-  itemA.id = itemA.status == Status.Moved && !itemA.id.startsWith(PREFIX_MOVED) ? PREFIX_MOVED + itemA.id : itemA.id;
+  itemA.id = itemA.status == g.Status.Moved && !itemA.id.startsWith(g.SELECTOR.PREFIX_MOVED) ? g.SELECTOR.PREFIX_MOVED + itemA.id : itemA.id;
   mergeelement.id = itemA.id;
   mergeelement.dataset.status = itemA.status;
   
-  replaceItem(id, itemA);
+  g.replaceItem(id, itemA);
 
   setStatus(itemA.id, itemA.status);
   setStatus(itemB.id, itemB.status);
-  updateMergedInto(itemA.id);
-  updateMergedInto(itemB.id);
-  updateItem(itemA.id);
-  updateItem(itemB.id);
+  g.updateMergedInto(itemA.id);
+  g.updateMergedInto(itemB.id);
+  ui.updateItem(itemA.id);
+  ui.updateItem(itemB.id);
   
   if (itemA["mergedfrom"] != undefined) {
     itemA["mergedfrom"].forEach((id: string) => {
-      updateMergedInto(id, itemA.id);
-      updateItem(id);
+      g.updateMergedInto(id, itemA.id);
+      ui.updateItem(id);
     });
   }
 
   if (itemB["mergedfrom"] != undefined) {
     itemB["mergedfrom"].forEach((id: string) => {
-      updateMergedInto(id, itemB.id);
-      updateItem(id);
+      g.updateMergedInto(id, itemB.id);
+      ui.updateItem(id);
     });
   }
 }
 
 export function attach(from_id: string, to_id: string, order: Array<string>) {
-  updateMerged(to_id, order);
-  setStatus(from_id, Status.MergeItem);
-  updateItem(from_id);
-  updateItem(to_id);
+  g.updateMerged(to_id, order);
+  setStatus(from_id, g.Status.MergeItem);
+  ui.updateItem(from_id);
+  ui.updateItem(to_id);
 }
 
 export function detach(from_id: string, to_id: string) {
-  const previouslist = mergeDetach(from_id, to_id);
+  const previouslist = g.mergeDetach(from_id, to_id);
   setStatus(from_id, "");
-  updateItem(from_id);
-  updateItem(to_id);
+  ui.updateItem(from_id);
+  ui.updateItem(to_id);
   return previouslist;
 }
 
 function setStatus(id: string, status = "") {
-  id = id.startsWith(PREFIX_MOVED) ? id.slice(PREFIX_MOVED.length) : id;
+  id = id.startsWith(g.SELECTOR.PREFIX_MOVED) ? id.slice(g.SELECTOR.PREFIX_MOVED.length) : id;
 
   const element = document.getElementById(id) as HTMLElement;
   element.dataset.status = status;
-  itemUpdateStatus(id, status);
-  updateAllIndicators();
+  g.itemUpdateStatus(id, status);
+  ui.updateAllIndicators();
 }
