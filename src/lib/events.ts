@@ -372,7 +372,6 @@ export function dragStart(e: DragEvent) {
 
   dropOrigin = element.closest(`.${g.SELECTOR.ITEM}`)?.id as string;
 
-  console.log("do",element.classList.contains(g.SELECTOR.BUTTON_DRAGHANDLE))
   if (element.classList.contains(g.SELECTOR.BUTTON_DRAGHANDLE)) {
     dragAction = Action.Arrange;
     dropOrigin = element.closest(`.${g.SELECTOR.ITEM}`)?.id as string;
@@ -622,7 +621,7 @@ function moveAll(e: Event) {
 
   let moved = transfer.moveAll(zone_elements);
   if(moved.length) {
-    history.log(history.Tasks.MoveAll, (e.target as Element).nextElementSibling?.id);
+    history.log(history.Tasks.MoveAll, (e.target as Element).nextElementSibling?.id, "", "", moved);
   }
 }
 
